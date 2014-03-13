@@ -1,0 +1,3 @@
+[submodule "Loco/extlibs/picojson"]
+	path = Loco/extlibs/picojson
+	url = https://github.com/kazuho/picojson.git

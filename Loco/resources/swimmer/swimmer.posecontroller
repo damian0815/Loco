@@ -1,0 +1,819 @@
+{
+	"skeleton": {
+		"bones": [
+			{
+				"name": "ArmLower.L", 
+				"params": {
+					"length": 0.27410000562667847, 
+					"mass": 1.2, 
+					"kp": 0.0012,
+					"kd": 0.0012,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "ArmLower.R", 
+				"params": {
+					"length": 0.27410000562667847, 
+					"mass": 1.2, 
+					"kp": 0.0012,
+					"kd": 0.0012,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "ArmUpper.L", 
+				"params": {
+					"length": 0.2904680073261261, 
+					"mass": 2.2, 
+					"kp": 0.022,
+					"kd": 0.022,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "ArmUpper.R", 
+				"params": {
+					"length": 0.2904680073261261, 
+					"mass": 2.2, 
+					"kp": 0.022,
+					"kd": 0.022,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Foot.L", 
+				"params": {
+					"length": 0.200, 
+					"mass": 1.0, 
+					"kp": 0.1,
+					"kd": 0.1,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Foot.R", 
+				"params": {
+					"length": 0.200, 
+					"mass": 1.0, 
+					"kp": 0.1,
+					"kd": 0.1,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Hand.L", 
+				"params": {
+					"length": 0.039726756513118744, 
+					"mass": 0.38, 
+					"kp": 0.02,
+					"kd": 0.02,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Hand.R", 
+				"params": {
+					"length": 0.039725929498672485, 
+					"mass": 0.38, 
+					"kp": 0.04,
+					"kd": 0.04,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Head", 
+				"params": {
+					"length": 0.08099213987588882, 
+					"mass": 4.2, 
+					"kp": 0.6,
+					"kd": 0.4,
+					"maxTorque": 100
+				}
+			}, 
+		   {
+				"name": "LegLower.L", 
+				"params": {
+					"length": 0.490, 
+					"mass": 3.5, 
+					"kp": 4000.0,
+					"kd": 3000.0,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "LegLower.R", 
+				"params": {
+					"length": 0.490, 
+					"mass": 3.5, 
+					"kp": 4000.0,
+					"kd": 3000.0,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "LegUpper.L", 
+				"params": {
+					"length": 0.48978400230407715, 
+					"mass": 8, 
+					"kp": 16000.0,
+					"kd": 8000.0,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "LegUpper.R", 
+				"params": {
+					"length": 0.48978400230407715, 
+					"mass": 8, 
+					"kp": 16000.0,
+					"kd": 8000.0,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Neck", 
+				"params": {
+					"length": 0.08444000035524368, 
+					"mass": 3.2, 
+					"kp": 1.0,
+					"kd": 1.0,
+					"maxTorque": 100
+				}
+			}, 
+		   {
+				"name": "SpineBase", 
+				"params": {
+					"length": 0.22, 
+					"mass": 12.1, 
+					"kp": 1.0,
+					"kd": 0.8,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "SpineMid", 
+				"params": {
+					"length": 0.2111939936876297, 
+					"mass": 9.29, 
+					"kp": 0.9,
+					"kd": 0.9,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "SpineTop", 
+				"params": {
+					"length": 0.18924300372600555, 
+					"mass": 12.9, 
+					"kp": 1.3,
+					"kd": 1.3,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Toe.L", 
+				"params": {
+					"length": 0.03, 
+					"mass": 0.02, 
+					"kp": 0.02,
+					"kd": 0.02,
+					"maxTorque": 100
+				}
+			}, 
+			{
+				"name": "Toe.R", 
+				"params": {
+					"length": 0.03, 
+					"mass": 0.02, 
+					"kp": 0.02,
+					"kd": 0.02,
+					"maxTorque": 100
+				}
+			}
+		]
+	},
+	"kneeAxis": [ 1,0,0 ],
+
+	"enableGravityCompensation": true,
+	"gravityCompensationFactor": 1.0,
+	"enableCoMVirtualForce": false,
+	"CoMVirtualForceFactor": 200.0,
+	
+	"enableFootIK": false,
+	"footIKDoubleStance": true,
+	"footIKPlacementWidth": 0.4,
+
+	"CoMKp": 500,
+	"CoMKd": 40,
+	
+	"forwardDynamics": {
+	
+		"limitSoftness": 0.7,
+		"limitDamping": 1.0,
+	
+				
+		"bones": [
+
+			{
+				"name": "Head",
+				"kP": 24.0,
+				"kD": 0.5,
+				"joints": {},
+				"shape": "sphere",
+				"radius": 0.11,
+				"comOffsetLocal": [ 0, 0.010, 0.052 ]
+			},
+			{
+				"name": "Neck",
+				"kP": 24.0,
+				"kD": 0.5,
+				"joints": { 
+				"Head": { 
+					"type": "coneTwist", 
+					"swing1Span": 0.2, 
+					"swing2Span": 0.2, 
+					"twistSpan": 0.1 
+				}  
+				},				
+				"shape": "rod",
+				"radius": 0.042,
+				"comOffsetLocal": [ 0, 0, 0.03 ]
+			},
+			{
+				"name": "SpineTop",
+				"kP": 1.0,
+				"kD": 0.5,
+				"joints": {
+					"Neck": { 
+						"type": "coneTwist", 
+						"swing1Span": 0.4, 
+						"swing2Span": 0.4, 
+						"twistSpan": 0.1
+					}, 
+					"ArmUpper.L": { 
+						"type": "coneTwist", 
+						"swing1Span": 0.4, 
+						"swing2Span": 0.4, 
+						"twistSpan": 0.1
+					},
+					"ArmUpper.R": { 
+						"type": "coneTwist", 
+						"swing1Span": 0.8, 
+						"swing2Span": 1.2, 
+						"twistSpan": 0.7
+					}
+				},
+				"shape": "box",
+				"shapeSize": [ 0.20, 0.12, 0.12 ],
+				"comOffsetLocal": [ 0, 0.08, 0.05 ]
+			},
+			
+			
+			{
+				"name": "ArmUpper.L",
+				"kP": 1.0,
+				"kD": 0.1,
+				"joints": { "ArmLower.L": { "axis":"z", "minAngle":-2.7, "maxAngle":2.7 } },
+				"shape": "rod",
+				"radiusFactor": 0.1
+			},
+			{
+				"name": "ArmUpper.R",
+				"kP": 1.0,
+				"kD": 0.1,
+				"joints": { "ArmLower.R": { "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
+				"shape": "rod",
+				"radiusFactor": 0.1
+			},
+			{
+				"name": "ArmLower.R",
+				"kP": 0.1,
+				"kD": 0.01,
+				"joints": { 
+					"Hand.R":  {
+						"type": "coneTwist",
+						"swing1Span": 2.7,
+						"swing2Span": 0.8,
+						"twistSpan": 1.5
+					} 
+				},
+				"shape": "rod",
+				"radiusFactor": 0.1
+			},
+			{
+				"name": "ArmLower.L",
+				"kP": 0.1,
+				"kD": 0.01,
+				"joints": { 
+					"Hand.L": {
+						"type": "coneTwist",
+						"swing1Span": 2.7,
+						"swing2Span": 0.8,
+						"twistSpan": 1.5					
+					}
+				},
+				"shape": "rod",
+				"radiusFactor": 0.1
+
+			},
+			{
+				"name": "Hand.R",
+				"kP": 0.1,
+				"kD": 0.01,
+				"shape": "box",
+				"shapeSize": [ 0.03, 0.17, 0.08 ],
+				"comOffsetLocal": [ 0, 0.1, -0.01 ]
+			},
+			{
+				"name": "Hand.L",
+				"kP": 0.1,
+				"kD": 0.01,
+				"shape": "box",
+				"shapeSize": [ 0.03, 0.17, 0.08 ],
+				"comOffsetLocal": [ 0, 0.1, -0.01 ]
+			},
+			
+			{
+				"name": "SpineMid",
+				"kP": 10.0,
+				"kD": 0.5,
+				"joints": { 
+					"SpineTop": { 
+						"type": "coneTwist", 
+						"swing1Span":0.2, 
+						"swing2Span":0.2, 
+						"twistSpan": 0.2 
+					} 
+				},
+				"shape": "box",
+				"shapeSize": [ 0.2, 0.15, 0.12 ],
+				"comOffsetLocal": [ 0, 0.11, 0.08 ]
+			},
+			{
+				"name": "SpineBase",
+				"kP": 64.0,
+				"kD": 3.0,
+				"maxTorque": 200.0,
+				"joints": {
+					"SpineMid": {
+						
+					 	"type": "coneTwist", 
+						 "swing1Span":0.2, 
+						 "swing2Span":0.2, 
+						 "twistSpan": 0.2 
+					 }, 
+					"LegUpper.L": { 
+						"type": "coneTwist", 
+							"swing1Span": 0.4, 
+							"swing2Span": 0.6, 
+							"twistSpan": 0.3						
+					},
+					"LegUpper.R": {
+						"type": "coneTwist", 
+							"swing1Span": 0.4, 
+							"swing2Span": 0.6, 
+							"twistSpan": 0.3
+					 }
+				},
+				"shape": "box",
+				"shapeSize": [ 0.22, 0.13, 0.11 ],
+				"comOffsetLocal": [ 0, 0.0, 0.07 ]
+			},
+
+			{
+				"name": "LegUpper.R",
+				"kP": 256.0,
+				"kD": 8.0,
+				"maxTorque": 200.0,
+				"joints": { "LegLower.R": { "type":"hinge", "axis":"x", "minAngle": 0, "maxAngle": 3.1 } },
+				"shape": "rod",
+				"comOffsetLocal": [ 0, -0.02, 0 ],
+				"heightFactor": 0.8,
+				"radiusFactor": 0.13
+			},
+			{
+				"name": "LegUpper.L",
+				"kP": 256.0,
+				"kD": 8.0,
+				"maxTorque": 200.0,
+				"joints": { "LegLower.L": { "type":"hinge", "axis": "x", "minAngle": 0, "maxAngle": 3.1 } },
+				"shape": "rod",
+				"comOffsetLocal": [ 0, -0.02, 0 ],
+				"heightFactor": 0.8,
+				"radiusFactor": 0.13
+			},
+			{
+				"name": "LegLower.R",
+				"kP": 128.0,
+				"kD": 2.0,
+				"maxTorque": 100.0,
+				"joints": { "Foot.R": { "type":"hinge", "minAngle": -2.0, "maxAngle": -1.3 } },
+				"shape": "rod",
+				"comOffsetLocal": [ 0, -0.00, 0 ],
+				"heightFactor": 0.9,
+				"radiusFactor": 0.07
+			},
+			{
+				"name": "LegLower.L",
+				"kP": 128.0,
+				"kD": 2.0,
+				"maxTorque": 100.0,
+				"joints": { "Foot.L": { "type":"hinge", "minAngle": 1.3, "maxAngle": 2.0 } },
+				"shape": "rod",
+				"comOffsetLocal": [ 0, -0.00, 0 ],
+				"heightFactor": 0.9,
+				"radiusFactor": 0.1
+			},
+			{
+				"name": "Foot.R",
+				"kP": 60.0,
+				"kD": 0.02,
+				"maxTorque": 10000,
+				"torqueScale": [1.0,0.01,0.01],
+				"friction": 0.8,
+				"restitution": 0.0,
+				"joints": { "Toe.R": { "minAngle": -0.3, "maxAngle": 0.3 } },
+				"shape": "box",
+				"shapeSize": [ 0.1, 0.3, 0.1 ],
+				"comOffsetLocal": [ 0.02, 0.025, 0.0 ]
+			},			
+			{
+				"name": "Foot.L",
+				"kP": 60.0,
+				"kD": 0.02,
+				"maxTorque": 10000,
+				"torqueScale": [1.0,0.01,0.01],
+				"friction": 0.8,
+				"restitution": 0.0,
+				"joints": { "Toe.L": { "minAngle": -0.3, "maxAngle": 0.3 } },
+				"shape": "box",
+				"shapeSize": [ 0.1, 0.3, 0.1 ],
+				"comOffsetLocal": [ -0.02, 0.025, 0.0 ]
+			},
+			{
+				"name": "Toe.R",
+				"kP": 30.0,
+				"kD": 0.2,
+				"maxTorque": 10,
+				"friction": 0.8,
+				"restitution": 0.0,
+				"shape": "box",
+				"shapeSize": [ 0.04, 0.06, 0.1 ],
+				"comOffsetLocal": [ -0.02, 0.05, 0 ]
+			},		
+			{
+				"name": "Toe.L",
+				"kP": 30.0,
+				"kD": 0.2,
+				"maxTorque": 10,
+				"friction": 0.8,
+				"restitution": 0.0,
+				"shape": "box",
+				"shapeSize": [ 0.04, 0.06, 0.1 ],
+				"comOffsetLocal": [ 0.02, 0.05, 0 ]
+			}			
+			
+		]
+	},
+	
+	"motionGenerator":
+	{
+		"motions": [
+			{
+				"name": "splineTest",
+				"components": [
+					{
+						"bodyName": "LegUpper.STANCE",
+						"referenceFrame": "character",
+						"x": [ [ 0, 0 ], [ 0.5, 0.7 ], [ 0.7, -0.3 ], [ 1.0, 0 ] ]
+					},
+					{
+						"bodyName": "LegLower.STANCE",
+						"referenceFrame": "parent"
+					}
+				]
+			}
+		]
+	
+	},
+	
+	"finiteStateMachine": 
+	{
+		"machine": {
+			"name": "gammy",
+			"states": [
+				{
+					"duration": 0.3,
+					"targets": [
+				
+						{
+							"bodyName":"SpineBase-dis",
+							"referenceFrame":"world",
+							"axis" : [ 0, 1, 0 ],
+							"angle" : 3.1
+						},
+
+						{ 
+							"bodyName":"LegUpper.R",
+							"referenceFrame":"world",
+							"axis" : [ 1, 0, 0 ],
+							"angle": 2.5
+						},
+						{
+							"bodyName":"LegLower.R",
+							"axis": [ 1, 0, 0 ],
+							"angle": -0.02
+						},
+						{
+							"bodyName":"Foot.R",
+							"referenceFrame":"parent",
+							"axis": [ 0, 0, 1 ],
+							"angle": -0.2
+						},
+
+						{ 
+							"bodyName":"LegUpper.L",
+							"referenceFrame":"world",
+							"axis" : [ 1, 0, 0 ],
+							"angle": 3.6
+						},
+						{
+							"bodyName":"LegLower.L",
+							"axis": [ 1, 0, 0 ],
+							"angle": -1.5
+						},
+						{
+							"bodyName":"Foot.L",
+							"referenceFrame":"parent",
+							"axis": [ 0, 0, 1 ],
+							"angle": -0.5
+						}
+
+					]
+				},
+				{
+					"duration": 0.3,
+					"targets": [
+					
+						{
+							"bodyName":"SpineBase-dis",
+							"referenceFrame":"world",
+							"axis" : [ 0, 1, 0 ],
+							"angle" : 3.1
+						},
+					
+						{ 
+							"bodyName":"LegUpper.R",
+							"referenceFrame":"world",
+							"axis" : [ 1, 0, 0 ],
+							"angle": 3.6
+						},
+						{
+							"bodyName":"LegLower.R",
+							"axis": [ 1, 0, 0 ],
+							"angle": -1.5
+						},
+						{
+							"bodyName":"Foot.R",
+							"referenceFrame":"parent",
+							"axis": [ 0, 0, 1 ],
+							"angle": 0.5
+						},
+
+						{ 
+							"bodyName":"LegUpper.L",
+							"referenceFrame":"world",
+							"axis" : [ 1, 0, 0 ],
+							"angle": 2.5
+						},
+						{
+							"bodyName":"LegLower.L",
+							"axis": [ 1, 0, 0 ],
+							"angle": -0.02
+						},
+						{
+							"bodyName":"Foot.L",
+							"referenceFrame":"parent",
+							"axis": [ 0, 0, 1 ],
+							"angle": 0.0
+						}
+					
+					]
+				}
+
+
+			]
+		},
+
+		"states": [
+			{
+				"name": "walk-01",
+				"duration": 0.3,
+				"targets": [
+					{
+						"bodyName":"SpineBase",
+						"referenceFrame":"world",
+						"axis" : [ 0, 1, 0 ],
+						"angle" : 3.1
+					},
+
+					{ 
+						"bodyName":"LegUpper.R",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.1
+					},
+					{
+						"bodyName":"LegLower.R",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.R",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					},
+
+					{ 
+						"bodyName":"LegUpper.L",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.6
+					},
+					{
+						"bodyName":"LegLower.L",
+						"axis": [ 1, 0, 0 ],
+						"angle": -1.5
+					},
+					{
+						"bodyName":"Foot.L",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					}
+
+				]
+			},
+			{
+				"name": "walk-02",
+				"duration": 0.3,
+				"targets": [
+				
+					{
+						"bodyName":"SpineBase",
+						"referenceFrame":"world",
+						"axis" : [ 0, 1, 0 ],
+						"angle" : 3.1
+					},
+				
+					{ 
+						"bodyName":"LegUpper.R",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.1
+					},
+					{
+						"bodyName":"LegLower.R",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.R",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					},
+
+					{ 
+						"bodyName":"LegUpper.L",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 2.5
+					},
+					{
+						"bodyName":"LegLower.L",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.L",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": 0.0
+					}
+				
+				]
+			},
+			{
+				"name": "walk-03",
+				"duration": 0.3,
+				"targets": [
+					{
+						"bodyName":"SpineBase",
+						"referenceFrame":"world",
+						"axis" : [ 0, 1, 0 ],
+						"angle" : 3.1
+					},
+
+					{ 
+						"bodyName":"LegUpper.R",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.6
+					},
+					{
+						"bodyName":"LegLower.R",
+						"axis": [ 1, 0, 0 ],
+						"angle": -1.5
+					},
+					{
+						"bodyName":"Foot.R",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					},
+					
+					{ 
+						"bodyName":"LegUpper.L",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.1
+					},
+					{
+						"bodyName":"LegLower.L",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.L",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					}
+
+				]
+			},
+			{
+				"name": "walk-04",
+				"duration": 0.3,
+				"targets": [
+				
+					{
+						"bodyName":"SpineBase",
+						"referenceFrame":"world",
+						"axis" : [ 0, 1, 0 ],
+						"angle" : 3.1
+					},
+				
+
+
+					{ 
+						"bodyName":"LegUpper.R",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 2.5
+					},
+					{
+						"bodyName":"LegLower.R",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.R",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": 0.0
+					},
+									
+									
+					{ 
+						"bodyName":"LegUpper.L",
+						"referenceFrame":"world",
+						"axis" : [ 1, 0, 0 ],
+						"angle": 3.1
+					},
+					
+					{
+						"bodyName":"LegLower.L",
+						"axis": [ 1, 0, 0 ],
+						"angle": -0.02
+					},
+					{
+						"bodyName":"Foot.L",
+						"referenceFrame":"parent",
+						"axis": [ 0, 0, 1 ],
+						"angle": -0.2
+					}
+				]
+			}
+
+
+		]
+		
+	}
+
+}
+
+

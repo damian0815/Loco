@@ -1,0 +1,12 @@
+.svn
+build
+xcuserdata
+*.xcworkspace
+.DS_Store
+Project.build
+
+*.skeleton.xml
+*.mesh.xml
+*.blend1
+*.blend2
+

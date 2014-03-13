@@ -1,0 +1,36 @@
+//
+
+// includes
+// ogre
+OGRE_BASE = $(SRCROOT)/../../OgreSDK-1.8.1-manual
+//OGRE_BASE = $(SRCROOT)/../../OgreSDK-1.8.0-official
+OGRE_INCLUDE = $(OGRE_BASE)/include
+OIS_INCLUDE = $(OGRE_BASE)/include/OIS
+BOOST_INCLUDE = $(OGRE_BASE)/boost
+// bullet
+BULLET_INCLUDE = $(SRCROOT)/../../bullet-2.81-rev2613/src
+// ogrebullet
+OGREBULLET_COLLISIONS_INCLUDE = $(SRCROOT)/../ogreAddons/ogrebullet/Collisions/include
+OGREBULLET_DYNAMICS_INCLUDE = $(SRCROOT)/../ogreAddons/ogrebullet/Dynamics/include
+OGREBULLET_INCLUDE = $(OGREBULLET_DYNAMICS_INCLUDE) $(OGREBULLET_COLLISIONS_INCLUDE)
+
+// libs
+// ogre
+OIS_LIB = -L$(OGRE_BASE)/lib/release -lois
+//OGRE_LIB = -framework $(OGRE_BASE)/lib/release/Ogre.framework
+
+
+// actual project settings follow
+// header search paths
+HEADER_SEARCH_PATHS = /usr/local/include $(OGRE_INCLUDE) $(OIS_INCLUDE) $(BOOST_INCLUDE) $(BULLET_INCLUDE) $(OGREBULLET_INCLUDE)
+
+// C flags
+OTHER_CFLAGS = -Wno-attributes -Wno-shorten-64-to-32
+OTHER_CXXFLAGS = -Wno-attributes -Wno-shorten-64-to-32
+
+// linker flags
+OTHER_LDFLAGS = -L/usr/local/lib $(OIS_LIB) $(OGRE_LIB)
+
+// output dir
+CONFIGURATION_BUILD_DIR = $(SRCROOT)/build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+
