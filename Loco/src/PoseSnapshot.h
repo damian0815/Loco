@@ -25,10 +25,10 @@ class PoseSnapshot: public Serializable
 {
 public:
 	PoseSnapshot() {};
-	/*! @abstract Create a pose snapshot from the given source skeleton. If specified, bonesToSnapshot says which bones to take, otherwise take all found. */
+	/*! @brief Create a pose snapshot from the given source skeleton. If specified, bonesToSnapshot says which bones to take, otherwise take all found. */
 	PoseSnapshot( Ogre::SharedPtr<DriveableSkeleton> sourceSkeleton, set<string> bonesToSnapshot = set<string>() );
 	
-	/*! @abstract Add the given bone's given orientation to the snapshot. If an orientation exists for this bone, overwrite it. */
+	/*! @brief Add the given bone's given orientation to the snapshot. If an orientation exists for this bone, overwrite it. */
 	void addOrientation( std::string boneName, Ogre::Quaternion boneLocalOrientation );
 	
 	picojson::value serialize() const;

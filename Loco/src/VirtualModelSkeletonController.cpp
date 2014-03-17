@@ -12,18 +12,22 @@
 #include "OgreBulletConverter.h"
 #include "btRigidBody.h"
 #include "btPoint2PointConstraint.h"
+#include "TwoLinkIK.h"
+#include "MathUtilities.h"
 
 using namespace OgreBulletCollisions;
+using namespace Ogre;
 
 VirtualModelSkeletonController::VirtualModelSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundPlaneBody, const picojson::value& jsonSource )
 : ForwardDynamicsSkeletonController(skelRootSceneNode,skeleton,dynamicsWorld,jsonSource), mFootTargetL(0,0,0), mFootTargetR(0,0,0), mCoMTarget(0,0,0), mDoGravityCompensation(false), mDoCoMVirtualForce(false), mDoFootIK(true),
-mCoMkP(100.0f), mCoMkD(4.0f), mCoMVelocity(0,0,0), mPrevCoM(0,0,0), mLeftKneeOut(0.5), mRightKneeOut(0.5),
-mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(false)
+mCoMkP(100.0f), mCoMkD(4.0f), mCoMVelocity(0,0,0), mCoM(0,0,0), mPrevCoM(0,0,0), mLeftKneeOut(0.5), mRightKneeOut(0.5),
+mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(false), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X)
 {
 	picojson::object jsonRoot = jsonSource.get<picojson::object>();
 
-	mPrevCoM = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition(mDriveableSkeleton->getCenterOfMassWorld());
-	mCoMTarget = mPrevCoM;
+	mCoM = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition(mDriveableSkeleton->getCenterOfMassWorld());
+	mPrevCoM = mCoM;
+	mCoMTarget = mCoM;
 	
 	// set the foot to be static
 	/*btRigidBody* rb = mForwardDynamicsSkeleton->getBody("Foot.L")->getBody()->getBulletRigidBody();
@@ -76,7 +80,9 @@ mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(fa
 	
 	// create FSM
 	auto fsmParams = jsonRoot["finiteStateMachine"];
-	mFiniteStateMachine = Ogre::SharedPtr<VirtualModelFSM>( new VirtualModelFSM(fsmParams) );
+	if ( !fsmParams.is<picojson::null>() ) {
+		mFiniteStateMachine = Ogre::SharedPtr<VirtualModelFSM>( new VirtualModelFSM(fsmParams) );
+	}
 	
 	// create motion genertaro
 	auto motionGeneratorParams = jsonRoot["motionGenerator"];
@@ -163,29 +169,31 @@ void VirtualModelSkeletonController::computeJointTorquesEquivalentToForce(std::s
 void VirtualModelSkeletonController::evaluateMotionTargets( float deltaTime )
 {
 	
-	mFiniteStateMachine->update(deltaTime);
+	if ( !mFiniteStateMachine.isNull() ) {
+		mFiniteStateMachine->update(deltaTime);
+	}
 	
-	set<string> bodyNames = mForwardDynamicsSkeleton->getAllBodyNames();
+	std::set<string> bodyNames = mForwardDynamicsSkeleton->getAllBodyNames();
 	static const string swingHipName = "LegUpper."+getSwingLegSuffix();
 	static const string stanceHipName = "LegUpper."+getStanceLegSuffix();
 	
 	mMotionGenerator->update(deltaTime);
 
 	// create character reference frame
-	Ogre::Quaternion characterFrame = mDriveableSkeleton->getRootSceneNode()-> convertLocalToWorldOrientation(Ogre::Quaternion::IDENTITY);
-	characterFrame = characterFrame * Ogre::Quaternion( Ogre::Radian(M_PI), Ogre::Vector3::UNIT_X );
+	//Ogre::Quaternion characterFrame = mDriveableSkeleton->getRootSceneNode()-> convertLocalToWorldOrientation(Ogre::Quaternion::IDENTITY);
+	//characterFrame = characterFrame * Ogre::Quaternion( Ogre::Radian(M_PI), Ogre::Vector3::UNIT_X );
 	
 	// walk through all the bodies
 	for ( string bodyName: bodyNames ) {
 		
-		if ( mMotionGenerator->hasTarget(bodyName) ) {
+		if ( mMotionGenerator->hasTargetOrientationForBody(bodyName) ) {
 			// get the orientation
-			Ogre::Quaternion q = mMotionGenerator->getTarget(bodyName);
+			Ogre::Quaternion q = mMotionGenerator->getTargetOrientationForBody(bodyName);
 			// convert to world orientation, based on the reference frame
 			Ogre::Quaternion orientationW;
-			VirtualModelMotionComponent::ReferenceFrame refFrame = mMotionGenerator->getReferenceFrame(bodyName);
+			VirtualModelMotionComponent::ReferenceFrame refFrame = mMotionGenerator->getReferenceFrameForOrientation(bodyName);
 			if ( refFrame == VirtualModelMotionComponent::RF_Character ) {
-				orientationW = characterFrame * q;
+				orientationW = mCharacterFrame * q;
 			} else {
 				q = mForwardDynamicsSkeleton->getBody(bodyName)->getParentRelativeRestOrientation()*q;
 				orientationW = mForwardDynamicsSkeleton->getParentBody(bodyName)->convertLocalToWorldOrientation(q);
@@ -197,69 +205,219 @@ void VirtualModelSkeletonController::evaluateMotionTargets( float deltaTime )
 			mForwardDynamicsSkeleton->clearOrientationTarget(bodyName);
 		}
 		
-		/*
-		if ( mFiniteStateMachine->hasTargetOrientation(bodyName) ) {
-			// get the orientation
-			Ogre::Quaternion q = mFiniteStateMachine->getTargetOrientation(bodyName);
-			// convert to world orientation, based on the reference frame
-			Ogre::Quaternion orientationW;
-			VirtualModelFSMState::TargetReferenceFrame refFrame = mFiniteStateMachine->getReferenceFrame(bodyName);
-			if ( refFrame == VirtualModelFSMState::TRF_World ) {
-				orientationW = q;
-			} else {
-				q = mForwardDynamicsSkeleton->getBody(bodyName)->getParentRelativeRestOrientation()*q;
-				orientationW = mForwardDynamicsSkeleton->getParentBody(bodyName)->convertLocalToWorldOrientation(q);
-			}
-				
-			mForwardDynamicsSkeleton->setOrientationTarget(bodyName, orientationW);
-		}*/
 	}
 }
 
+/**
+	This method is used to compute the desired orientation and angular velocity for a parent RB and a child RB, relative to the grandparent RB and
+	parent RB repsectively. The input is:
+		- the index of the joint that connects the grandparent RB to the parent RB, and the index of the joint between parent and child
+
+		- the distance from the parent's joint with its parent to the location of the child's joint, expressed in parent coordinates
+
+		- two rotation normals - one that specifies the plane of rotation for the parent's joint, expressed in grandparent coords, 
+		  and the other specifies the plane of rotation between the parent and the child, expressed in parent's coordinates.
+
+	    - The position of the end effector, expressed in child's coordinate frame
+
+		- The desired position of the end effector, expressed in world coordinates
+
+		- an estimate of the desired position of the end effector, in world coordinates, some dt later - used to compute desired angular velocities
+*/
+
+void VirtualModelSkeletonController::computeIKQandW( Ogre::SharedPtr<ForwardDynamicsJoint> parentJoint, Ogre::SharedPtr<ForwardDynamicsJoint> childJoint, const Vector3& parentAxis, const Vector3& parentNormal, const Vector3& childNormal, const Vector3& childEndEffector, const Vector3& wP, bool computeAngVelocities, const Vector3& futureWP, double dt)
+{
+	// parentJoint is the joint between the grandparent RB and the parent
+	//this is the grandparent - most calculations will be done in its coordinate frame
+	auto gParent = parentJoint->getParentFdb();
+	//this is the reduced character space where we will be setting the desired orientations and ang vels.
+	//ReducedCharacterState rs(&desiredPose);
+
+	//the desired relative orientation between parent and grandparent
+	Quaternion qParent;
+	//and the desired relative orientation between child and parent
+	Quaternion qChild;
+
+
+	TwoLinkIK::getIKOrientations(parentJoint->getPositionInParentSpace(), gParent->convertWorldToLocalPosition(wP), parentNormal, parentAxis, childNormal, childEndEffector, &qParent, &qChild);
+	//TwoLinkIK::getIKOrientations(parentJoint->getParentJointPosition(), gParent->getLocalCoordinates(wP), parentNormal, parentAxis, childNormal, childEndEffector, &qParent, &qChild);
+
+	mForwardDynamicsSkeleton->setOrientationTarget(childJoint->getParentFdb()->getName(), qChild);
+	mForwardDynamicsSkeleton->setOrientationTarget(parentJoint->getParentFdb()->getName(), qParent);
+	
+	/*
+	controlParams[parentJIndex].relToFrame = false;
+	controlParams[childJIndex].relToFrame = false;
+	rs.setJointRelativeOrientation(qChild, childJIndex);
+	rs.setJointRelativeOrientation(qParent, parentJIndex);
+	*/
+
+	Ogre::Vector3 wParentD(0,0,0);
+	Ogre::Vector3 wChildD(0,0,0);
+
+	if (computeAngVelocities)
+	{
+		//the joint's origin will also move, so take that into account, by subbing the offset by which it moves to the
+		//futureTarget (to get the same relative position to the hip)
+		Ogre::Vector3 velOffset = gParent->getAbsoluteVelocityForLocalPoint(parentJoint->getPositionInParentSpace());
+
+		Quaternion qParentF;
+		Quaternion qChildF;
+		TwoLinkIK::getIKOrientations(parentJoint->getPositionInParentSpace(), gParent->convertWorldToLocalPosition(futureWP + velOffset * -dt), parentNormal, parentAxis, childNormal, childEndEffector, &qParentF, &qChildF);
+
+		//Quaternion qDiff = qParentF * qParent.getComplexConjugate();
+		Quaternion qDiff = qParentF * OgreQuaternionGetConvexConjugate(qParent);
+		//wParentD = qDiff.v * 2.0f/dt;
+		wParentD = Vector3(qDiff.x,qDiff.y,qDiff.z) * 2.0f/dt;
+		//the above is the desired angular velocity, were the parent not rotating already - but it usually is, so we'll account for that
+		const btVector3& gParentAngVel = gParent->getBody()->getBulletRigidBody()->getAngularVelocity();
+		//wParentD -= gParent->getLocalCoordinates(gParent->getAngularVelocity());
+		wParentD -= gParent->convertWorldToLocalPosition(BtOgreConverter::to(gParentAngVel));
+
+		//qDiff = qChildF * qChild.getComplexConjugate();
+		qDiff = qChildF * OgreQuaternionGetConvexConjugate(qChild);
+		//wChildD = qDiff.v * 2.0f/dt;
+		wChildD = Vector3(qDiff.x,qDiff.y,qDiff.z) * 2.0f/dt;
+
+		//make sure we don't go overboard with the estimates, in case there are discontinuities in the trajectories...
+		OgreVector3ClampAllAxes(wChildD,-5,5);
+		OgreVector3ClampAllAxes(wParentD,-5,5);
+		//boundToRange(&wChildD.x, -5, 5);boundToRange(&wChildD.y, -5, 5);boundToRange(&wChildD.z, -5, 5);
+		//boundToRange(&wParentD.x, -5, 5);boundToRange(&wParentD.y, -5, 5);boundToRange(&wParentD.z, -5, 5);
+	}
+
+	mForwardDynamicsSkeleton->setAngularVelocityTarget(childJoint->getParentFdb()->getName(), wChildD);
+	mForwardDynamicsSkeleton->setAngularVelocityTarget(parentJoint->getParentFdb()->getName(), wParentD);
+	//rs.setJointRelativeAngVelocity(wChildD, childJIndex);
+	//rs.setJointRelativeAngVelocity(wParentD, parentJIndex);
+
+}
+
+
+
+
+/**
+ This method returns a target for the location of the swing foot, based on some state information. It is assumed that the velocity vel
+ is expressed in character-relative coordinates (i.e. the sagittal component is the z-component), while the com position, and the
+ initial swing foot position is expressed in world coordinates. The resulting desired foot position is also expressed in world coordinates.
+ */
+Ogre::Vector3 VirtualModelSkeletonController::getSwingFootTargetLocation(double t, const Ogre::Vector3& com, const Ogre::Quaternion& charFrameToWorld)
+{
+	OgreAssert ( mMotionGenerator->hasTargetPositionForBody("Foot.SWING"), "must have Foot.SWING target" );
+	Vector3 step = mMotionGenerator->getTargetPositionForBody( "Foot.SWING" );
+	OgreAssert( mMotionGenerator->getReferenceFrameForPosition( "Foot.SWING") == VirtualModelMotionComponent::RF_Character, "wrong reference frame, should be character" );
+	float stepY = step.y;
+	step.y = 0;
+	//now transform this vector into world coordinates
+	step = charFrameToWorld*step;
+	//add it to the com location
+	step = com + step;
+	//finally, set the desired height of the foot
+	step.y = stepY;
+	
+	// now the delta
+	if ( mMotionGenerator->hasTargetPositionForBody( "FootDelta.SWING" ) )
+	{
+		OgreAssert( mMotionGenerator->getReferenceFrameForPosition( "FootDelta.SWING") == VirtualModelMotionComponent::RF_Character, "wrong reference frame, should be character" );
+		float sign = mMotionGenerator->getStanceIsLeft() ? 1.0f : -1.0f;
+		Ogre::Vector3 delta = mMotionGenerator->getTargetPositionForBody( "FootDelta.SWING" );
+		delta.x *= sign;
+		step += delta;
+	}
+	
+	return step;
+}
+
+void VirtualModelSkeletonController::computeIKSwingLegTargets(double dt)
+{
+	Ogre::Vector3 pNow, pFuture;
+	
+	//note, V is already expressed in character frame coordinates.
+	float phi = mMotionGenerator->getPhi();
+	pNow = getSwingFootTargetLocation(phi, mCoM, mCharacterFrame);
+	if ( mMotionGenerator->getStanceIsLeft() ) {
+		mFootTargetR = pNow;
+	} else {
+		mFootTargetL = pNow;
+	}
+	
+	// swing leg
+	string whichLeg = mMotionGenerator->getStanceIsLeft()?"R":"L";
+	solveLegIK( whichLeg, pNow );
+	
+	
+	/*
+		
+	pFuture = getSwingFootTargetLocation(MIN(phi+dt, 1), mCoM + mCoMVelocity * dt, mCharacterFrame);
+	
+	string swingUpperLegName = "LegUpper."+whichLeg;
+	string swingLowerLegName = "LegLower."+whichLeg;
+	string swingFootName = "Foot."+whichLeg;
+	string swingToeName = "Toe."+whichLeg;
+	
+	auto swingHip = mForwardDynamicsSkeleton->getJointBetween(swingUpperLegName, swingLowerLegName);
+	auto swingKnee = mForwardDynamicsSkeleton->getJointBetween(swingLowerLegName, swingFootName);
+	auto swingAnkle = mForwardDynamicsSkeleton->getJointBetween(swingFootName, swingToeName);
+	Ogre::Vector3 parentAxis = swingKnee->getPositionInParentSpace(); // == vector from hip to knee
+	Ogre::Vector3 childAxis = swingAnkle->getPositionInParentSpace(); // == vector from knee to foot
+	//Vector3d parentAxis = character->joints[swingHipIndex]->cJPos - character->joints[swingKneeIndex]->pJPos;
+	//Vector3d childAxis = character->joints[swingKneeIndex]->cJPos - character->joints[swingAnkleIndex]->pJPos;
+	
+	Ogre::Vector3 childNormal(-1,0,0); // -1 in x
+	computeIKQandW( swingHip, swingKnee, parentAxis, mSwingLegPlaneOfRotation, childNormal, childAxis, pNow, true, pFuture, dt);
+
+	//computeIKQandW(swingHipIndex, swingKneeIndex, parentAxis, swingLegPlaneOfRotation, Vector3d(-1,0,0), childAxis, pNow, true, pFuture, dt);
+	//	computeIKQandW(swingHipIndex, swingKneeIndex, Vector3d(0, -0.355, 0), Vector3d(1,0,0), Vector3d(1,0,0), Vector3d(0, -0.36, 0), pNow, true, pFuture, dt);*/
+}
 
 void VirtualModelSkeletonController::update( float dt )
 {
 	// update CoM velocity
-	Ogre::Vector3 currentCoM = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition(mDriveableSkeleton->getCenterOfMassWorld());
-	mCoMVelocity = (currentCoM-mPrevCoM)/dt;
-	mPrevCoM = currentCoM;
+	mPrevCoM = mCoM;
+	mCoM = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition(mDriveableSkeleton->getCenterOfMassWorld());
+	mCoMVelocity = (mCoM-mPrevCoM)/dt;
+	
+	// get heading, store as mCharacterFrame
+	Ogre::Radian heading = mDriveableSkeleton->getRootSceneNode()->getOrientation().getYaw();
+	mCharacterFrame = Ogre::Quaternion( heading, Ogre::Vector3::UNIT_Y );
+
+	// simStepPlan
+	{
+		/*
+		// store the swing foot start pos
+		if (lowLCon->phi <= 0.01)
+			swingFootStartPos = lowLCon->swingFoot->getWorldCoordinates(bip->joints[lowLCon->swingAnkleIndex]->cJPos);*/
+	
+		//compute desired swing foot location...
+		//setDesiredSwingFootLocation();
+		
+		float phi = mMotionGenerator->getPhi();
+		Vector3 step = computeSwingFootLocationEstimate(mCoM, phi);
+		
+		auto& swingFootPos = mMotionGenerator->getComponentReference("Foot.SWING Position");
+		// coronal = x, sagittal = z
+		swingFootPos.mSplineX.at(0) = make_pair(phi, step.x);
+		swingFootPos.mSplineZ.at(0) = make_pair(phi, step.z);
+		//lowLCon->swingFootTrajectoryCoronal.setKnotValue(0, step.x);
+		//lowLCon->swingFootTrajectorySagittal.setKnotValue(0, step.z);
+		
+		step = computeSwingFootLocationEstimate(mCoM + mCoMVelocity*dt, phi+dt);
+		swingFootPos.mSplineX.at(1) = make_pair(phi+dt, step.x);
+		swingFootPos.mSplineZ.at(1) = make_pair(phi+dt, step.z);
+		//lowLCon->swingFootTrajectoryCoronal.setKnotValue(1, step.x);
+		//lowLCon->swingFootTrajectorySagittal.setKnotValue(1, step.z);
+		//to give some gradient information, here's what the position will be a short time later...
+		/*
+		lowLCon->swingFootTrajectorySagittal.setKnotPosition(0, lowLCon->phi);
+		lowLCon->swingFootTrajectorySagittal.setKnotPosition(1, lowLCon->phi+dt);
+		
+		lowLCon->swingFootTrajectoryCoronal.setKnotPosition(0, lowLCon->phi);
+		lowLCon->swingFootTrajectoryCoronal.setKnotPosition(1, lowLCon->phi+dt);*/
+	}
+	
 	
 	Ogre::Vector3 lFootHead = mForwardDynamicsSkeleton->getBody("Foot.L")->getHeadPositionWorld();
 	Ogre::Vector3 rFootHead = mForwardDynamicsSkeleton->getBody("Foot.R")->getHeadPositionWorld();
-	
-	/*
-	// select stance leg
-	// the timer is to prevent stance leg from swapping too often
-	Ogre::Vector3 lFootCoM = mForwardDynamicsSkeleton->getBody("Foot.L")->getCoMWorld();
-	Ogre::Vector3 rFootCoM = mForwardDynamicsSkeleton->getBody("Foot.R")->getCoMWorld();
-	if ( mTimeSinceLastStanceLegSwap>mStanceLegSwitchMinTime )
-	{
-		// select the stance leg
-		// find which foot the com is more likely to be over
-		Ogre::Vector3 testCoM = currentCoM;
-		testCoM.y = lFootCoM.y;
-		float lFootCoMDistance = (testCoM-lFootCoM).squaredLength();
-		testCoM.y = rFootCoM.y;
-		float rFootCoMDistance = (testCoM-rFootCoM).squaredLength();
-		string oldStanceLeg = mStanceLeg;
-		if ( lFootCoMDistance<rFootCoMDistance ) {
-			setStanceLeg("L");
-		} else {
-			setStanceLeg("R");
-		}
-		if ( oldStanceLeg != mStanceLeg ) {
-			mTimeSinceLastStanceLegSwap = 0.0f;
-		}
-	}
-	// force stance leg to swap every 2 seconds
-	if ( mTimeSinceLastStanceLegSwap>2.0f ) {
-		if ( mStanceLeg=="L" ) {
-			setStanceLeg("R");
-		} else {
-			setStanceLeg("L");
-		}
-		mTimeSinceLastStanceLegSwap = 0.0f;
-	}*/
 	
 	// update CoM target
 	if ( mDoubleStance ) {
@@ -278,12 +436,11 @@ void VirtualModelSkeletonController::update( float dt )
 	//evaluate the target orientation for every joint, using the SIMBICON state information
 	evaluateMotionTargets( dt );
 	
-	/*
 	//now overwrite the target angles for the swing hip and the swing knee in order to ensure foot-placement control
-	if (doubleStanceMode == false)
-		computeIKSwingLegTargets(0.001);
+	//if (doubleStanceMode == false)
+	computeIKSwingLegTargets(dt);
 	
-	computePDTorques(cfs);
+	/*computePDTorques(cfs);
 	
 	//bubble-up the torques computed from the PD controllers
 	bubbleUpTorques();*/
@@ -299,8 +456,6 @@ void VirtualModelSkeletonController::update( float dt )
 		clearLegIKForwardDynamics("R");
 		clearLegIKForwardDynamics("L");
 		
-		
-		
 		Ogre::Vector3 leftFootTargetPos(0,0,0);
 		Ogre::Vector3 rightFootTargetPos(0,0,0);
 		mLeftKneeOut = 0.05f;
@@ -314,7 +469,7 @@ void VirtualModelSkeletonController::update( float dt )
 			rightFootTargetPos = leftFootTargetPos + Ogre::Vector3(mFootIKPlacementWidth,0,0);
 	/*		mLeftKneeOut = mLeftKneeOut*kKneeOutSmoothing+0.0f*(1.0f-kKneeOutSmoothing);
 			mRightKneeOut = mRightKneeOut*kKneeOutSmoothing+1.0f*(1.0f-kKneeOutSmoothing);*/
-			solveLegIKForwardDynamics("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
+			solveLegIK("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
 			
 		} else {
 			rightFootTargetPos = mForwardDynamicsSkeleton->getBody("Foot.R")->getHeadPositionWorld();
@@ -323,14 +478,14 @@ void VirtualModelSkeletonController::update( float dt )
 			/*
 			mLeftKneeOut = mLeftKneeOut*kKneeOutSmoothing+1.0f*(1.0f-kKneeOutSmoothing);
 			mRightKneeOut = mRightKneeOut*kKneeOutSmoothing+0.0f*(1.0f-kKneeOutSmoothing);*/
-			solveLegIKForwardDynamics("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
+			solveLegIK("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
 		}
 		
 		if ( mDoubleStance ) {
 			if ( !mMotionGenerator->getStanceIsLeft() ) {
-				solveLegIKForwardDynamics("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
+				solveLegIK("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
 			} else {
-				solveLegIKForwardDynamics("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
+				solveLegIK("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
 			}
 		}
 			
@@ -356,7 +511,7 @@ void VirtualModelSkeletonController::computeGravityCompensationTorques( )
 	std::set<std::string> names = mForwardDynamicsSkeleton->getAllBodyNames();
 	
 	// skip the 'stance leg'
-	set<string> skipNames;
+	std::set<string> skipNames;
 	/*
 	skipNames.insert("LegUpper."+mStanceLeg);
 	skipNames.insert("LegLower."+mStanceLeg);

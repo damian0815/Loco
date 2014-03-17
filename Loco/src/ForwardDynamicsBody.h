@@ -37,22 +37,22 @@ public:
 	ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, Ogre::SceneNode* skeletonRootNode, OgreBulletDynamics::DynamicsWorld* world, const picojson::value& bodyDef );
 	~ForwardDynamicsBody();
 	
-	/*! @abstract Return the head position (== position of parent joint) in world space. */
+	/*! @brief Return the head position (== position of parent joint) in world space. */
 	Ogre::Vector3 getHeadPositionWorld();
-	/*! @abstract Return the head position (== position of parent joint) in local space (CoM == (0,0,0)). */
+	/*! @brief Return the head position (== position of parent joint) in local space (CoM == (0,0,0)). */
 	Ogre::Vector3 getHeadPositionLocal() { return mParentPositionLocal; }
-	/*! @abstract Return the tail position (== position of child joint) in world space. */
+	/*! @brief Return the tail position (== position of child joint) in world space. */
 	Ogre::Vector3 getTailPositionWorld(std::string tailName="");
-	/*! @abstract Return the tail position (== position of child joint) in local space (CoM == (0,0,0)). */
+	/*! @brief Return the tail position (== position of child joint) in local space (CoM == (0,0,0)). */
 	Ogre::Vector3 getTailPositionLocal(std::string tailName="");
-	/*! @abstract Return the orientation in world space. */
+	/*! @brief Return the orientation in world space. */
 	Ogre::Quaternion getOrientationWorld();
-	/*! @abstract Return the orientation in local space (ie relative to the scene node that is the parent of this bone. */
+	/*! @brief Return the orientation in local space (ie relative to the scene node that is the parent of this bone. */
 	Ogre::Quaternion getOrientationLocal();
-	/*! @abstract Return the rest orientation (the orientation on init) in local space. */
+	/*! @brief Return the rest orientation (the orientation on init) in local space. */
 	Ogre::Quaternion getParentRelativeRestOrientation() { return mRestOrientationLocal; }
 	void setParentRelativeRestOrientationLocal(const Ogre::Quaternion& q) { mRestOrientationLocal =q; }
-	/*! @abstract Return the position of the center of mass in world space. */
+	/*! @brief Return the position of the center of mass in world space. */
 	Ogre::Vector3 getCoMWorld();
 	
 	Ogre::Vector3 convertLocalToWorldPosition(const Ogre::Vector3& localPos) const { return mBody->getSceneNode()->convertLocalToWorldPosition(localPos); }
@@ -60,6 +60,12 @@ public:
 	
 	Ogre::Quaternion convertLocalToWorldOrientation(const Ogre::Quaternion& localOri) const { return mBody->getSceneNode()->convertLocalToWorldOrientation(localOri); }
 	Ogre::Quaternion convertWorldToLocalOrientation(const Ogre::Quaternion& worldOri) const { return mBody->getSceneNode()->convertWorldToLocalOrientation(worldOri); }
+	
+/**
+ This method returns the absolute velocity of a point that is passed in as a parameter. The point is expressed in local coordinates, and the
+ resulting velocity will be expressed in world coordinates.
+ */
+	Ogre::Vector3 getAbsoluteVelocityForLocalPoint(const Ogre::Vector3& localPoint);
 	
 	std::string getName() { return mParentBoneName; }
 	unsigned int getNumChildren() { return mChildPositionsLocal.size(); }

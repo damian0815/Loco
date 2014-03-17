@@ -34,16 +34,16 @@ public:
 	SkeletonController( Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skel, const picojson::value& jsonSource );
 	virtual ~SkeletonController() ;
 		
-	/*! @abstract Enable/disable this controller.
-	 @discussion Walks through the skeleton and turns on or off manual control for each of the bones in the driveable skeleton. If enabling, client should make sure that the skeleton is not currently animated (ie, all animation states should be disabled). */
+	/*! @brief Enable/disable this controller.
+	 @remarks Walks through the skeleton and turns on or off manual control for each of the bones in the driveable skeleton. If enabling, client should make sure that the skeleton is not currently animated (ie, all animation states should be disabled). */
 	void setEnabled( bool tf );
-	/*! @abstract Disabled by default. */
+	/*! @brief Disabled by default. */
 	bool isEnabled() { return mEnabled; }
 	
-	/*! @abstract Update the driveable skeleton. Has no effect if isEnabled() is false. */
+	/*! @brief Update the driveable skeleton. Has no effect if isEnabled() is false. */
 	virtual void update( float dt );
 	
-	/*! @abstract Return a json representation that can be loaded using the jsonSource constructor. */
+	/*! @brief Return a json representation that can be loaded using the jsonSource constructor. */
 	std::string serialize();
 	
 	void setShowDebugInfo( bool show );
@@ -53,7 +53,7 @@ public:
 	
 protected:
 	
-	/*! @abstract Create fan bones by searching bone tree for 'Fan.xx.yyyyy', meaning copy xx percent of bone yyyyy's orientation. */
+	/*! @brief Create fan bones by searching bone tree for 'Fan.xx.yyyyy', meaning copy xx percent of bone yyyyy's orientation. */
 	void createFans();
 	
 	Ogre::SharedPtr<DriveableBone> getBone(std::string name) { return mDriveableSkeleton->getBone(name); }

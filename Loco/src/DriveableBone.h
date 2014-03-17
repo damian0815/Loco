@@ -44,25 +44,25 @@ public:
 	DriveableBone( Ogre::Bone* bone, picojson::value& source );
 	DriveableBone( Ogre::Bone* bone, float boneMass, float boneLength, float Kp, float Kd );
 	
-	/*! @abstract Velocity is in local space. */
+	/*! @brief Velocity is in local space. */
 	Ogre::Vector3 getVelocity() const { return mVelocity; }
-	/*! @abstract Angular velocity is in local space. */
+	/*! @brief Angular velocity is in local space. */
 	Ogre::Vector3 getAngularVelocity() const;
 	/// return the center of mass of this bone, in skeletal world coordinates
 	Ogre::Vector3 getCenterOfMassWorld() const;
 	/*! return the head position of this bone, in skeletal world coordinates */
 	Ogre::Vector3 getHeadPositionWorld() const;
 	
-	/*! @abstract Add torque, in parent coordinate space. Reset to 0 after update. */
+	/*! @brief Add torque, in parent coordinate space. Reset to 0 after update. */
 	void addTorque( const Ogre::Vector3 &torque );
-	/*! @abstract Add force, in parent coordinate space. Reset to 0 after update. */
+	/*! @brief Add force, in parent coordinate space. Reset to 0 after update. */
 	void addForce( const Ogre::Vector3& force );
-	/*! @abstract Add a relative orientation (rotation) in parent coordinate space. Will be removed at the next update step. Reset to IDENTITY after update. */
+	/*! @brief Add a relative orientation (rotation) in parent coordinate space. Will be removed at the next update step. Reset to IDENTITY after update. */
 	void addRelativeRotation( const Ogre::Quaternion& rotation );
 
-	/*! @abstract Clear angular momentum and velocity, and re-read the current bone orientation to use as a baseline. Does not clear any force, torque or relative rotation added since the last frame. */
+	/*! @brief Clear angular momentum and velocity, and re-read the current bone orientation to use as a baseline. Does not clear any force, torque or relative rotation added since the last frame. */
 	void reset();
-	/*! @abstract Reset bone to baseline, apply torque to angular momentum and force to velocity, then apply angular momentum and velocity to the bone. Finally, apply the additional relative rotation. */
+	/*! @brief Reset bone to baseline, apply torque to angular momentum and force to velocity, then apply angular momentum and velocity to the bone. Finally, apply the additional relative rotation. */
 	void update( float dt );
 	
 	Ogre::Bone* getBone() const { return mBone; }

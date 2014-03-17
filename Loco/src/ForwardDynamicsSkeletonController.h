@@ -33,7 +33,7 @@ public:
 	
 	virtual void update( float dt );
 	
-	/*! @abstract Reset skeleton to its rest state, reset forward dynamics to rest state. */
+	/*! @brief Reset skeleton to its rest state, reset forward dynamics to rest state. */
 	virtual void reset();
 	
 private:
@@ -42,13 +42,13 @@ private:
 protected:
 	virtual void debugDraw();
 	
-	/*! @abstract Solve leg ik for the given leg ("L" or "R"), for the given foot target pos in world space. */
-	void solveLegIKForwardDynamics( std::string whichLeg, Ogre::Vector3 footTargetPos, float pelvisHeightAboveFeetTarget=-1.0f, bool preserveFootOrientation=false, float kneeOut = 0.25f, float kneeUp = 0.5f );
-	/*! @abstract Clear influence of a previously calculated IK forward dynamics solution for the given leg */
+	/*! @brief Solve leg ik for the given leg ("L" or "R"), for the given foot target pos in world space. */
+	void solveLegIK( std::string whichLeg, Ogre::Vector3 footTargetPos, bool preserveFootOrientation=false, float kneeOut = 0.25f, float kneeUp = 0.5f );
+	/*! @brief Clear influence of a previously calculated IK forward dynamics solution for the given leg */
 	void clearLegIKForwardDynamics( std::string whichLeg );
 	
 	
-	/*! @abstract Reflect the current pelvis orientation in the spine. */
+	/*! @brief Reflect the current pelvis orientation in the spine. */
 	void reflectPelvisInSpine( float shoulderMirror = 1.5f, float neckMirror = 0.5f );
 
 	

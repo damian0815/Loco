@@ -109,7 +109,7 @@ void ForwardDynamicsSkeletonController::clearLegIKForwardDynamics( string whichL
 	//mForwardDynamicsSkeleton->clearOrientationTarget(footName);
 }
 
-void ForwardDynamicsSkeletonController::solveLegIKForwardDynamics( string whichLeg, Ogre::Vector3 footTargetPos, float pelvisHeightAboveFeet, bool preserveFootOrientation, float kneeOut, float kneeUp )
+void ForwardDynamicsSkeletonController::solveLegIK( string whichLeg, Ogre::Vector3 footTargetPos, bool preserveFootOrientation, float kneeOut, float kneeUp )
 {
 	auto pelvis = mForwardDynamicsSkeleton->getBody("SpineBase");
 	string upperLegName = "LegUpper."+whichLeg;
@@ -120,9 +120,6 @@ void ForwardDynamicsSkeletonController::solveLegIKForwardDynamics( string whichL
 	auto foot = mForwardDynamicsSkeleton->getBody(footName);
 	
 	Ogre::Vector3 p1 = upperLeg->getHeadPositionWorld();
-	if ( pelvisHeightAboveFeet>0 ) {
-		p1.y = MAX(p1.y, footTargetPos.y+pelvisHeightAboveFeet);
-	}
 	Ogre::Vector3 p2 = footTargetPos;
 	
 	// calculate a plane normal
@@ -131,7 +128,7 @@ void ForwardDynamicsSkeletonController::solveLegIKForwardDynamics( string whichL
 		footOrientation = foot->getOrientationWorld();
 	}
 	
-	// start with global UNIT Z, relative to root
+	// start with global UNIT X, relative to root
 	Ogre::Vector3 planeNormal = Ogre::Vector3::UNIT_X;
 	// rotate by knee out and knee up angles
 	float kneeOutAng = kneeOut*-M_PI_4+(0.25f*M_PI_4);

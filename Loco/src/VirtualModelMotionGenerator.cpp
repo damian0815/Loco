@@ -34,13 +34,14 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 	}
 	
 	// splines
-	// there might be one for each axis x,y,z
-	string splineNames[3] = { "x", "y", "z" };
-	std::vector< pair<float,float> >* targetVectors[3] = { &mSplineX, &mSplineY, &mSplineZ };
+	// there might be one for each axis x,y,z, or sagittal, coronal, axial (==z, x, y)
+	string splineNames[6] = { "x", "y", "z", "sagittal", "coronal", "axial" };
+	std::vector< pair<float,float> >* targetVectors[6] = { &mSplineX, &mSplineY, &mSplineZ, &mSplineZ, &mSplineX, &mSplineY };
 	// check each axis
-	for ( int i=0; i<3; i++ ) {
+	for ( int i=0; i<6; i++ ) {
 		float lastTime = -1;
 		if ( params.count(splineNames[i]) ) {
+			OgreAssert(targetVectors[i]->empty(), "duplicate axis name reference");
 			// spline is defined as an array of knots, defined as pairs of floats
 			array splineDef = params[splineNames[i]].get<array>();
 			for ( auto knotValue: splineDef ) {
@@ -63,7 +64,7 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 		
 }
 
-Quaternion VirtualModelMotionComponent::evaluateAtTime( float phi )
+Vector3 VirtualModelMotionComponent::evaluateAtTime( float phi )
 {
 	
 	// evaluate each spline
@@ -78,11 +79,9 @@ Quaternion VirtualModelMotionComponent::evaluateAtTime( float phi )
 		zRot = evaluateCatmullRom( mSplineZ, phi, mLastPosZ );
 	}
 	
-	// combine in order XZY
-	Matrix3 rotMat;
-	rotMat.FromEulerAnglesXZY( Radian(xRot), Radian(yRot), Radian(zRot) );
-	
-	return Quaternion(rotMat);
+	return Ogre::Vector3(xRot, yRot, zRot);
+
+
 }
 
 
@@ -99,13 +98,14 @@ VirtualModelMotion::VirtualModelMotion( value& paramsValue )
 	}
 }
 
-Quaternion VirtualModelMotion::getTargetAtTime( const std::string& bodyName, float phi )
+Vector3 VirtualModelMotion::getTargetAtTime( const std::string& bodyName, float phi )
 {
 	VirtualModelMotionComponent& component = mComponents.at(bodyName);
-	Ogre::Quaternion q = component.evaluateAtTime(phi);
-	return q;
-
+	Ogre::Vector3 rot = component.evaluateAtTime(phi);
+	return rot;
 }
+
+
 
 VirtualModelMotionGenerator::VirtualModelMotionGenerator( picojson::value& paramsValue )
 : mPhi(0), mStanceIsLeft(true), mCycleDuration(1.0f)
@@ -128,22 +128,47 @@ void VirtualModelMotionGenerator::update(float dt)
 	}
 }
 
-bool VirtualModelMotionGenerator::hasTarget(const std::string &bodyName)
+bool VirtualModelMotionGenerator::hasTargetOrientationForBody(const std::string &bodyName)
 {
 	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	return mMotions[mCurrentMotionIndex].hasTargetForBody(bodyNameStanceSwing);
+	return mMotions[mCurrentMotionIndex].hasTargetForBody(bodyNameStanceSwing+" Orientation");
 }
 
-Ogre::Quaternion VirtualModelMotionGenerator::getTarget( const std::string& bodyName )
+Ogre::Quaternion VirtualModelMotionGenerator::getTargetOrientationForBody( const std::string& bodyName )
 {
 	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	return mMotions[mCurrentMotionIndex].getTargetAtTime( bodyNameStanceSwing, mPhi );
+	Ogre::Vector3 rot = mMotions[mCurrentMotionIndex].getTargetAtTime( bodyNameStanceSwing+" Orientation", mPhi );
+
+	// combine in order XZY
+	Matrix3 rotMat;
+	rotMat.FromEulerAnglesXZY( Radian(rot.x), Radian(rot.y), Radian(rot.z) );
+	
+	return Quaternion(rotMat);
 }
 
-VirtualModelMotionComponent::ReferenceFrame VirtualModelMotionGenerator::getReferenceFrame(const std::string &bodyName)
+bool VirtualModelMotionGenerator::hasTargetPositionForBody(const std::string &bodyName)
 {
 	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	return mMotions[mCurrentMotionIndex].getReferenceFrame(bodyNameStanceSwing);
+	return mMotions[mCurrentMotionIndex].hasTargetForBody(bodyNameStanceSwing+" Position");
+}
+
+Ogre::Vector3 VirtualModelMotionGenerator::getTargetPositionForBody( const std::string& bodyName )
+{
+	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
+	Ogre::Vector3 pos = mMotions[mCurrentMotionIndex].getTargetAtTime(bodyNameStanceSwing+" Position", mPhi);
+	return pos;
+}
+
+VirtualModelMotionComponent::ReferenceFrame VirtualModelMotionGenerator::getReferenceFrameForOrientation(const std::string &bodyName)
+{
+	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
+	return mMotions[mCurrentMotionIndex].getReferenceFrame(bodyNameStanceSwing+" Orientation");
+}
+
+VirtualModelMotionComponent::ReferenceFrame VirtualModelMotionGenerator::getReferenceFrameForPosition(const std::string &bodyName)
+{
+	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
+	return mMotions[mCurrentMotionIndex].getReferenceFrame(bodyNameStanceSwing+" Position");
 }
 
 bool VirtualModelMotionGenerator::setActiveMotion( const std::string& motionName )
@@ -184,3 +209,8 @@ string VirtualModelMotionGenerator::convertBodyNameToSwingOrStance( const std::s
 			
 }
 
+VirtualModelMotionComponent& VirtualModelMotionGenerator::getComponentReference( const std::string& componentName )
+{
+	auto& motion = mMotions.at(mCurrentMotionIndex);
+	return motion.getComponent(componentName);
+}

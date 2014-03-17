@@ -329,4 +329,16 @@ void ForwardDynamicsBody::addImpulse( const Ogre::Vector3& impulse )
 	mBody->getBulletRigidBody()->applyCentralImpulse(OgreBtConverter::to(impulse));
 }
 
+/**
+ This method returns the absolute velocity of a point that is passed in as a parameter. The point is expressed in local coordinates, and the
+ resulting velocity will be expressed in world coordinates.
+ */
+Ogre::Vector3 ForwardDynamicsBody::getAbsoluteVelocityForLocalPoint(const Ogre::Vector3& localPoint){
+	//we need to compute the vector r, from the origin of the body to the point of interest
+	btVector3 r = OgreBtConverter::to(localPoint);
+	//the velocity is given by omega x r + v. omega and v are already expressed in world coordinates, so we need to express r in world coordinates first.
+	btVector3 v = getBody()->getBulletRigidBody()->getAngularVelocity().cross(r) + getBody()->getBulletRigidBody()->getLinearVelocity();
+	return BtOgreConverter::to(v);
+}
+
 

@@ -21,23 +21,27 @@ namespace OgreBulletCollisions {
 	class DebugLines;
 };
 
-/*! @abstract Proportional derivative bone orientation/position driver. */
+/*! @brief Proportional derivative bone orientation/position driver. */
 
 class ForwardDynamicsBodyDriverPD
 {
 public:
 	ForwardDynamicsBodyDriverPD( Ogre::SharedPtr<ForwardDynamicsBody> body, float strength=1.0f );
 	
-	/*! @abstract Set target orientation, in body's local space. */
-	//void setTargetOrientationLocal( const Ogre::Quaternion& targetOrientation );
-	/*! @abstract Set target orientation, in world space. */
+	/*! @brief Set target orientation, in world space. */
 	void setTargetOrientationWorld( const Ogre::Quaternion& targetOrientation );
 	const Ogre::Quaternion& getTargetOrientation() const { return mTargetOrientation; }
 	bool getOrientationActive() const { return mOrientationActive; }
-	/*! @abstract Stop tracking the target orientation. */
+	/*! @brief Stop tracking the target orientation. */
 	void unsetTargetOrientation() { mOrientationActive = false; }
 	
-	/*! @abstract Update the torque on the driven bone using the target orientation. */
+	/*! @brief Set target angular velocity. Must set a target orientation as well for this to do anything. */
+	void setTargetAngularVelocityWorld( const Ogre::Vector3& targetAngularVelocity );
+	bool getAngularVelocityActive() const { return mAngularVelocityActive; }
+	/*! @brief Stop tracking the target orientation. */
+	void unsetTargetAngularVelocity() { mAngularVelocityActive = false; }
+	
+	/*! @brief Update the torque on the driven bone using the target orientation. */
 	void updateTorque();
 	
 	void debugDraw( OgreBulletCollisions::DebugLines* debugLines );
@@ -46,10 +50,12 @@ private:
 	Ogre::SharedPtr<ForwardDynamicsBody> mBody;
 	
 	Ogre::Quaternion mTargetOrientation;
+	Ogre::Vector3 mTargetAngularVelocity;
 	
 	float mStrength;
 	
 	float mOrientationActive;
+	float mAngularVelocityActive;
 	
 };
 

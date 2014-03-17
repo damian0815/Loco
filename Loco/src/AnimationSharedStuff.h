@@ -20,11 +20,11 @@ typedef enum _BoneAxis
 //
 //double getScalarPart( const Ogre::Quaternion& q );
 //Ogre::Vector3 getVectorPart( const Ogre::Quaternion& q );
-///*! @abstract Make a quaternion from the euler angles in radians. */
+///*! @brief Make a quaternion from the euler angles in radians. */
 //Ogre::Quaternion makeEulerQuaternion( const Ogre::Vector3& eulerAngles );
-///*! @abstract Make a Vector3 by extracting euler angles in radians. */
+///*! @brief Make a Vector3 by extracting euler angles in radians. */
 //Ogre::Vector3 makeEulerVector( const Ogre::Quaternion& rotation );
-///*! @abstract Return the euler result of rotating q by euler, everything in radians. */
+///*! @brief Return the euler result of rotating q by euler, everything in radians. */
 //Ogre::Vector3 rotateEuler( const Ogre::Quaternion& q, const Ogre::Vector3& euler );
 //
 /**

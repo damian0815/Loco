@@ -25,6 +25,7 @@
 		2D2E04F7181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E04F5181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp */; };
 		2D35D69C1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */; };
 		2D3EB7E0188FC7F00057FAB7 /* VirtualModelFSM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EB7DE188FC7F00057FAB7 /* VirtualModelFSM.cpp */; };
+		2D43FB8E18D4D77E00A35F45 /* MathUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D43FB8C18D4D77E00A35F45 /* MathUtilities.cpp */; };
 		2D6B05DE16E5078B0075A3DD /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B039616E5078A0075A3DD /* btAxisSweep3.cpp */; };
 		2D6B05DF16E5078B0075A3DD /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B039916E5078A0075A3DD /* btBroadphaseProxy.cpp */; };
 		2D6B05E016E5078B0075A3DD /* btCollisionAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B039B16E5078A0075A3DD /* btCollisionAlgorithm.cpp */; };
@@ -333,6 +334,8 @@
 		2D35D69B1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsBodyDriverPD.h; sourceTree = "<group>"; };
 		2D3EB7DE188FC7F00057FAB7 /* VirtualModelFSM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VirtualModelFSM.cpp; sourceTree = "<group>"; };
 		2D3EB7DF188FC7F00057FAB7 /* VirtualModelFSM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirtualModelFSM.h; sourceTree = "<group>"; };
+		2D43FB8C18D4D77E00A35F45 /* MathUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathUtilities.cpp; sourceTree = "<group>"; };
+		2D43FB8D18D4D77E00A35F45 /* MathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
 		2D6B039116E5078A0075A3DD /* btBulletCollisionCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletCollisionCommon.h; sourceTree = "<group>"; };
 		2D6B039216E5078A0075A3DD /* btBulletDynamicsCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletDynamicsCommon.h; sourceTree = "<group>"; };
 		2D6B039316E5078A0075A3DD /* Bullet-C-Api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bullet-C-Api.h"; sourceTree = "<group>"; };
@@ -2082,6 +2085,8 @@
 				2D08A39C170A51C800E5D159 /* MeshTools.h */,
 				2D9B43F9181154CE00BF4CC8 /* Utilities.cpp */,
 				2D9B43FA181154CE00BF4CC8 /* Utilities.h */,
+				2D43FB8C18D4D77E00A35F45 /* MathUtilities.cpp */,
+				2D43FB8D18D4D77E00A35F45 /* MathUtilities.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -2362,6 +2367,7 @@
 				2D6B06BA16E5078B0075A3DD /* btSoftBodyHelpers.cpp in Sources */,
 				2D6B06BB16E5078B0075A3DD /* btSoftBodyRigidBodyCollisionConfiguration.cpp in Sources */,
 				2D6B06BC16E5078B0075A3DD /* btSoftRigidCollisionAlgorithm.cpp in Sources */,
+				2D43FB8E18D4D77E00A35F45 /* MathUtilities.cpp in Sources */,
 				2D6B06BD16E5078B0075A3DD /* btSoftRigidDynamicsWorld.cpp in Sources */,
 				2D6B06BE16E5078B0075A3DD /* btSoftSoftCollisionAlgorithm.cpp in Sources */,
 				2D6B06C716E5078B0075A3DD /* btAlignedAllocator.cpp in Sources */,

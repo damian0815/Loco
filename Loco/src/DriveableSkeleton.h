@@ -29,7 +29,7 @@ namespace Ogre {
 class DriveableSkeleton
 {
 public:
-	/*! @abstract Create driven bones as defined in jsonParams. 
+	/*! @brief Create driven bones as defined in jsonParams. 
 	 @arg skeletonRootNode The scene node that the skeleton's root joint is parented to. */
 	DriveableSkeleton( Ogre::Skeleton* skeleton, Ogre::SceneNode* skeletonRootNode, const picojson::value& jsonParams );
 	
@@ -39,15 +39,15 @@ public:
 	Ogre::SharedPtr<DriveableBone> getBone( string name ) const;
 	Ogre::SharedPtr<DriveableBone> getRootBone() const;
 	
-	/*! @abstract Apply each of the angular velocities for each member driveableBone over dt. */
+	/*! @brief Apply each of the angular velocities for each member driveableBone over dt. */
 	void update(float dt);
 	
-	/*! @abstract Return the center of mass in world space. */
+	/*! @brief Return the center of mass in world space. */
 	Ogre::Vector3 getCenterOfMassWorld() const;
 	
 	PoseSnapshot snapshotPose();
 	
-	/*! @abstract Reset all bones to their binding positions. */
+	/*! @brief Reset all bones to their binding positions. */
 	void reset();
 	
 	Ogre::Skeleton* getSkeleton() { return mSkeleton; }

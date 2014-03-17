@@ -20,7 +20,7 @@ using namespace OgreBulletDynamics;
 using namespace OgreBulletCollisions;
 
 ForwardDynamicsBodyDriverPD::ForwardDynamicsBodyDriverPD( Ogre::SharedPtr<ForwardDynamicsBody> body, float strength )
-: mBody(body), mStrength(strength), mOrientationActive(false)
+: mBody(body), mStrength(strength), mOrientationActive(false), mAngularVelocityActive(false)
 {
 }
 
@@ -31,6 +31,11 @@ void ForwardDynamicsBodyDriverPD::setTargetOrientationWorld( const Ogre::Quatern
 	mOrientationActive = true;
 }
 
+void ForwardDynamicsBodyDriverPD::setTargetAngularVelocityWorld( const Ogre::Vector3& target )
+{
+	mTargetAngularVelocity = target;
+	mAngularVelocityActive = true;
+}
 
 /**
  
@@ -93,8 +98,7 @@ void ForwardDynamicsBodyDriverPD::updateTorque()
 	Ogre::Vector3 wRel = BtOgreConverter::to(mBody->getBody()->getBulletRigidBody()->getAngularVelocity());
 	
 	// desired angular velocity in parent's frame
-	// zero for now
-	Ogre::Vector3 wRelD = Ogre::Vector3::ZERO;
+	Ogre::Vector3 wRelD = (mAngularVelocityActive ? mTargetAngularVelocity : Ogre::Vector3::ZERO);
 	
 	//BLog("%15s: ", mBone->getBone()->getName().c_str());
 	

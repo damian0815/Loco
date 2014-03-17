@@ -30,15 +30,16 @@ public:
 	const std::string& getBodyName() const { return mBodyName; }
 	ReferenceFrame getReferenceFrame() const { return mReferenceFrame; }
 	
-	Ogre::Quaternion evaluateAtTime( float phi );
+	Ogre::Vector3 evaluateAtTime( float phi );
 	
-private:
-	std::string mBodyName;
-	ReferenceFrame mReferenceFrame;
-	
+	// raw access
 	std::vector< std::pair<float,float> > mSplineX;
 	std::vector< std::pair<float,float> > mSplineY;
 	std::vector< std::pair<float,float> > mSplineZ;
+		
+private:
+	std::string mBodyName;
+	ReferenceFrame mReferenceFrame;
 	
 	unsigned int mLastPosX, mLastPosY, mLastPosZ;
 	
@@ -53,11 +54,13 @@ public:
 	
 	bool hasTargetForBody( const std::string& bodyName ) const { return mComponents.count(bodyName) > 0; }
 	
-	/// phi is 0..1
-	Ogre::Quaternion getTargetAtTime( const std::string& bodyName, float phi );
+	/*! @brief For orientations, the returned value rerpresents Euler angles and should be evaluated XZY. phi is 0..1. */
+	Ogre::Vector3 getTargetAtTime( const std::string& bodyName, float phi );
 	VirtualModelMotionComponent::ReferenceFrame getReferenceFrame( const std::string& bodyName ) const { return mComponents.at(bodyName).getReferenceFrame(); }
 	
 	const std::string& getName() const { return mName; }
+	
+	VirtualModelMotionComponent& getComponent( const std::string& name ) { return mComponents.at(name); }
 	
 private:
 	
@@ -72,21 +75,31 @@ class VirtualModelMotionGenerator
 public:
 	VirtualModelMotionGenerator( picojson::value& params );
 	
-	/*! @abstract Set the duration of a half-cycle of animation (one cycle of the motion without swapping stance/swing). Default 1.0f. */
+	/*! @brief Set the duration of a half-cycle of animation (one cycle of the motion without swapping stance/swing). Default 1.0f. */
 	void setCycleDuration( float seconds ) { mCycleDuration = seconds; }
 	
-	/*! @abstract Advance time by the given amount. Automatically swap stance/swing at the end of each cycle. */
+	/*! @brief Advance time by the given amount. Automatically swap stance/swing at the end of each cycle. */
 	void update( float deltaTime );
 	
-	/*! @abstract Set the active motion to the given motionName.
+	/*! @brief Set the active motion to the given motionName.
 	 @return true on success, false if motion name was not found. */
-	bool setActiveMotion( const std::string& bodyName );
-	/*! @abstract For the currently active motion, return if there is a target orientation for the given bodyName. */
-	bool hasTarget( const std::string& motionName );
-	/*! @abstract For the currently active motion, return the target orientation for the given bodyName at the current time. Use getReferenceFrame to determine what the orientation is relative to. */
-	Ogre::Quaternion getTarget( const std::string& bodyName );
-	/*! @abstract For the currently active motion, return the reference frame for the given bodyName. */
-	VirtualModelMotionComponent::ReferenceFrame getReferenceFrame( const std::string& bodyName );
+	bool setActiveMotion( const std::string& motionName );
+	/*! @brief For the currently active motion, return if there is a target orientation for the given bodyName. 
+	 @remarks Targets are named "<bodyName> Orientation" (or "<bodyName>.<SWING|STANCE> Orientation" for bodies with swing/stance parts that map to .L/.R depending on which leg is Swing or Stance) */
+	bool hasTargetOrientationForBody( const std::string& bodyName );
+	/*! @brief For the currently active motion, return the target orientation for the given bodyName at the current time. Use getReferenceFrame to determine what the orientation is relative to. */
+	Ogre::Quaternion getTargetOrientationForBody( const std::string& bodyName );
+	/*! @brief For the currently active motion, return the reference frame for the given bodyName. */
+	VirtualModelMotionComponent::ReferenceFrame getReferenceFrameForOrientation( const std::string& bodyName );
+	
+	/*! @brief For the currently active motion, return if there is a target orientation for the given bodyName.
+	 @remarks Targets are named "<bodyName> Position" (or "<bodyName>.<SWING|STANCE> Position" for bodies with swing/stance parts that map to .L/.R depending on which leg is Swing or Stance) */
+	bool hasTargetPositionForBody( const std::string& bodyName );
+	/*! @brief For the currently active motion, return the target position for the given bodyName at the current time. Use getReferenceFrame to determine what the position is relative to. */
+	Ogre::Vector3 getTargetPositionForBody( const std::string& bodyName );
+	VirtualModelMotionComponent::ReferenceFrame getReferenceFrameForPosition( const std::string& bodyName );
+	
+	VirtualModelMotionComponent& getComponentReference( const std::string& componentName );
 	
 	float getPhi() { return mPhi; }
 	bool getStanceIsLeft() { return mStanceIsLeft; }

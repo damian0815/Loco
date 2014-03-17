@@ -6,7 +6,7 @@
 //
 //
 
-/*! @abstract Controller to handle torques, velocities, etc of the articulated character. */
+/*! @brief Controller to handle torques, velocities, etc of the articulated character. */
 
 #ifndef __Loco__ForwardDynamicsSkeleton__
 #define __Loco__ForwardDynamicsSkeleton__
@@ -62,20 +62,23 @@ public:
 	/*! @return The parent body. Assertion is raised if no parent exists. */
 	Ogre::SharedPtr<ForwardDynamicsBody> getParentBody(const std::string &childBodyName) { return getBody(getParentBodyName(childBodyName)); }
 	
-	/*! @abstract Accumulate the given torque, in world space. Torques will be applied on the next call to update. */
+	/*! @brief Accumulate the given torque, in world space. Torques will be applied on the next call to update. */
 	void addJointTorque( std::string jointName, Ogre::Vector3 torque );
 	
-	/*! @abstract Copy all the body positions and orientations to the skeleton. */
+	/*! @brief Copy all the body positions and orientations to the skeleton. */
 	void update(float dt);
 	
 	void reset();
 	
 	void setCollisionsEnabled( bool enabled );
 	
-	/*! @abstract Set a target orientation for the given body to be solved via PD */
+	/*! @brief Set a target orientation for the given body to be solved via PD */
 	void setOrientationTarget( std::string bodyName, Ogre::Quaternion orientationWorld );
-	/*! @abstract Clear a previously assigned target orientation for the given body */
+	/*! @brief Clear a previously assigned target orientation for the given body */
 	void clearOrientationTarget( std::string bodyName );
+	
+	void setAngularVelocityTarget( const std::string& bodyName, Ogre::Vector3& angularVelocityWorld );
+	void clearAngularVelocityTarget( const std::string& bodyName );
 	
 private:
 	

@@ -362,6 +362,15 @@ void ForwardDynamicsSkeleton::clearOrientationTarget( std::string bodyName  )
 	mPDBodyDrivers.at(bodyName)->unsetTargetOrientation();
 }
 
+void ForwardDynamicsSkeleton::setAngularVelocityTarget( const std::string& bodyName, Ogre::Vector3& angularVelocityWorld )
+{
+	mPDBodyDrivers.at(bodyName)->setTargetAngularVelocityWorld(angularVelocityWorld);
+}
+
+void ForwardDynamicsSkeleton::clearAngularVelocityTarget( const std::string& bodyName )
+{
+	mPDBodyDrivers.at(bodyName)->unsetTargetAngularVelocity();
+}
 
 
 

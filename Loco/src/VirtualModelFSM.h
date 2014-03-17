@@ -35,7 +35,7 @@ class VirtualModelFSM
 public:
 	VirtualModelFSM( const picojson::value& params );
 	
-	/*! @abstract Update the FSM, including switching states if necessary. */
+	/*! @brief Update the FSM, including switching states if necessary. */
 	void update(float deltaTime);
 	
 	/*! @return true if the current state defines a target orientation for the given body name, otherwise false. */

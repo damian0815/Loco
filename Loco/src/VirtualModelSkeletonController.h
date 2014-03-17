@@ -30,7 +30,7 @@ public:
 	
 private:
 	
-	/*! @abstract Compute body target orientations from the finite state machine and apply as PD targets to the bodies. */
+	/*! @brief Compute body target orientations from the finite state machine and apply as PD targets to the bodies. */
 	void evaluateMotionTargets( float deltaTime );
 	
 	std::string getStanceLegSuffix() { return (mMotionGenerator->getStanceIsLeft()?"L":"R"); }
@@ -38,13 +38,24 @@ private:
 	
 	void computeGravityCompensationTorques( );
  
-	/*! @abstract Compute the torques that mimick the effect of applying a force on a rigid body, at some point. It works best if the end joint is connected to something that is grounded, otherwise (I think) this is just an approximation.
+	/*! @brief Compute the torques that mimick the effect of applying a force on a rigid body, at some point. It works best if the end joint is connected to something that is grounded, otherwise (I think) this is just an approximation.
 		@arg startName The joint to start at. The function will work backwards toward the root. 
 		@arg pLocal Where to apply the force, in joint-local coordinates.
 		@arg fGlobal The force to apply in global coordinates. 
 		@arg torques Output torques to apply
 	 */
 	void computeJointTorquesEquivalentToForce(std::string startName, const Ogre::Vector3& pLocal, const Ogre::Vector3& fGlobal /*, std::string endName=""*/);
+	
+	void computeIKSwingLegTargets(double dt);
+	void computeIKQandW( Ogre::SharedPtr<ForwardDynamicsJoint> parentJoint, Ogre::SharedPtr<ForwardDynamicsJoint> childJ, const Ogre::Vector3& parentAxis, const Ogre::Vector3& parentNormal, const Ogre::Vector3& childNormal, const Ogre::Vector3& childEndEffector, const Ogre::Vector3& wP, bool computeAngVelocities, const Ogre::Vector3& futureWP, double dt);
+	
+	/**
+		This method returns a target for the location of the swing foot, based on some state information. It is assumed that the velocity v
+		is expressed in character-relative coordinates (i.e. the sagittal component is the z-component), while the com position, and the
+		initial swing foot position is expressed in world coordinates. The resulting desired foot position is also expressed in world coordinates.
+	*/
+	Ogre::Vector3 getSwingFootTargetLocation(double t, const Ogre::Vector3& com, const Ogre::Quaternion& charFrameToWorld);
+	
 	
 	Ogre::Vector3 computeCoMVirtualForce();
 	void COMJT();
@@ -53,9 +64,11 @@ private:
 	float mGravityCompensationFactor, mCoMVirtualForceFactor;
 	
 	float mCoMkP, mCoMkD;
-	Ogre::Vector3 mPrevCoM, mCoMVelocity;
+	Ogre::Vector3 mCoM, mPrevCoM, mCoMVelocity;
+	Ogre::Quaternion mCharacterFrame;
 	
 	float mPelvisHeightAboveFeet;
+	Ogre::Vector3 mSwingLegPlaneOfRotation;
 
 	Ogre::Vector3 mFootTargetL, mFootTargetR, mCoMTarget;
 	float mLeftKneeOut, mRightKneeOut;
