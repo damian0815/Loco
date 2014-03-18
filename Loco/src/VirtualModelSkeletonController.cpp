@@ -21,7 +21,7 @@ using namespace Ogre;
 VirtualModelSkeletonController::VirtualModelSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundPlaneBody, const picojson::value& jsonSource )
 : ForwardDynamicsSkeletonController(skelRootSceneNode,skeleton,dynamicsWorld,jsonSource), mFootTargetL(0,0,0), mFootTargetR(0,0,0), mCoMTarget(0,0,0), mDoGravityCompensation(false), mDoCoMVirtualForce(false), mDoFootIK(true),
 mCoMkP(100.0f), mCoMkD(4.0f), mCoMVelocity(0,0,0), mCoM(0,0,0), mPrevCoM(0,0,0), mLeftKneeOut(0.5), mRightKneeOut(0.5),
-mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(false), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X)
+mGroundPlaneBody(groundPlaneBody), mStepWidth(0.3f), mDoubleStance(false), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X)
 {
 	picojson::object jsonRoot = jsonSource.get<picojson::object>();
 
@@ -51,8 +51,8 @@ mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(fa
 	if ( jsonRoot.count("footIKDoubleStance") ) {
 		mDoubleStance = jsonRoot["footIKDoubleStance"].get<bool>();
 	}
-	if ( jsonRoot.count("footIKPlacementWidth") ) {
-		mFootIKPlacementWidth = jsonRoot["footIKPlacementWidth"].get<double>();
+	if ( jsonRoot.count("stepWidth") ) {
+		mStepWidth = jsonRoot["stepWidth"].get<double>();
 	}
 	
 	if ( jsonRoot.count("CoMKd") ) {
@@ -78,6 +78,9 @@ mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(fa
 	mPelvisHeightAboveFeet = (mForwardDynamicsSkeleton->getBody("SpineBase")->getCoMWorld() - (mForwardDynamicsSkeleton->getBody("Foot.L")->getHeadPositionWorld()+mForwardDynamicsSkeleton->getBody("Foot.R")->getHeadPositionWorld())*0.5f).y;
 	mPelvisHeightAboveFeet *= 1.02f;
 	
+	mLegLength = (mForwardDynamicsSkeleton->getJointBetween("SpineBase", "LegUpper.L")->getPositionWorld() -
+				  mForwardDynamicsSkeleton->getJointBetween( "LegLower.L", "Foot.L")->getPositionWorld()).length();
+	
 	// create FSM
 	auto fsmParams = jsonRoot["finiteStateMachine"];
 	if ( !fsmParams.is<picojson::null>() ) {
@@ -99,6 +102,16 @@ mGroundPlaneBody(groundPlaneBody), mFootIKPlacementWidth(0.3f), mDoubleStance(fa
 	mForwardDynamicsSkeleton->getJointBetween("SpineBase", "LegUpper.R")->getBulletConstraint()->setOverrideNumSolverIterations(20);*/
 }
 
+Ogre::SharedPtr<ForwardDynamicsJoint> VirtualModelSkeletonController::getStanceAnkle()
+{
+	string suffix = getStanceLegSuffix();
+	return mForwardDynamicsSkeleton->getJointBetween( "LegLower."+suffix, "Foot."+suffix );
+}
+Ogre::SharedPtr<ForwardDynamicsJoint> VirtualModelSkeletonController::getSwingAnkle()
+{
+	string suffix = getSwingLegSuffix();
+	return mForwardDynamicsSkeleton->getJointBetween( "LegLower."+suffix, "Foot."+suffix );
+}
 
 
 
@@ -173,11 +186,17 @@ void VirtualModelSkeletonController::evaluateMotionTargets( float deltaTime )
 		mFiniteStateMachine->update(deltaTime);
 	}
 	
+	// upadate motion generator
+	bool phaseLooped = mMotionGenerator->update(deltaTime);
+	if ( phaseLooped ) {
+		auto swingAnkle = getSwingAnkle();
+		mInitialSwingFootPosition = swingAnkle->getPositionWorld();
+	}
+	
+	
 	std::set<string> bodyNames = mForwardDynamicsSkeleton->getAllBodyNames();
 	static const string swingHipName = "LegUpper."+getSwingLegSuffix();
 	static const string stanceHipName = "LegUpper."+getStanceLegSuffix();
-	
-	mMotionGenerator->update(deltaTime);
 
 	// create character reference frame
 	//Ogre::Quaternion characterFrame = mDriveableSkeleton->getRootSceneNode()-> convertLocalToWorldOrientation(Ogre::Quaternion::IDENTITY);
@@ -194,9 +213,13 @@ void VirtualModelSkeletonController::evaluateMotionTargets( float deltaTime )
 			VirtualModelMotionComponent::ReferenceFrame refFrame = mMotionGenerator->getReferenceFrameForOrientation(bodyName);
 			if ( refFrame == VirtualModelMotionComponent::RF_Character ) {
 				orientationW = mCharacterFrame * q;
-			} else {
+			} else if ( refFrame == VirtualModelMotionComponent::RF_Parent ) {
 				q = mForwardDynamicsSkeleton->getBody(bodyName)->getParentRelativeRestOrientation()*q;
 				orientationW = mForwardDynamicsSkeleton->getParentBody(bodyName)->convertLocalToWorldOrientation(q);
+			} else if ( refFrame == VirtualModelMotionComponent::RF_World ) {
+				orientationW = q;
+			} else {
+				OgreAssert( false, "unrecognized reference frame");
 			}
 			
 			mForwardDynamicsSkeleton->setOrientationTarget(bodyName, orientationW);
@@ -370,6 +393,144 @@ void VirtualModelSkeletonController::computeIKSwingLegTargets(double dt)
 	//	computeIKQandW(swingHipIndex, swingKneeIndex, Vector3d(0, -0.355, 0), Vector3d(1,0,0), Vector3d(1,0,0), Vector3d(0, -0.36, 0), pNow, true, pFuture, dt);*/
 }
 
+Ogre::Vector3 VirtualModelSkeletonController::computeIPStepLocation()
+{
+	Vector3 step(0,0,0);
+	auto stanceAnkle = getStanceAnkle();
+	double h = fabsf(mCoM.y - stanceAnkle->getPositionWorld().y);
+	Ogre::Vector3 v = getCoMVelocityInCharacterFrame();
+	step.x = v.x * sqrt(h/9.8 + v.x * v.x / (4*9.8*9.8)) * 1.3;
+	step.z = v.z * sqrt(h/9.8 + v.z * v.z / (4*9.8*9.8)) * 1.1;
+	step.y = 0;
+	return step;
+}
+
+float VirtualModelSkeletonController::adjustCoronalStepLocation(float stepLocation)
+{
+	// todo
+	stepLocation += (mMotionGenerator->getStanceIsLeft())?-mStepWidth:mStepWidth;
+	return stepLocation;
+}
+
+Ogre::Vector3 VirtualModelSkeletonController::computeSwingFootLocationEstimate( Ogre::Vector3 comPos, float phi )
+{
+	Vector3 step = computeIPStepLocation();
+
+	/*
+	//applying the IP prediction would make the character stop, so take a smaller step if you want it to walk faster, or larger
+	//if you want it to go backwards
+	step.z -= lowLCon->velDSagittal / 20;
+	 */
+	//and adjust the stepping in the coronal plane in order to account for desired step width...
+	step.x = adjustCoronalStepLocation(step.x);
+
+	float legLength = mLegLength;
+	step.z = min(max(-0.4f*legLength,step.z),0.4f*legLength);
+	step.x = min(max(-0.4f*legLength,step.x),0.4f*legLength);
+
+	Vector3 result(0,0,0);
+	// com is in world space
+	Vector3 swingFootStartPos = mInitialSwingFootPosition;
+	Vector3 initialStep = swingFootStartPos - comPos;
+	initialStep = mCharacterFrame.Inverse() * initialStep;
+	//when phi is small, we want to be much closer to where the initial step is - so compute this quantity in character-relative coordinates
+	//now interpolate between this position and initial foot position - but provide two estimates in order to provide some gradient information
+	float t = (1.0f-phi);
+	t = t * t;
+	clamp(t, 0, 1);
+
+	/*
+	Vector3 suggestedViaPoint(0,0,0);
+	alternateFootTraj.clear();
+	bool needToStepAroundStanceAnkle = false;
+	if (phase < 0.8 && shouldPreventLegIntersections && getPanicLevel() < 0.5)
+		needToStepAroundStanceAnkle = detectPossibleLegCrossing(step, &suggestedViaPoint);
+	if (needToStepAroundStanceAnkle){
+		//use the via point...
+		Vector3d currentSwingStepPos(comPos, lowLCon->swingFoot->state.position);
+		currentSwingStepPos = lowLCon->characterFrame.inverseRotate(initialStep);currentSwingStepPos.y = 0;		
+		//compute the phase for the via point based on: d1/d2 = 1-x / x-phase, where d1 is the length of the vector from
+		//the via point to the final location, and d2 is the length of the vector from the swing foot pos to the via point...
+		double d1 = (step - suggestedViaPoint).length(); double d2 = (suggestedViaPoint - currentSwingStepPos).length(); if (d2 < 0.0001) d2 = d1 + 0.001;
+		double c =  d1/d2;
+		double viaPointPhase = (1+phase*c)/(1+c);
+		//now create the trajectory...
+		alternateFootTraj.addKnot(0, initialStep);
+		alternateFootTraj.addKnot(viaPointPhase, suggestedViaPoint);
+		alternateFootTraj.addKnot(1, step);
+		//and see what the interpolated position is...
+		result = alternateFootTraj.evaluate_catmull_rom(1-t);
+//		tprintf("t: %lf\n", 1-t);
+	}else{*/
+		result = step*(1.0f-t) + initialStep*t;
+	//}
+
+	result.y = 0;
+
+/*
+	suggestedFootPosDebug = result;
+*/
+	return result;
+	
+}
+
+void VirtualModelSkeletonController::setDesiredSwingFootLocation( float phi, float dt )
+{
+	Vector3 step = computeSwingFootLocationEstimate(mCoM, phi);
+	
+	auto& swingFootPos = mMotionGenerator->getComponentReference("Foot.SWING Position");
+	// coronal = x, sagittal = z
+	swingFootPos.mSplineX.at(0) = make_pair(phi, step.x);
+	swingFootPos.mSplineZ.at(0) = make_pair(phi, step.z);
+	//lowLCon->swingFootTrajectoryCoronal.setKnotValue(0, step.x);
+	//lowLCon->swingFootTrajectorySagittal.setKnotValue(0, step.z);
+	
+	step = computeSwingFootLocationEstimate(mCoM + mCoMVelocity*dt, phi+dt);
+	swingFootPos.mSplineX.at(1) = make_pair(phi+dt, step.x);
+	swingFootPos.mSplineZ.at(1) = make_pair(phi+dt, step.z);
+	//lowLCon->swingFootTrajectoryCoronal.setKnotValue(1, step.x);
+	//lowLCon->swingFootTrajectorySagittal.setKnotValue(1, step.z);
+	//to give some gradient information, here's what the position will be a short time later...
+	/*
+	 lowLCon->swingFootTrajectorySagittal.setKnotPosition(0, lowLCon->phi);
+	 lowLCon->swingFootTrajectorySagittal.setKnotPosition(1, lowLCon->phi+dt);
+	 
+	 lowLCon->swingFootTrajectoryCoronal.setKnotPosition(0, lowLCon->phi);
+	 lowLCon->swingFootTrajectoryCoronal.setKnotPosition(1, lowLCon->phi+dt);*/
+}
+
+void VirtualModelSkeletonController::setKneeBend( float kneeBend, bool swingAlso )
+{
+	auto& stanceKneeOri = mMotionGenerator->getComponentReference("LegLower.STANCE Orientation");
+	Ogre::Vector3 offs = stanceKneeOri.getOffset();
+	offs.x = kneeBend;
+	stanceKneeOri.setOffset( offs );
+	
+	if (swingAlso) {
+		auto swingKneeOri = mMotionGenerator->getComponentReference("LegLower.SWING Orientation");
+		offs = swingKneeOri.getOffset();
+		offs.x = kneeBend;
+		swingKneeOri.setOffset( offs );
+	}
+}
+
+void VirtualModelSkeletonController::setUpperBodyPose( float leanSagittal, float leanCoronal, float twist)
+{
+	int sign = mMotionGenerator->getStanceIsLeft()?(-1):(1);
+	
+	auto& rootComponent = mMotionGenerator->getComponentReference("SpineBase Orientation");
+	rootComponent.setOffset( Ogre::Vector3(leanSagittal, leanCoronal*sign, twist*sign*0 ) );
+	
+	auto& spine1Component = mMotionGenerator->getComponentReference("SpineMid Orientation");
+	spine1Component.setOffset( Vector3( leanSagittal*1.5, leanCoronal*1.5*sign, twist*1.5*sign) );
+	
+	auto& spine2Component = mMotionGenerator->getComponentReference("SpineTop Orientation");
+	spine2Component.setOffset( Vector3( leanSagittal*2.5, leanCoronal*2.5*sign, twist*sign ) );
+	
+	auto& neckComponent = mMotionGenerator->getComponentReference("Neck Orientation");
+	neckComponent.setOffset( Vector3( leanSagittal*3.0, leanCoronal*1.0*sign, twist*3.0*sign ) );
+}
+
 void VirtualModelSkeletonController::update( float dt )
 {
 	// update CoM velocity
@@ -378,7 +539,7 @@ void VirtualModelSkeletonController::update( float dt )
 	mCoMVelocity = (mCoM-mPrevCoM)/dt;
 	
 	// get heading, store as mCharacterFrame
-	Ogre::Radian heading = mDriveableSkeleton->getRootSceneNode()->getOrientation().getYaw();
+	Ogre::Radian heading( mDriveableSkeleton->getRootSceneNode()->getOrientation().getYaw().valueRadians() + M_PI );
 	mCharacterFrame = Ogre::Quaternion( heading, Ogre::Vector3::UNIT_Y );
 
 	// simStepPlan
@@ -389,30 +550,18 @@ void VirtualModelSkeletonController::update( float dt )
 			swingFootStartPos = lowLCon->swingFoot->getWorldCoordinates(bip->joints[lowLCon->swingAnkleIndex]->cJPos);*/
 	
 		//compute desired swing foot location...
-		//setDesiredSwingFootLocation();
+		setDesiredSwingFootLocation( mMotionGenerator->getPhi(), dt );
 		
-		float phi = mMotionGenerator->getPhi();
-		Vector3 step = computeSwingFootLocationEstimate(mCoM, phi);
+		// rest of body
+		float ubSagittalLean = 0.0;
+		float ubCoronalLean = 0;
+		float ubTwist = 0;
+		setUpperBodyPose(ubSagittalLean, ubCoronalLean, ubTwist);
 		
-		auto& swingFootPos = mMotionGenerator->getComponentReference("Foot.SWING Position");
-		// coronal = x, sagittal = z
-		swingFootPos.mSplineX.at(0) = make_pair(phi, step.x);
-		swingFootPos.mSplineZ.at(0) = make_pair(phi, step.z);
-		//lowLCon->swingFootTrajectoryCoronal.setKnotValue(0, step.x);
-		//lowLCon->swingFootTrajectorySagittal.setKnotValue(0, step.z);
+		// knee bend keeps the com lifted up
+		setKneeBend( -0.1 );
 		
-		step = computeSwingFootLocationEstimate(mCoM + mCoMVelocity*dt, phi+dt);
-		swingFootPos.mSplineX.at(1) = make_pair(phi+dt, step.x);
-		swingFootPos.mSplineZ.at(1) = make_pair(phi+dt, step.z);
-		//lowLCon->swingFootTrajectoryCoronal.setKnotValue(1, step.x);
-		//lowLCon->swingFootTrajectorySagittal.setKnotValue(1, step.z);
-		//to give some gradient information, here's what the position will be a short time later...
-		/*
-		lowLCon->swingFootTrajectorySagittal.setKnotPosition(0, lowLCon->phi);
-		lowLCon->swingFootTrajectorySagittal.setKnotPosition(1, lowLCon->phi+dt);
-		
-		lowLCon->swingFootTrajectoryCoronal.setKnotPosition(0, lowLCon->phi);
-		lowLCon->swingFootTrajectoryCoronal.setKnotPosition(1, lowLCon->phi+dt);*/
+
 	}
 	
 	
@@ -451,49 +600,6 @@ void VirtualModelSkeletonController::update( float dt )
 		computeGravityCompensationTorques();
 	}
 
-	if ( mDoFootIK ) {
-		
-		clearLegIKForwardDynamics("R");
-		clearLegIKForwardDynamics("L");
-		
-		Ogre::Vector3 leftFootTargetPos(0,0,0);
-		Ogre::Vector3 rightFootTargetPos(0,0,0);
-		mLeftKneeOut = 0.05f;
-		mRightKneeOut = 0.4f;
-		
-		// choose which leg to use as basis based on stance leg selection
-		static const float kKneeOutSmoothing = 0.995f;
-		if ( mMotionGenerator->getStanceIsLeft() ) {
-			leftFootTargetPos = mForwardDynamicsSkeleton->getBody("Foot.L")->getHeadPositionWorld();
-			leftFootTargetPos.y = 0;
-			rightFootTargetPos = leftFootTargetPos + Ogre::Vector3(mFootIKPlacementWidth,0,0);
-	/*		mLeftKneeOut = mLeftKneeOut*kKneeOutSmoothing+0.0f*(1.0f-kKneeOutSmoothing);
-			mRightKneeOut = mRightKneeOut*kKneeOutSmoothing+1.0f*(1.0f-kKneeOutSmoothing);*/
-			solveLegIK("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
-			
-		} else {
-			rightFootTargetPos = mForwardDynamicsSkeleton->getBody("Foot.R")->getHeadPositionWorld();
-			rightFootTargetPos.y = 0;
-			leftFootTargetPos = rightFootTargetPos - Ogre::Vector3(mFootIKPlacementWidth,0,0);
-			/*
-			mLeftKneeOut = mLeftKneeOut*kKneeOutSmoothing+1.0f*(1.0f-kKneeOutSmoothing);
-			mRightKneeOut = mRightKneeOut*kKneeOutSmoothing+0.0f*(1.0f-kKneeOutSmoothing);*/
-			solveLegIK("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
-		}
-		
-		if ( mDoubleStance ) {
-			if ( !mMotionGenerator->getStanceIsLeft() ) {
-				solveLegIK("L", leftFootTargetPos, leftFootTargetPos.y+mPelvisHeightAboveFeet, true, mLeftKneeOut );
-			} else {
-				solveLegIK("R", rightFootTargetPos, rightFootTargetPos.y+mPelvisHeightAboveFeet, true, mRightKneeOut );
-			}
-		}
-			
-		
-		mFootTargetL = leftFootTargetPos;
-		mFootTargetR = rightFootTargetPos;
-	}
-		
 	
 	if ( mDoCoMVirtualForce )
 		COMJT();
@@ -673,11 +779,10 @@ void VirtualModelSkeletonController::debugDraw()
 	mDebugLines->addCross(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mFootTargetL), 0.1, Ogre::ColourValue(0.3, 0.8, 0.3));
 	mDebugLines->addCross(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mFootTargetR), 0.1, Ogre::ColourValue(0.3, 0.8, 0.3));
 	
-	mDebugLines->addCross(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mCoMTarget), 0.1, Ogre::ColourValue(0.8, 0.3, 0.5f));
+	mDebugLines->addCross(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mCoM), 0.1, Ogre::ColourValue(0.8, 0.3, 0.5f));
 	
 	// draw com virtual force
-	Ogre::Vector3 com = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition( mDriveableSkeleton->getCenterOfMassWorld());
-	mDebugLines->addLine(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(com), mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(com+mDebugCoMVirtualForce), Ogre::ColourValue(0.2, 0.2, 1.0) );
+	mDebugLines->addLine(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mCoM), mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(mCoM+mDebugCoMVirtualForce), Ogre::ColourValue(0.2, 0.2, 1.0) );
 }
 
 void VirtualModelSkeletonController::pushModel(Ogre::Vector3 force)

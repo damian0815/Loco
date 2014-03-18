@@ -14,5 +14,6 @@
 
 extern Ogre::Quaternion OgreQuaternionGetConvexConjugate( const Ogre::Quaternion& q );
 extern void OgreVector3ClampAllAxes( Ogre::Vector3& target, float minVal, float maxVal );
+static void clamp( float &target, float minVal, float maxVal ) { target = std::min(std::max(minVal,target),maxVal); }
 
 #endif /* defined(__Loco__MathUtilities__) */

@@ -15,7 +15,7 @@ using namespace std;
 using namespace Ogre;
 
 VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
-: mLastPosX(0), mLastPosY(0), mLastPosZ(0)
+: mLastPosX(0), mLastPosY(0), mLastPosZ(0), mOffset(0,0,0), mSign(1), mInvertOnPhaseSwap(false)
 {
 	object params = paramsValue.get<object>();
 	
@@ -28,6 +28,8 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 			mReferenceFrame = RF_Parent;
 		} else if ( referenceFrame == "character" ) {
 			mReferenceFrame = RF_Character;
+		} else if ( referenceFrame == "world" ) {
+			mReferenceFrame = RF_World;
 		} else {
 			OgreAssert( false, "unrecognized reference frame" );
 		}
@@ -61,7 +63,18 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 			}
 		}
 	}
+	
+	if ( params.count("invertOnPhaseSwap") ) {
+		mInvertOnPhaseSwap = params["invertOnPhaseSwap"].get<bool>();
+	}
 		
+}
+
+void VirtualModelMotionComponent::phaseSwapped()
+{
+	if ( mInvertOnPhaseSwap ) {
+		mSign = -mSign;
+	}
 }
 
 Vector3 VirtualModelMotionComponent::evaluateAtTime( float phi )
@@ -79,7 +92,7 @@ Vector3 VirtualModelMotionComponent::evaluateAtTime( float phi )
 		zRot = evaluateCatmullRom( mSplineZ, phi, mLastPosZ );
 	}
 	
-	return Ogre::Vector3(xRot, yRot, zRot);
+	return mSign*Ogre::Vector3(xRot, yRot, zRot) + mOffset;
 
 
 }
@@ -105,27 +118,41 @@ Vector3 VirtualModelMotion::getTargetAtTime( const std::string& bodyName, float 
 	return rot;
 }
 
+void VirtualModelMotion::phaseSwapped()
+{
+	for ( auto& it: mComponents ) {
+		it.second.phaseSwapped();
+	}
+}
 
 
 VirtualModelMotionGenerator::VirtualModelMotionGenerator( picojson::value& paramsValue )
-: mPhi(0), mStanceIsLeft(true), mCycleDuration(1.0f)
+: mPhi(1.0), mStanceIsLeft(true), mCycleDuration(1.0f)
 {
 	object params = paramsValue.get<object>();
 	
 	array motions = params["motions"].get<array>();
-	for ( auto motionValue: motions ) {
+	for ( auto& motionValue: motions ) {
 		mMotions.push_back( VirtualModelMotion(motionValue) );
+	}
+	
+	if ( params.count("cycleDuration") ) {
+		mCycleDuration = params["cycleDuration"].get<double>();
 	}
 
 }
 
-void VirtualModelMotionGenerator::update(float dt)
+bool VirtualModelMotionGenerator::update(float dt)
 {
 	mPhi += dt/mCycleDuration;
+	bool swapped = false;
 	while ( mPhi>1.0 ) {
 		mPhi -= 1.0;
 		mStanceIsLeft = !mStanceIsLeft;
+		mMotions.at(mCurrentMotionIndex).phaseSwapped();
+		swapped = true;
 	}
+	return swapped;
 }
 
 bool VirtualModelMotionGenerator::hasTargetOrientationForBody(const std::string &bodyName)

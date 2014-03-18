@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <Ogre/OgreQuaternion.h>
+#include <Ogre/OgreVector3.h>
 #include <string>
 #include <map>
 #include <vector>
@@ -24,22 +25,32 @@ public:
 	
 	typedef enum _ReferencFrame {
 		RF_Parent,
-		RF_Character
+		RF_Character,
+		RF_World
 	} ReferenceFrame;
 	
 	const std::string& getBodyName() const { return mBodyName; }
 	ReferenceFrame getReferenceFrame() const { return mReferenceFrame; }
 	
+	void phaseSwapped();
 	Ogre::Vector3 evaluateAtTime( float phi );
 	
 	// raw access
 	std::vector< std::pair<float,float> > mSplineX;
 	std::vector< std::pair<float,float> > mSplineY;
 	std::vector< std::pair<float,float> > mSplineZ;
+	
+	const Ogre::Vector3& getOffset() const { return mOffset; }
+	void setOffset( const Ogre::Vector3 &offs ) { mOffset = offs; }
 		
 private:
 	std::string mBodyName;
 	ReferenceFrame mReferenceFrame;
+	
+	Ogre::Vector3 mOffset;
+	// if true, the spline is inverted on phase swap (but not the offset)
+	bool mInvertOnPhaseSwap;
+	float mSign;
 	
 	unsigned int mLastPosX, mLastPosY, mLastPosZ;
 	
@@ -57,6 +68,8 @@ public:
 	/*! @brief For orientations, the returned value rerpresents Euler angles and should be evaluated XZY. phi is 0..1. */
 	Ogre::Vector3 getTargetAtTime( const std::string& bodyName, float phi );
 	VirtualModelMotionComponent::ReferenceFrame getReferenceFrame( const std::string& bodyName ) const { return mComponents.at(bodyName).getReferenceFrame(); }
+	
+	void phaseSwapped();
 	
 	const std::string& getName() const { return mName; }
 	
@@ -78,8 +91,9 @@ public:
 	/*! @brief Set the duration of a half-cycle of animation (one cycle of the motion without swapping stance/swing). Default 1.0f. */
 	void setCycleDuration( float seconds ) { mCycleDuration = seconds; }
 	
-	/*! @brief Advance time by the given amount. Automatically swap stance/swing at the end of each cycle. */
-	void update( float deltaTime );
+	/*! @brief Advance time by the given amount. Automatically swap stance/swing at the end of each cycle. 
+	 @return true if phi just reset (stance/swing was swapped). */
+	bool update( float deltaTime );
 	
 	/*! @brief Set the active motion to the given motionName.
 	 @return true on success, false if motion name was not found. */

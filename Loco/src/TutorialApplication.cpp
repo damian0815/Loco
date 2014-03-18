@@ -372,7 +372,7 @@ void TutorialApplication::createPhysics(void)
 	// create collision shape
 	OgreBulletCollisions::CollisionShape *floorShape = new OgreBulletCollisions::StaticPlaneCollisionShape(Ogre::Vector3(0,1,0), 0); // normal vector, distance
 	OgreBulletDynamics::RigidBody* defaultPlaneBody = new OgreBulletDynamics::RigidBody( "BasePlane", mWorld );
-	float restitution = 0.1f;
+	float restitution = 0.0f;
 	float friction = 100.0f;
 	defaultPlaneBody->setStaticShape(floorShape, restitution, friction); // shape, restitution, friction
 	// store

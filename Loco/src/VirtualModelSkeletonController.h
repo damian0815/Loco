@@ -36,6 +36,9 @@ private:
 	std::string getStanceLegSuffix() { return (mMotionGenerator->getStanceIsLeft()?"L":"R"); }
 	std::string getSwingLegSuffix() { return (!mMotionGenerator->getStanceIsLeft()?"L":"R"); }
 	
+	Ogre::SharedPtr<ForwardDynamicsJoint> getStanceAnkle();
+	Ogre::SharedPtr<ForwardDynamicsJoint> getSwingAnkle();
+	
 	void computeGravityCompensationTorques( );
  
 	/*! @brief Compute the torques that mimick the effect of applying a force on a rigid body, at some point. It works best if the end joint is connected to something that is grounded, otherwise (I think) this is just an approximation.
@@ -56,9 +59,34 @@ private:
 	*/
 	Ogre::Vector3 getSwingFootTargetLocation(double t, const Ogre::Vector3& com, const Ogre::Quaternion& charFrameToWorld);
 	
+	/**
+		determine the estimate desired location of the swing foot, given the etimated position of the COM, and the phase
+	*/
+	Ogre::Vector3 computeSwingFootLocationEstimate( Ogre::Vector3 com, float phi );
+	
+	/**
+	 returns the required stepping location, as predicted by the inverted pendulum model. The prediction is made
+	 on the assumption that the character will come to a stop by taking a step at that location. The step location
+	 is expressed in the character's frame coordinates.
+	 */
+	Ogre::Vector3 computeIPStepLocation();
+	
+	/**
+		modify the coronal location of the step so that the desired step width results.
+	 */
+	float adjustCoronalStepLocation( float initialCentralStepLocation );
 	
 	Ogre::Vector3 computeCoMVirtualForce();
 	void COMJT();
+	
+	
+	Ogre::Vector3 getCoMVelocityInCharacterFrame() { return mCharacterFrame.Inverse() * mCoMVelocity; }
+	
+	
+	void setDesiredSwingFootLocation( float phi, float dt );
+	void setKneeBend( float bend, bool swingAlso=false );
+	void setUpperBodyPose( float leanSagittal, float leanCoronal, float twist);
+	
 	
 	bool mDoGravityCompensation, mDoCoMVirtualForce, mDoFootIK;
 	float mGravityCompensationFactor, mCoMVirtualForceFactor;
@@ -66,6 +94,7 @@ private:
 	float mCoMkP, mCoMkD;
 	Ogre::Vector3 mCoM, mPrevCoM, mCoMVelocity;
 	Ogre::Quaternion mCharacterFrame;
+	Ogre::Vector3 mInitialSwingFootPosition; // swing foot position at start of this phi loop
 	
 	float mPelvisHeightAboveFeet;
 	Ogre::Vector3 mSwingLegPlaneOfRotation;
@@ -75,7 +104,8 @@ private:
 	Ogre::Vector3 mDebugCoMVirtualForce;
 	
 	bool mDoubleStance;
-	float mFootIKPlacementWidth;
+	float mStepWidth;
+	float mLegLength;
 	
 	OgreBulletDynamics::RigidBody* mGroundPlaneBody;
 	

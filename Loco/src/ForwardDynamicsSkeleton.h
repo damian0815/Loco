@@ -89,6 +89,7 @@ private:
 	Ogre::SceneNode* mPhysicsRootSceneNode;
 	
 	Ogre::SharedPtr<DriveableSkeleton> mDriveableSkeleton;
+	
 };
 
 #endif /* defined(__Loco__ForwardDynamicsSkeleton__) */
