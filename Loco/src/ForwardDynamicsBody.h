@@ -77,11 +77,11 @@ public:
 	
 	void reset( Ogre::SharedPtr<DriveableBone> parentBone, Ogre::SceneNode* skeletonRootNode );
 	
-	void addTorque( const Ogre::Vector3& torque ) { mTorque += torque; }
 	// apply torque to this body and reset
 	void applyTorque();
 	void addImpulse( const Ogre::Vector3& impulse );
-	
+
+	float getMaxTorque() { return mMaxTorque; }
 	
 	float getMass();
 	float getKp() { return mKp; }
@@ -89,6 +89,7 @@ public:
 	
 private:
 	
+	void addTorque( const Ogre::Vector3& torque ) { mTorque += torque; }
 	
 	std::string mParentBoneName;
 	float mKp, mKd, mMaxTorque;

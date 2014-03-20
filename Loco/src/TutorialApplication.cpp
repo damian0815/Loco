@@ -29,7 +29,7 @@ This source file is part of the
 using namespace std;
 
 static const bool PHYSICS_DEBUG_SHAPES = true ;
-static const double PHYSICS_FRAME_DURATION = 1.0/1000.0;
+static const double PHYSICS_FRAME_DURATION = 1.0/180.0;
 static const bool DO_ANIMATION = true;
 static const std::string DEFAULT_ANIMATION = "<none>";
 
@@ -41,7 +41,7 @@ static const std::string SKELETON_CONTROLLER_FILENAME = "swimmer.posecontroller"
 static const float DEFAULT_TIME_MULTIPLIER = 0.0f;
 static const float DEFAULT_ANIMATION_SPEED = 1.0f;
 
-static const Ogre::Vector3 ROOT_POSITION = Ogre::Vector3(0,0,0);
+static const Ogre::Vector3 ROOT_POSITION = Ogre::Vector3(0,1.5,0);
 
 //#define FLOOR_IS_PLANE
 
@@ -438,7 +438,7 @@ void TutorialApplication::createScene(void)
 	Ogre::Entity* entity = mSceneMgr->createEntity( name, path);
 	Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode( name + ".SceneNode" );
 	node->attachObject(entity);
-	node->setPosition(0,1.2,0);
+	node->setPosition(ROOT_POSITION);
 	
 	// save
 	mFigureEnt = entity;

@@ -12,6 +12,8 @@
 #include "OgreBulletConverter.h"
 #include "btRigidBody.h"
 #include "Utilities.h"
+#include "MathUtilities.h"
+
 using namespace std;
 using namespace OgreBulletCollisions;
 
@@ -181,7 +183,7 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		linearMotor->m_damping = mLinearLimitDamping;
 		for ( int i=0; i<3; i++ ) {
 			linearMotor->m_enableMotor[i] = true;
-			linearMotor->m_stopERP[i] = 0.8;
+			//linearMotor->m_stopERP[i] = 0.8;
 			con->getRotationalLimitMotor(i)->m_enableMotor = true;
 			con->getRotationalLimitMotor(i)->m_limitSoftness = mLimitSoftness;
 			con->getRotationalLimitMotor(i)->m_damping = mLimitDamping;
@@ -251,31 +253,19 @@ void ForwardDynamicsJoint::clearTorque()
 
 void ForwardDynamicsJoint::applyTorque()
 {
+	
+	// clamp torque
+	Ogre::Vector3 torqueParent = mTorque;
+	Ogre::Vector3 torqueChild = mTorque;
+
+	OgreVector3ClampAllAxes(torqueParent, -mParentFdb->getMaxTorque(), mParentFdb->getMaxTorque());
+	OgreVector3ClampAllAxes(torqueChild, -mChildFdb->getMaxTorque(), mChildFdb->getMaxTorque());
+	
+	
 #define CONVERT_TORQUE_TO_FORCE
 #ifdef CONVERT_TORQUE_TO_FORCE
 	
 	/*
-	 http://boards.straightdope.com/sdmb/showthread.php?t=268477
-	 
-	 Here you go: If you know u.v as well (period = dot product), then you can determine u. We have the identity
-	
-	(u x v) x w = (u.w) v - (v.w) u
-	
-	so this implies that
-	
-	(u x v) x v = (u.v) v - (v.v) u
-	
-	Rearranging gives us
-	
-	u = ((u.v) v - (u x v) x v) / (v.v)
-	 */
-	
-	// T = F x r
-	// F = ((F.r)*r - T x r) / (r.r)
-	
-	// OR
-	
-	/* 
 	 http://answers.unity3d.com/questions/407085/add-torque-at-position.html
 	 
 	 This works pretty much like spinning a pencil on the table. Try it. You will place two fingers on the opposite side of the pencil and push in the opposite direction. This results in a torque around the point in the middle of your fingers.
@@ -306,20 +296,28 @@ void ForwardDynamicsJoint::applyTorque()
 	orthoNormIntermediate.normalise();
 	ortho = orthoNormIntermediate.crossProduct(dummy);
 	
-	Ogre::Vector3 force = (0.5f*mTorque).crossProduct(ortho);
-	
+	// use clamped torques
+	Ogre::Vector3 forceParent = (0.5f*torqueParent).crossProduct(ortho);
+	Ogre::Vector3 forceChild = (0.5f*torqueChild).crossProduct(ortho);
+		
 	// apply force at hinge pos
 	Ogre::Vector3 hingePos = getPositionWorld();
 	Ogre::Vector3 pos1 = hingePos + ortho;
 	Ogre::Vector3 pos2 = hingePos - ortho;
-	btVector3 forceBt = OgreBtConverter::to(force);
+		
+	// apply force to each of parent and child
+	btVector3 forceBt = OgreBtConverter::to(forceParent);
 	// apply to parent
 	mParentFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos1)) );
 	mParentFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos2)) );
 	// apply to child
+	forceBt = OgreBtConverter::to(forceChild);
 	mChildFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos1)) );
 	mChildFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos2)) );
 	
+	if ( getChildFdb()->getName() == "LegUpper.L" ) {
+		BLog("LegUpper.L(const %llx): torque %s force %s", (unsigned long long)mConstraint, describe(torqueChild).c_str(), describe(forceChild).c_str() );
+	}
 	
 	
 #else
@@ -336,13 +334,14 @@ void ForwardDynamicsJoint::applyTorque()
 
 void ForwardDynamicsJoint::debugDraw(OgreBulletCollisions::DebugLines* debugLines)
 {
+	/*
 	Ogre::Vector3 worldPos = getPositionWorld();
 	debugLines->addCross( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), 0.1f, Ogre::ColourValue(1,0.3,0.8));
 	
 	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(mDebugPrevTorque.x*0.1,0,0)), Ogre::ColourValue(1,0,0) );
 	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(0,mDebugPrevTorque.y*0.1,0)), Ogre::ColourValue(0,1,0) );
 	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(0,0,mDebugPrevTorque.z*0.1)), Ogre::ColourValue(0,0,1) );
-	
+	*/
 	
 	
 	

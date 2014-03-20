@@ -67,8 +67,6 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 		// save
 		mBodies[bodyName] = fdb;
 		
-		// create pd driver
-		mPDBodyDrivers[bodyName] = Ogre::SharedPtr<ForwardDynamicsBodyDriverPD>( new ForwardDynamicsBodyDriverPD( fdb ) );
 	}
 	
 	// set rest orientations
@@ -112,9 +110,14 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 				
 				auto fdj = Ogre::SharedPtr<ForwardDynamicsJoint>( new ForwardDynamicsJoint( dynamicsWorld, parentFdb, childFdb, jointDef ));
 				
+				
 				// save
 				string fdjName = parentName+"-"+childName;
 				mJoints[fdjName] = fdj;
+				
+				// create pd driver
+				mPDJointDrivers[fdjName] = Ogre::SharedPtr<ForwardDynamicsJointDriverPD>( new ForwardDynamicsJointDriverPD( fdj ) );
+
 			}
 		}
 	}
@@ -137,7 +140,7 @@ void ForwardDynamicsSkeleton::debugDraw( OgreBulletCollisions::DebugLines* debug
 		it.second->debugDraw(debugLines);
 	}
 	
-	for ( const auto it: mPDBodyDrivers )
+	for ( const auto it: mPDJointDrivers )
 	{
 		it.second->debugDraw(debugLines);
 
@@ -173,17 +176,18 @@ void ForwardDynamicsSkeleton::update( float dt )
 {
 	
 	// add PD driver torques
-	for ( auto it: mPDBodyDrivers ) {
+	for ( auto it: mPDJointDrivers ) {
 		it.second->updateTorque();
 	}
 	
-	// add joint torques (from gravity compensation)
+	// add joint torques
 	for ( auto it: mJoints ) {
 		it.second->applyTorque();
 	}
 
 	
-	// actually apply the torques
+	// apply body torques
+	// This is redundant.
 	for ( auto it: mBodies ) {
 		// this clears the mTorque, also
 		it.second->applyTorque();
@@ -301,14 +305,14 @@ Ogre::SharedPtr<ForwardDynamicsJoint> ForwardDynamicsSkeleton::getJointBetween(s
 	return mJoints.at(jointName);
 }
 
-Ogre::SharedPtr<ForwardDynamicsJoint> ForwardDynamicsSkeleton::getJointToParent(string childBodyName)
+Ogre::SharedPtr<ForwardDynamicsJoint> ForwardDynamicsSkeleton::getJointToChild(string childBodyName)
 {
-	string parentName = getParentBodyName( childBodyName );
-	if ( parentName.length()==0 ) {
-		return Ogre::SharedPtr<ForwardDynamicsJoint>();
+	for ( auto it: mJoints ) {
+		if ( it.second->getChildFdb()->getName() == childBodyName ) {
+			return it.second;
+		}
 	}
-	
-	return getJointBetween( parentName, childBodyName );
+	return Ogre::SharedPtr<ForwardDynamicsJoint>();
 }
 
 string ForwardDynamicsSkeleton::getParentBodyName(string childBodyName)
@@ -362,25 +366,30 @@ set<string> ForwardDynamicsSkeleton::getAllBodyNames()
 	return names;
 }
 
-void ForwardDynamicsSkeleton::setOrientationTarget( std::string bodyName, Ogre::Quaternion orientationWorld )
+
+void ForwardDynamicsSkeleton::setOrientationTarget( const std::string& bodyName, const Ogre::Quaternion& orientationWorld )
 {
+	string jointName = getJointToChild(bodyName)->getName();
 	//Ogre::Quaternion orientationLocal = getBody(bodyName)->convertWorldToLocalOrientation(orientationWorld);
-	mPDBodyDrivers.at(bodyName)->setTargetOrientationWorld(orientationWorld);
+	mPDJointDrivers.at(jointName)->setTargetOrientationWorld(orientationWorld);
 }
 
-void ForwardDynamicsSkeleton::clearOrientationTarget( std::string bodyName  )
+void ForwardDynamicsSkeleton::clearOrientationTarget( const std::string& bodyName  )
 {
-	mPDBodyDrivers.at(bodyName)->unsetTargetOrientation();
+	string jointName = getJointToChild(bodyName)->getName(); 
+	mPDJointDrivers.at(jointName)->unsetTargetOrientation();
 }
 
-void ForwardDynamicsSkeleton::setAngularVelocityTarget( const std::string& bodyName, Ogre::Vector3& angularVelocityWorld )
+void ForwardDynamicsSkeleton::setAngularVelocityTarget( const std::string& bodyName, const Ogre::Vector3& angularVelocityWorld )
 {
-	mPDBodyDrivers.at(bodyName)->setTargetAngularVelocityWorld(angularVelocityWorld);
+	string jointName = getJointToChild(bodyName)->getName();
+	mPDJointDrivers.at(jointName)->setTargetAngularVelocityWorld(angularVelocityWorld);
 }
 
 void ForwardDynamicsSkeleton::clearAngularVelocityTarget( const std::string& bodyName )
 {
-	mPDBodyDrivers.at(bodyName)->unsetTargetAngularVelocity();
+	string jointName = getJointToChild(bodyName)->getName();
+	mPDJointDrivers.at(jointName)->unsetTargetAngularVelocity();
 }
 
 Ogre::Vector3 ForwardDynamicsSkeleton::getCenterOfMassWorld()

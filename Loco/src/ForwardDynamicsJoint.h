@@ -48,7 +48,8 @@ public:
 	Ogre::Vector3 getPositionInParentSpace();
 	Ogre::Vector3 getPositionInChildSpace();
 	
-	void addTorque( const Ogre::Vector3& torque );
+	/*! @brief Torque is in world space */
+	void addTorque( const Ogre::Vector3& torqueWorld );
 	const Ogre::Vector3& getTorque() const { return mTorque; }
 	/*! @brief Apply the torque to parent and child FDBs, then clear torque vector. */
 	void applyTorque();

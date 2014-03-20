@@ -195,9 +195,9 @@
 	},
 	"kneeAxis": [ 1,0,0 ],
 
-	"enableGravityCompensation": true,
+	"enableGravityCompensation": false,
 	"gravityCompensationFactor": 1.0,
-	"enableCoMVirtualForce": true,
+	"enableCoMVirtualForce": false,
 	"CoMVirtualForceFactor": 1.0,
 	
 	"enableFootIK": false,
@@ -211,16 +211,16 @@
 	
 	"forwardDynamics": {
 	
-		"limitSoftness": 0.7,
-		"limitDamping": 1.0,
+		"limitSoftness": 0.9,
+		"limitDamping": 0.8,
 	
 				
 		"bones": [
 
 			{
 				"name": "Head",
-				"kP": 128.0,
-				"kD": 1,
+				"kP": 10.0,
+				"kD": 0.01,
 				"joints": {},
 				"shape": "sphere",
 				"radius": 0.11,
@@ -228,8 +228,8 @@
 			},
 			{
 				"name": "Neck",
-				"kP": 128.0,
-				"kD": 1,
+				"kP": 10.0,
+				"kD": 0.01,
 				"joints": { 
 				"Head": { 
 					"type": "coneTwist", 
@@ -244,8 +244,8 @@
 			},
 			{
 				"name": "SpineTop",
-				"kP": 128.0,
-				"kD": 4.0,
+				"kP": 1.0,
+				"kD": 0.01,
 				"maxTorque": 800.0,
 				"joints": {
 					"Neck": { 
@@ -273,8 +273,8 @@
 			},
 			{
 				"name": "SpineMid",
-				"kP": 128.0,
-				"kD": 4.0,
+				"kP": 1.0,
+				"kD": 0.01,
 				"maxTorque": 400.0,
 
 				"joints": { 
@@ -294,24 +294,24 @@
 			
 			{
 				"name": "ArmUpper.L",
-				"kP": 128.0,
-				"kD": 1.0,
+				"kP": 10.0,
+				"kD": 0.1,
 				"joints": { "ArmLower.L": { "axis":"z", "minAngle":-2.7, "maxAngle":2.7 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmUpper.R",
-				"kP": 128.0,
-				"kD": 1.0,
+				"kP": 10.0,
+				"kD": 0.1,
 				"joints": { "ArmLower.R": { "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmLower.R",
-				"kP": 64.0,
-				"kD": 0.5,
+				"kP": 10.0,
+				"kD": 0.1,
 				"joints": { 
 					"Hand.R":  {
 						"type": "coneTwist",
@@ -325,8 +325,8 @@
 			},
 			{
 				"name": "ArmLower.L",
-				"kP": 64.0,
-				"kD": 0.5,
+				"kP": 10.0,
+				"kD": 0.1,
 				"joints": { 
 					"Hand.L": {
 						"type": "coneTwist",
@@ -358,8 +358,8 @@
 			
 			{
 				"name": "SpineBase",
-				"kP": 512.0,
-				"kD": 8.0,
+				"kP": 10.0,
+				"kD": 1.0,
 				"maxTorque": 400.0,
 				"joints": {
 					"SpineMid": {
@@ -389,9 +389,9 @@
 
 			{
 				"name": "LegUpper.R",
-				"kP": 256.0,
-				"kD": 8.0,
-				"maxTorque": 800.0,
+				"kP": 50.0,
+				"kD": 0.1,
+				"maxTorque": 100.0,
 				"joints": { "LegLower.R": { "type":"hinge", "axis":"x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.02, 0 ],
@@ -400,9 +400,9 @@
 			},
 			{
 				"name": "LegUpper.L",
-				"kP": 256.0,
-				"kD": 8.0,
-				"maxTorque": 800.0,
+				"kP": 50.0,
+				"kD": 0.1,
+				"maxTorque": 100.0,
 				"joints": { "LegLower.L": { "type":"hinge", "axis": "x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.02, 0 ],
@@ -411,9 +411,9 @@
 			},
 			{
 				"name": "LegLower.R",
-				"kP": 256.0,
-				"kD": 4.0,
-				"maxTorque": 800.0,
+				"kP": 20.0,
+				"kD": 0.5,
+				"maxTorque": 100.0,
 				"joints": { "Foot.R": { "type":"hinge", "minAngle": -2.0, "maxAngle": -1.3 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
@@ -422,9 +422,9 @@
 			},
 			{
 				"name": "LegLower.L",
-				"kP": 256.0,
-				"kD": 4.0,
-				"maxTorque": 800.0,
+				"kP": 50.0,
+				"kD": 2.0,
+				"maxTorque": 100.0,
 				"joints": { "Foot.L": { "type":"hinge", "minAngle": 1.3, "maxAngle": 2.0 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
@@ -485,7 +485,7 @@
 	
 	"motionGenerator":
 	{
-		"cycleDuration": 0.6,
+		"cycleDuration": 1.0,
 		"motions": [
 			{
 				"name": "splineTest",
@@ -502,35 +502,48 @@
 						"referenceFrame": "character"
 					},
 					{ 
+						"bodyName": "LegUpper.SWING Orientation",
+						"referenceFrame": "world",
+						"invertOnPhaseSwap": true,
+						"sagittal": [ [ 0, 3.141 ], [ 0.5, 2.84 ], [ 1, 3.141 ] ]
+					},
+					{ 
+						"bodyName": "LegUpper.STANCE Orientation",
+						"referenceFrame": "world",
+						"invertOnPhaseSwap": true,
+						"sagittal": [ [ 0, 3.141 ], [ 0.5, 3.44 ], [ 1, 3.141 ] ]
+					},
+					{ 
 						"bodyName": "LegLower.STANCE Orientation",
-						"referenceFrame": "parent"
+						"referenceFrame": "parent",
+						"x": [ [ 0, 0 ], [ 0.5, -0.5 ], [ 1, 0 ] ]
+					},
+					{ 
+						"bodyName": "LegLower.SWING Orientation",
+						"referenceFrame": "parent",
+						"x": [ [ 0, 0 ], [ 0.5, -0.5 ], [ 1, 0 ] ]
 					},
 					{
-						"bodyName": "SpineMid Orientation",
+						"bodyName": "disabled-SpineMid Orientation",
+						"referenceFrame": "character",
 						"invertOnPhaseSwap": true,
-						"y": [ [ 0, 0.2 ], [0.2, 0.08], [0.8, -0.08], [ 1, -0.2 ] ]
+						"y": [ [ 0, 0 ] ]
 					},
 					{
-						"bodyName": "SpineTop Orientation",
+						"bodyName": "disabled-SpineTop Orientation",
 						"invertOnPhaseSwap": true,
-						"y-disabled": [ [ 0, 0.1 ], [0.2, 0.08], [0.8, -0.08], [ 1, -0.1 ] ]
+						"y": [ [ 0, 0 ] ]
 					},
 					{
-						"bodyName": "Neck Orientation"
+						"bodyName": "disabled-Neck Orientation"
 					},
 					{
-						"bodyName": "ArmUpper.L Orientation",
+						"bodyName": "disabled-ArmUpper.L Orientation",
 						"z": [ [ 0, -0.6 ] ]
 					},
 					{
-						"bodyName": "ArmLower.L Orientation"
-					},
-					{
-						"bodyName": "ArmUpper.R Orientation",
+						"bodyName": "disabled-ArmUpper.R Orientation",
 						"z": [ [ 0, 0.6 ] ]
-					},
-					{
-						"bodyName": "ArmLower.R Orientation"
 					}
 				]
 			}

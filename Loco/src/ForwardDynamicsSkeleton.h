@@ -20,7 +20,7 @@
 #include "Utilities.h"
 #include "ForwardDynamicsBody.h"
 #include "ForwardDynamicsJoint.h"
-#include "ForwardDynamicsBodyDriverPD.h"
+#include "ForwardDynamicsJointDriverPD.h"
 
 class btTypedConstraint;
 class btRigidBody;
@@ -55,7 +55,7 @@ public:
 	/*! @return The requested body. Assertion is raised if body name is not recognized. */
 	Ogre::SharedPtr<ForwardDynamicsBody> getBody(std::string bodyName);
 	/*! @return The joint from the childBodyName to its parent, or NULL if none exists. */
-	Ogre::SharedPtr<ForwardDynamicsJoint> getJointToParent(std::string childBodyName );
+	Ogre::SharedPtr<ForwardDynamicsJoint> getJointToChild(std::string childBodyName );
 	Ogre::SharedPtr<ForwardDynamicsJoint> getJointBetween(std::string parentBodyName, std::string childBodyName);
 	std::vector<Ogre::SharedPtr<ForwardDynamicsJoint> > getAllJointsWithParent(std::string parentBodyName);
 	/*! @return The name of the parent body, or "" if no parent exists. */
@@ -73,25 +73,28 @@ public:
 	
 	void setCollisionsEnabled( bool enabled );
 	
-	/*! @brief Set a target orientation for the given body to be solved via PD */
-	void setOrientationTarget( std::string bodyName, Ogre::Quaternion orientationWorld );
-	/*! @brief Clear a previously assigned target orientation for the given body */
-	void clearOrientationTarget( std::string bodyName );
+	/*! @brief Set the target orientation for the given body to be solved via PD. bodyName must have a joint in which it is child. */
+	void setOrientationTarget( const std::string &bodyName, const Ogre::Quaternion &orientationWorld );
+	/*! @brief Clear any previously assigned orientation target for the given body. bodyName must have a joint in which it is child. */
+	void clearOrientationTarget( const std::string &bodyName );
 	
-	void setAngularVelocityTarget( const std::string& bodyName, Ogre::Vector3& angularVelocityWorld );
+	/*! @brief Set the target angular velocity for the given body to be solved via PD. bodyName must have a joint in which it is child. */
+	void setAngularVelocityTarget( const std::string& bodyName, const Ogre::Vector3& angularVelocityWorld );
+	/*! @brief Clear any previously assigned angular velocity target for the given body. bodyName must have a joint in which it is child. */
 	void clearAngularVelocityTarget( const std::string& bodyName );
 	
 	/*! @brief Sum of masses of all bodies. */
 	float getTotalMass() { return mTotalMass; }
 	
 	Ogre::Vector3 getCenterOfMassWorld();
+	/*! @brief Calculated similar to center of mass but using velocity of each body rather than CoM. */
 	Ogre::Vector3 getCenterOfMassVelocityWorld();
 	
 private:
 	
 	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsBody> > mBodies;
 	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsJoint> > mJoints;
-	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsBodyDriverPD> > mPDBodyDrivers;
+	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsJointDriverPD> > mPDJointDrivers;
 	
 	Ogre::SceneNode* mPhysicsRootSceneNode;
 	

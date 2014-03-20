@@ -1,13 +1,13 @@
 //
-//  ForwardDynamicsBodyDriverPD.h
+//  ForwardDynamicsJointDriverPD.h
 //  Loco
 //
 //  Created on 13/11/13.
 //
 //
 
-#ifndef __Loco__ForwardDynamicsBodyDriverPD__
-#define __Loco__ForwardDynamicsBodyDriverPD__
+#ifndef __Loco__ForwardDynamicsJointDriverPD__
+#define __Loco__ForwardDynamicsJointDriverPD__
 
 #include <iostream>
 
@@ -15,7 +15,7 @@
 #include "DriveableBone.h"
 #include <Ogre/OgreQuaternion.h>
 #include <Ogre/OgreSharedPtr.h>
-#include "ForwardDynamicsBody.h"
+#include "ForwardDynamicsJoint.h"
 
 namespace OgreBulletCollisions {
 	class DebugLines;
@@ -23,10 +23,10 @@ namespace OgreBulletCollisions {
 
 /*! @brief Proportional derivative bone orientation/position driver. */
 
-class ForwardDynamicsBodyDriverPD
+class ForwardDynamicsJointDriverPD
 {
 public:
-	ForwardDynamicsBodyDriverPD( Ogre::SharedPtr<ForwardDynamicsBody> body, float strength=1.0f );
+	ForwardDynamicsJointDriverPD( Ogre::SharedPtr<ForwardDynamicsJoint> joint, float strength=1.0f );
 	
 	/*! @brief Set target orientation, in world space. */
 	void setTargetOrientationWorld( const Ogre::Quaternion& targetOrientation );
@@ -46,10 +46,19 @@ public:
 	
 	void debugDraw( OgreBulletCollisions::DebugLines* debugLines );
 	
+	/**
+	 
+	 from SimBiCon
+	 
+	 This method is used to compute the PD torque that aligns a child coordinate frame to a parent coordinate frame.
+	 Given: the current relative orientation of two coordinate frames (child and parent), the relative angular velocity,
+	 the desired values for the relative orientation and ang. vel, as well as the virtual motor's PD gains. The torque
+	 returned is expressed in the coordinate frame of the 'parent'.
+	 */
 	static Ogre::Vector3 computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength );
 	
 private:
-	Ogre::SharedPtr<ForwardDynamicsBody> mBody;
+	Ogre::SharedPtr<ForwardDynamicsJoint> mJoint;
 	
 	Ogre::Quaternion mTargetOrientation;
 	Ogre::Vector3 mTargetAngularVelocity;
@@ -63,4 +72,4 @@ private:
 
 
 
-#endif /* defined(__Loco__ForwardDynamicsBodyDriverPD__) */
+#endif /* defined(__Loco__ForwardDynamicsJointDriverPD__) */

@@ -226,6 +226,7 @@ Ogre::Vector3 ForwardDynamicsBody::getCoMWorld()
 	return BtOgreConverter::to(mBody->getBulletRigidBody()->getCenterOfMassPosition());*/
 }
 
+
 Ogre::Quaternion ForwardDynamicsBody::getOrientationLocal()
 {
 	return mBody->getSceneNode()->getOrientation();

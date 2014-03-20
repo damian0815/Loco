@@ -23,7 +23,7 @@
 		2D08A39D170A51C800E5D159 /* MeshTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D08A39B170A51C800E5D159 /* MeshTools.cpp */; };
 		2D2528CD182150C5004647E1 /* ForwardDynamicsBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2528CB182150C5004647E1 /* ForwardDynamicsBody.cpp */; };
 		2D2E04F7181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E04F5181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp */; };
-		2D35D69C1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */; };
+		2D35D69C1833A023005C77F3 /* ForwardDynamicsJointDriverPD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D35D69A1833A023005C77F3 /* ForwardDynamicsJointDriverPD.cpp */; };
 		2D3EB7E0188FC7F00057FAB7 /* VirtualModelFSM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EB7DE188FC7F00057FAB7 /* VirtualModelFSM.cpp */; };
 		2D43FB8E18D4D77E00A35F45 /* MathUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D43FB8C18D4D77E00A35F45 /* MathUtilities.cpp */; };
 		2D6B05DE16E5078B0075A3DD /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6B039616E5078A0075A3DD /* btAxisSweep3.cpp */; };
@@ -330,8 +330,8 @@
 		2D2528CC182150C5004647E1 /* ForwardDynamicsBody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsBody.h; sourceTree = "<group>"; };
 		2D2E04F5181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsSkeleton.cpp; sourceTree = "<group>"; };
 		2D2E04F6181E6D2C00E36F83 /* ForwardDynamicsSkeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsSkeleton.h; sourceTree = "<group>"; };
-		2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsBodyDriverPD.cpp; sourceTree = "<group>"; };
-		2D35D69B1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsBodyDriverPD.h; sourceTree = "<group>"; };
+		2D35D69A1833A023005C77F3 /* ForwardDynamicsJointDriverPD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsJointDriverPD.cpp; sourceTree = "<group>"; };
+		2D35D69B1833A023005C77F3 /* ForwardDynamicsJointDriverPD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsJointDriverPD.h; sourceTree = "<group>"; };
 		2D3EB7DE188FC7F00057FAB7 /* VirtualModelFSM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VirtualModelFSM.cpp; sourceTree = "<group>"; };
 		2D3EB7DF188FC7F00057FAB7 /* VirtualModelFSM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirtualModelFSM.h; sourceTree = "<group>"; };
 		2D43FB8C18D4D77E00A35F45 /* MathUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathUtilities.cpp; sourceTree = "<group>"; };
@@ -957,8 +957,8 @@
 				2D2528CC182150C5004647E1 /* ForwardDynamicsBody.h */,
 				2DA69464182BC714009230A7 /* ForwardDynamicsJoint.cpp */,
 				2DA69465182BC714009230A7 /* ForwardDynamicsJoint.h */,
-				2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */,
-				2D35D69B1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.h */,
+				2D35D69A1833A023005C77F3 /* ForwardDynamicsJointDriverPD.cpp */,
+				2D35D69B1833A023005C77F3 /* ForwardDynamicsJointDriverPD.h */,
 			);
 			name = "Forward dynamics";
 			sourceTree = "<group>";
@@ -2296,7 +2296,7 @@
 				2D6B062C16E5078B0075A3DD /* btGenericPoolAllocator.cpp in Sources */,
 				2D6B062D16E5078B0075A3DD /* btGImpactBvh.cpp in Sources */,
 				2D6B062E16E5078B0075A3DD /* btGImpactCollisionAlgorithm.cpp in Sources */,
-				2D35D69C1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp in Sources */,
+				2D35D69C1833A023005C77F3 /* ForwardDynamicsJointDriverPD.cpp in Sources */,
 				2D6B062F16E5078B0075A3DD /* btGImpactQuantizedBvh.cpp in Sources */,
 				2D6B063016E5078B0075A3DD /* btGImpactShape.cpp in Sources */,
 				2D6B063116E5078B0075A3DD /* btTriangleShapeEx.cpp in Sources */,
