@@ -48,7 +48,15 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 	btTypedConstraint* constraint = NULL;
 	
 	// hinge joint
-	if ( jointType == "hinge" ) {
+	if ( jointType == "freeRot" ) {
+		
+		// create
+		btPoint2PointConstraint* con = new btPoint2PointConstraint( *bodyABody, *bodyBBody, OgreBtConverter::to(pivotInA), OgreBtConverter::to(pivotInB) );
+		
+		constraint = con;
+		
+	}
+	else if ( jointType == "hinge" ) {
 		string axis = "z";
 		if ( jointDef.count("axis") ) {
 			axis = jointDef["axis"].get<string>();

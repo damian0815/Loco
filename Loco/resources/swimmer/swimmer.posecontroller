@@ -218,165 +218,26 @@
 		"bones": [
 
 			{
-				"name": "Head",
-				"kP": 10.0,
-				"kD": 0.01,
-				"joints": {},
-				"shape": "sphere",
-				"radius": 0.11,
-				"comOffsetLocal": [ 0, 0.010, 0.052 ]
-			},
-			{
-				"name": "Neck",
-				"kP": 10.0,
-				"kD": 0.01,
-				"joints": { 
-				"Head": { 
-					"type": "coneTwist", 
-					"swing1Span": 0.2, 
-					"swing2Span": 0.2, 
-					"twistSpan": 0.1 
-				}  
-				},				
-				"shape": "rod",
-				"radius": 0.042,
-				"comOffsetLocal": [ 0, 0, 0.03 ]
-			},
-			{
-				"name": "SpineTop",
-				"kP": 1.0,
-				"kD": 0.01,
-				"maxTorque": 800.0,
-				"joints": {
-					"Neck": { 
-						"type": "coneTwist", 
-						"swing1Span": 0.4, 
-						"swing2Span": 0.4, 
-						"twistSpan": 0.1
-					}, 
-					"ArmUpper.L": { 
-						"type": "coneTwist", 
-						"swing1Span": 0.4, 
-						"swing2Span": 0.4, 
-						"twistSpan": 0.1
-					},
-					"ArmUpper.R": { 
-						"type": "coneTwist", 
-						"swing1Span": 0.8, 
-						"swing2Span": 1.2, 
-						"twistSpan": 0.7
-					}
-				},
-				"shape": "box",
-				"shapeSize": [ 0.20, 0.12, 0.12 ],
-				"comOffsetLocal": [ 0, 0.08, 0.05 ]
-			},
-			{
-				"name": "SpineMid",
-				"kP": 1.0,
-				"kD": 0.01,
-				"maxTorque": 400.0,
-
-				"joints": { 
-					"SpineTop": { 
-						"type": "coneTwist", 
-						"swing1Span":0.2, 
-						"swing2Span":0.2, 
-						"twistSpan": 0.2 
-					} 
-				},
-				"shape": "box",
-				"shapeSize": [ 0.2, 0.15, 0.12 ],
-				"comOffsetLocal": [ 0, 0.11, 0.08 ]
-			},
-
-			
-			
-			{
-				"name": "ArmUpper.L",
-				"kP": 10.0,
-				"kD": 0.1,
-				"joints": { "ArmLower.L": { "axis":"z", "minAngle":-2.7, "maxAngle":2.7 } },
-				"shape": "rod",
-				"radiusFactor": 0.1
-			},
-			{
-				"name": "ArmUpper.R",
-				"kP": 10.0,
-				"kD": 0.1,
-				"joints": { "ArmLower.R": { "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
-				"shape": "rod",
-				"radiusFactor": 0.1
-			},
-			{
-				"name": "ArmLower.R",
-				"kP": 10.0,
-				"kD": 0.1,
-				"joints": { 
-					"Hand.R":  {
-						"type": "coneTwist",
-						"swing1Span": 2.7,
-						"swing2Span": 0.8,
-						"twistSpan": 1.5
-					} 
-				},
-				"shape": "rod",
-				"radiusFactor": 0.1
-			},
-			{
-				"name": "ArmLower.L",
-				"kP": 10.0,
-				"kD": 0.1,
-				"joints": { 
-					"Hand.L": {
-						"type": "coneTwist",
-						"swing1Span": 2.7,
-						"swing2Span": 0.8,
-						"twistSpan": 1.5					
-					}
-				},
-				"shape": "rod",
-				"radiusFactor": 0.1
-
-			},
-			{
-				"name": "Hand.R",
-				"kP": 0.1,
-				"kD": 0.01,
-				"shape": "box",
-				"shapeSize": [ 0.03, 0.17, 0.08 ],
-				"comOffsetLocal": [ 0, 0.1, -0.01 ]
-			},
-			{
-				"name": "Hand.L",
-				"kP": 0.1,
-				"kD": 0.01,
-				"shape": "box",
-				"shapeSize": [ 0.03, 0.17, 0.08 ],
-				"comOffsetLocal": [ 0, 0.1, -0.01 ]
-			},
-			
-			{
 				"name": "SpineBase",
-				"kP": 10.0,
+				"kP": 100.0,
 				"kD": 1.0,
 				"maxTorque": 400.0,
 				"joints": {
 					"SpineMid": {
 						
-					 	"type": "coneTwist", 
+					 	"type": "freeRot", 
 						 "swing1Span":0.2, 
 						 "swing2Span":0.2, 
 						 "twistSpan": 0.2 
 					 }, 
 					"LegUpper.L": { 
-						"type": "coneTwist", 
+						"type": "freeRot", 
 							"swing1Span": 0.4, 
 							"swing2Span": 0.6, 
 							"twistSpan": 0.3						
 					},
 					"LegUpper.R": {
-						"type": "coneTwist", 
+						"type": "freeRot", 
 							"swing1Span": 0.4, 
 							"swing2Span": 0.6, 
 							"twistSpan": 0.3
@@ -390,7 +251,7 @@
 			{
 				"name": "LegUpper.R",
 				"kP": 50.0,
-				"kD": 0.1,
+				"kD": 10.0,
 				"maxTorque": 100.0,
 				"joints": { "LegLower.R": { "type":"hinge", "axis":"x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
@@ -502,24 +363,25 @@
 						"referenceFrame": "character"
 					},
 					{ 
-						"bodyName": "LegUpper.SWING Orientation",
+						"bodyName": "dis-LegUpper.SWING Orientation",
 						"referenceFrame": "world",
 						"invertOnPhaseSwap": true,
 						"sagittal": [ [ 0, 3.141 ], [ 0.5, 2.84 ], [ 1, 3.141 ] ]
 					},
 					{ 
-						"bodyName": "LegUpper.STANCE Orientation",
+						"bodyName": "dis-LegUpper.STANCE Orientation",
 						"referenceFrame": "world",
 						"invertOnPhaseSwap": true,
 						"sagittal": [ [ 0, 3.141 ], [ 0.5, 3.44 ], [ 1, 3.141 ] ]
 					},
 					{ 
-						"bodyName": "LegLower.STANCE Orientation",
-						"referenceFrame": "parent",
-						"x": [ [ 0, 0 ], [ 0.5, -0.5 ], [ 1, 0 ] ]
+						"bodyName": "LegLower.L Orientation",
+						"referenceFrame": "character",
+						"x": [ [ 0, 0 ], [ 0.5, -0.5 ], [ 1, 0 ] ],
+						"z": [ [ 0, 3.141 ] ]
 					},
 					{ 
-						"bodyName": "LegLower.SWING Orientation",
+						"bodyName": "dis-LegLower.SWING Orientation",
 						"referenceFrame": "parent",
 						"x": [ [ 0, 0 ], [ 0.5, -0.5 ], [ 1, 0 ] ]
 					},

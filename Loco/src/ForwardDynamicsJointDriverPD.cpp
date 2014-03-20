@@ -91,14 +91,15 @@ void ForwardDynamicsJointDriverPD::updateTorque()
 	auto child = mJoint->getChildFdb();
 	
 	// current orientation in local frame
-	Ogre::Quaternion qRel = child->getOrientationLocal() * child->getParentRelativeRestOrientation().Inverse();
+	Ogre::Quaternion qRel = child->getOrientationWorld();
 	OgreAssert(fabsf((qRel.w*qRel.w+qRel.x*qRel.x+qRel.y*qRel.y+qRel.z*qRel.z)-1.0) < 0.0001, "qRel is not normalized");
 	//qRel.normalise();
 	// desired orientation in local frame
 	Ogre::Quaternion qRelD = mTargetOrientation;
 	
 	// current angular velocity in parent's frame
-	Ogre::Vector3 wRel = parent->getOrientationWorld().Inverse() * BtOgreConverter::to( child->getBody()->getBulletRigidBody()->getAngularVelocity());
+	//Ogre::Vector3 wRel = parent->getOrientationWorld().Inverse() * BtOgreConverter::to( child->getBody()->getBulletRigidBody()->getAngularVelocity());
+	Ogre::Vector3 wRel = BtOgreConverter::to( child->getBody()->getBulletRigidBody()->getAngularVelocity());
 	// desired angular velocity in parent's frame
 	Ogre::Vector3 wRelD = (mAngularVelocityActive ? mTargetAngularVelocity : Ogre::Vector3::ZERO);
 	

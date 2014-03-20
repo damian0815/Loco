@@ -126,7 +126,6 @@ private:
 	Ogre::Quaternion mCharacterFrame;
 	Ogre::Vector3 mInitialSwingFootPosition; // swing foot position at start of this phi loop
 	
-	float mPelvisHeightAboveFeet;
 	Ogre::Vector3 mSwingLegPlaneOfRotation;
 
 	Ogre::Vector3 mFootTargetL, mFootTargetR;

@@ -34,7 +34,8 @@ mTargetCoMVelocitySagittal(10.0), mTargetCoMVelocityCoronal(0.0), mRootPredictiv
 	rb = mForwardDynamicsSkeleton->getBody("Foot.R")->getBody()->getBulletRigidBody();
 	rb->setCollisionFlags( rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );*/
 	
-	// set the pelvis/root to be static / immobile / fixed
+	// set the pelvis/root to be static / immobile / fixed / rigid
+	// fix pelvis fix spinebase fix root
 	//mForwardDynamicsSkeleton->getBody("SpineBase")->getBody()->getBulletRigidBody()->setMassProps(0, btVector3(0,0,0));
 	
 	mDoGravityCompensation = jsonRoot["enableGravityCompensation"].get<bool>();
@@ -77,11 +78,8 @@ mTargetCoMVelocitySagittal(10.0), mTargetCoMVelocityCoronal(0.0), mRootPredictiv
 		mForwardDynamicsSkeleton->setOrientationTarget(bn, orientationTarget);
 	}*/
 	
-	mPelvisHeightAboveFeet = (mForwardDynamicsSkeleton->getBody("SpineBase")->getCoMWorld() - (mForwardDynamicsSkeleton->getBody("Foot.L")->getHeadPositionWorld()+mForwardDynamicsSkeleton->getBody("Foot.R")->getHeadPositionWorld())*0.5f).y;
-	mPelvisHeightAboveFeet *= 1.02f;
-	
-	mLegLength = (mForwardDynamicsSkeleton->getJointBetween("SpineBase", "LegUpper.L")->getPositionWorld() -
-				  mForwardDynamicsSkeleton->getJointBetween( "LegLower.L", "Foot.L")->getPositionWorld()).length();
+	mLegLength = (mForwardDynamicsSkeleton->getJointBetween("SpineBase", "LegUpper.R")->getPositionWorld() -
+				  mForwardDynamicsSkeleton->getJointBetween( "LegLower.R", "Foot.R")->getPositionWorld()).length();
 	
 	// create FSM
 	auto fsmParams = jsonRoot["finiteStateMachine"];
@@ -646,6 +644,7 @@ void VirtualModelSkeletonController::update( float dt )
 	}
 		
 	
+	if ( doStepping )
 	{
 		//and now separetely compute the torques for the hips - together with the feedback term, this is what defines simbicon
 		// qRootD = desired root orientation
@@ -653,7 +652,7 @@ void VirtualModelSkeletonController::update( float dt )
 		if ( mMotionGenerator->hasTargetOrientationForBody("SpineBase") ) {
 			qRootD = mMotionGenerator->getTargetOrientationForBody("SpineBase");
 		}
-		computeHipTorques(qRootD, getStanceFootWeightRatio(/*cfs*/), mFFRootTorque);
+		computeHipTorques(qRootD, 0.5f/*getStanceFootWeightRatio(cfs)*/, mFFRootTorque);
 		
 	}
 	
@@ -807,7 +806,9 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	//so this is the net torque that the root wants to see, in world coordinates
 	auto root = mForwardDynamicsSkeleton->getBody("SpineBase");
 	Vector3 rootAngularVelocity = BtOgreConverter::to(root->getBody()->getBulletRigidBody()->getAngularVelocity());
-	Vector3 rootTorque = ForwardDynamicsJointDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getKp(), root->getKd(), rootControlParamsStrength);
+	// qrel should be in 'local' space
+	Quaternion qRel = root->getOrientationLocal() * root->getParentRelativeRestOrientation().Inverse();
+	Vector3 rootTorque = ForwardDynamicsJointDriverPD::computePDTorque(qRel, qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getKp(), root->getKd(), rootControlParamsStrength);
 	
 	rootTorque += ffRootTorque;
 	
@@ -850,12 +851,12 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	
 	//now transform the torque to child coordinates, apply torque limits and then change it back to world coordinates
 	Quaternion qStanceHip = stanceHip->getChildFdb()->getOrientationWorld();
-	//stanceHipTorque = OgreQuaternionGetComplexConjugate(qStanceHip) * stanceHipTorque;
+	stanceHipTorque = OgreQuaternionGetComplexConjugate(qStanceHip) * stanceHipTorque;
 	//limitTorque(&stanceHipTorque, &controlParams[stanceHipIndex]);
 	stanceHipTorque = qStanceHip * stanceHipTorque;
 	
 	Quaternion qSwingHip = swingHip->getChildFdb()->getOrientationWorld();
-	//swingHipTorque = OgreQuaternionGetComplexConjugate(qSwingHip) * swingHipTorque;
+	swingHipTorque = OgreQuaternionGetComplexConjugate(qSwingHip) * swingHipTorque;
 	//limitTorque(&swingHipTorque, &controlParams[swingHipIndex]);
 	swingHipTorque = qSwingHip * swingHipTorque;
 	
