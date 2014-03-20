@@ -49,11 +49,12 @@ public:
 	Ogre::Vector3 getPositionInChildSpace();
 	
 	void addTorque( const Ogre::Vector3& torque );
+	const Ogre::Vector3& getTorque() const { return mTorque; }
 	/*! @brief Apply the torque to parent and child FDBs, then clear torque vector. */
 	void applyTorque();
 	
 	/*! @brief clear torque */
-	void reset();
+	void clearTorque();
 	
 	void debugDraw(OgreBulletCollisions::DebugLines* debugLines);
 	

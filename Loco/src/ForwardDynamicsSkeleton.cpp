@@ -50,6 +50,7 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 		// get bone
 		auto bodyName = bodyDef["name"].get<string>();
 		auto bone = mDriveableSkeleton->getBone(bodyName);
+		mTotalMass += bone->getMass();
 		
 		// get children
 		vector<Ogre::SharedPtr<DriveableBone> > childBones;
@@ -276,6 +277,16 @@ void ForwardDynamicsSkeleton::update( float dt )
 	
 }
 
+std::vector<Ogre::SharedPtr<ForwardDynamicsJoint> > ForwardDynamicsSkeleton::getAllJointsWithParent(string parentName)
+{
+	vector<Ogre::SharedPtr<ForwardDynamicsJoint> > joints;
+	for ( const auto& it: mJoints ) {
+		if ( it.second->getParentFdb()->getName() == parentName ) {
+			joints.push_back(it.second);
+		}
+	}
+	return joints;
+}
 
 Ogre::SharedPtr<ForwardDynamicsBody> ForwardDynamicsSkeleton::getBody(string partName)
 {
@@ -331,7 +342,7 @@ void ForwardDynamicsSkeleton::reset()
 		it.second->reset( bone, skelRoot );
 	}
 	for ( auto it: mJoints ) {
-		it.second->reset();
+		it.second->clearTorque();
 	}
 }
 
@@ -372,5 +383,37 @@ void ForwardDynamicsSkeleton::clearAngularVelocityTarget( const std::string& bod
 	mPDBodyDrivers.at(bodyName)->unsetTargetAngularVelocity();
 }
 
+Ogre::Vector3 ForwardDynamicsSkeleton::getCenterOfMassWorld()
+{
+	Ogre::Vector3 CoMWorldAccumulated(0,0,0);
+	float massAccumulated = 0;
+	for ( const auto it: mBodies ) {
+		float mass = it.second->getMass();
+		CoMWorldAccumulated += it.second->getCoMWorld()*mass;
+		massAccumulated += mass;
+	}
+	if ( massAccumulated>0 ) {
+		return CoMWorldAccumulated / massAccumulated;
+	} else {
+		return Ogre::Vector3(0,0,0);
+	}
+}
+
+
+Ogre::Vector3 ForwardDynamicsSkeleton::getCenterOfMassVelocityWorld()
+{
+	Ogre::Vector3 accum(0,0,0);
+	float massAccum = 0;
+	for ( const auto it: mBodies ) {
+		float mass = it.second->getMass();
+		accum += it.second->getBody()->getLinearVelocity()*mass;
+		massAccum += mass;
+	}
+	if ( massAccum>0 ) {
+		return accum / massAccum;
+	} else {
+		return Ogre::Vector3(0,0,0);
+	}
+}
 
 

@@ -242,7 +242,7 @@ void ForwardDynamicsJoint::addTorque( const Ogre::Vector3& t )
 	mTorque += t;
 }
 
-void ForwardDynamicsJoint::reset()
+void ForwardDynamicsJoint::clearTorque()
 {
 	mTorque = Ogre::Vector3::ZERO;
 }
@@ -251,7 +251,7 @@ void ForwardDynamicsJoint::reset()
 
 void ForwardDynamicsJoint::applyTorque()
 {
-// #define CONVERT_TORQUE_TO_FORCE
+#define CONVERT_TORQUE_TO_FORCE
 #ifdef CONVERT_TORQUE_TO_FORCE
 	
 	/*
@@ -272,6 +272,55 @@ void ForwardDynamicsJoint::applyTorque()
 	
 	// T = F x r
 	// F = ((F.r)*r - T x r) / (r.r)
+	
+	// OR
+	
+	/* 
+	 http://answers.unity3d.com/questions/407085/add-torque-at-position.html
+	 
+	 This works pretty much like spinning a pencil on the table. Try it. You will place two fingers on the opposite side of the pencil and push in the opposite direction. This results in a torque around the point in the middle of your fingers.
+	 
+	 Your custom AddTorqueAtPosition function needs to do the same thing. I'll call the position of the added torque hinge and the axis of the rotation torque now.
+	 
+	 First you need to find two vectors which are orthogonal to torque and to eachother. This is a bit tricky if you don't know the direction of hinge. I'd suggest to copy hinge into a dummy vector. Then, if hinge does not point into (1,0,0) use dummy and ortho = new vector3(1,0,0) in Vector3.OrthoNormalize(dummy, ortho). Otherwise use (0,1,0) as ortho. The last vector force can be found by using Vector3.Cross on 0.5*hinge and ortho. Remember the right hand rule to find the direction of the new vector. We use half the vector in our calculation, because we will use force twice.
+	 
+	 Now you can use addForceAtPosition. The parameters are: force is simply the force vector we calculated, position is the position of hinge + ortho. Do the same thing again with -force and hinge - ortho.
+	 
+	 Your complete AddTorqueAtPosition function should take a vector3 torque , a vector3 hinge and a Forcemode which you can pass to the addForceAtPosition funktions.
+	 
+	 This is 100% crafted by theory, so let me know whether this works or not.
+	 */
+	
+	// find two vectors orthogonal to torque and to each other
+	Ogre::Vector3 torqueAxis( mTorque.x, mTorque.y, mTorque.z );
+	torqueAxis.normalise();
+	
+	Ogre::Vector3 ortho(1,0,0);
+	if ( (torqueAxis-ortho).squaredLength()<FLT_EPSILON ) {
+		ortho = Ogre::Vector3(0,1,0);
+	}
+	// orthoNormalize(torqueAxis	, ortho);
+	Ogre::Vector3 dummy = torqueAxis;
+	dummy.normalise();
+	Ogre::Vector3 orthoNormIntermediate = dummy.crossProduct(ortho);
+	orthoNormIntermediate.normalise();
+	ortho = orthoNormIntermediate.crossProduct(dummy);
+	
+	Ogre::Vector3 force = (0.5f*mTorque).crossProduct(ortho);
+	
+	// apply force at hinge pos
+	Ogre::Vector3 hingePos = getPositionWorld();
+	Ogre::Vector3 pos1 = hingePos + ortho;
+	Ogre::Vector3 pos2 = hingePos - ortho;
+	btVector3 forceBt = OgreBtConverter::to(force);
+	// apply to parent
+	mParentFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos1)) );
+	mParentFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos2)) );
+	// apply to child
+	mChildFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos1)) );
+	mChildFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos2)) );
+	
+	
 	
 #else
 	// apply to parent

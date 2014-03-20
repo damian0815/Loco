@@ -57,6 +57,7 @@ public:
 	/*! @return The joint from the childBodyName to its parent, or NULL if none exists. */
 	Ogre::SharedPtr<ForwardDynamicsJoint> getJointToParent(std::string childBodyName );
 	Ogre::SharedPtr<ForwardDynamicsJoint> getJointBetween(std::string parentBodyName, std::string childBodyName);
+	std::vector<Ogre::SharedPtr<ForwardDynamicsJoint> > getAllJointsWithParent(std::string parentBodyName);
 	/*! @return The name of the parent body, or "" if no parent exists. */
 	std::string getParentBodyName(std::string childBodyName);
 	/*! @return The parent body. Assertion is raised if no parent exists. */
@@ -80,6 +81,12 @@ public:
 	void setAngularVelocityTarget( const std::string& bodyName, Ogre::Vector3& angularVelocityWorld );
 	void clearAngularVelocityTarget( const std::string& bodyName );
 	
+	/*! @brief Sum of masses of all bodies. */
+	float getTotalMass() { return mTotalMass; }
+	
+	Ogre::Vector3 getCenterOfMassWorld();
+	Ogre::Vector3 getCenterOfMassVelocityWorld();
+	
 private:
 	
 	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsBody> > mBodies;
@@ -89,6 +96,7 @@ private:
 	Ogre::SceneNode* mPhysicsRootSceneNode;
 	
 	Ogre::SharedPtr<DriveableSkeleton> mDriveableSkeleton;
+	float mTotalMass;
 	
 };
 

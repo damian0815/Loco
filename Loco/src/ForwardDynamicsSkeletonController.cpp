@@ -109,7 +109,7 @@ void ForwardDynamicsSkeletonController::clearLegIKForwardDynamics( string whichL
 	//mForwardDynamicsSkeleton->clearOrientationTarget(footName);
 }
 
-void ForwardDynamicsSkeletonController::solveLegIK( string whichLeg, Ogre::Vector3 footTargetPos, bool preserveFootOrientation, float kneeOut, float kneeUp )
+void ForwardDynamicsSkeletonController::solveLegIK( const string& whichLeg, const Ogre::Vector3 &footTargetPos, Ogre::Quaternion& upperLegTargetWorld, Ogre::Quaternion& lowerLegTargetWorld, float kneeOut, float kneeUp )
 {
 	auto pelvis = mForwardDynamicsSkeleton->getBody("SpineBase");
 	string upperLegName = "LegUpper."+whichLeg;
@@ -123,10 +123,6 @@ void ForwardDynamicsSkeletonController::solveLegIK( string whichLeg, Ogre::Vecto
 	Ogre::Vector3 p2 = footTargetPos;
 	
 	// calculate a plane normal
-	Ogre::Quaternion footOrientation;
-	if ( preserveFootOrientation ) {
-		footOrientation = foot->getOrientationWorld();
-	}
 	
 	// start with global UNIT X, relative to root
 	Ogre::Vector3 planeNormal = Ogre::Vector3::UNIT_X;
@@ -157,17 +153,25 @@ void ForwardDynamicsSkeletonController::solveLegIK( string whichLeg, Ogre::Vecto
 	Ogre::Quaternion qC;
 	TwoLinkIK::getIKOrientations(p1, p2, n, vParent, nParent, vChild, &qP, &qC);
 	
-	// convert to world orientation
-	Ogre::Quaternion qPWorld, qCWorld;
+	// convert to world orientation and return
 	// first qP
-	qPWorld = qP;
+	upperLegTargetWorld = qP;
 	// then qC
-	qCWorld = qPWorld*qC;
+	lowerLegTargetWorld = upperLegTargetWorld*qC;
 	
-	mForwardDynamicsSkeleton->setOrientationTarget(upperLegName, qPWorld);
-	mForwardDynamicsSkeleton->setOrientationTarget(lowerLegName, qCWorld);
+}
+
+void ForwardDynamicsSkeletonController::solveLegIKAndApply( const std::string& whichLeg, const Ogre::Vector3 &footTargetPos, bool preserveFootOrientation, float kneeOut, float kneeUp )
+{
+	
+	Ogre::Quaternion qPWorld, qCWorld;
+	solveLegIK( whichLeg, footTargetPos, qPWorld, qCWorld, kneeOut, kneeUp );
+
+	mForwardDynamicsSkeleton->setOrientationTarget("LegUpper."+whichLeg, qPWorld);
+	mForwardDynamicsSkeleton->setOrientationTarget("LegLower."+whichLeg, qCWorld);
 	if ( preserveFootOrientation ) {
-		mForwardDynamicsSkeleton->setOrientationTarget(footName, footOrientation);
+		Ogre::Quaternion footOrientation = mForwardDynamicsSkeleton->getBody("Foot."+whichLeg)->getOrientationWorld();
+		mForwardDynamicsSkeleton->setOrientationTarget("Foot."+whichLeg, footOrientation);
 	}
 	
 	return;

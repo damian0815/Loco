@@ -121,6 +121,7 @@ public:
 private:
 	
 	std::string convertBodyNameToSwingOrStance( const std::string& bodyName );
+	std::string getTargetOrientationNameForBodyName(const std::string& bodyName);
 	
 	unsigned int mCurrentMotionIndex;
 	std::vector< VirtualModelMotion> mMotions;

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <Ogre/OgreQuaternion.h>
 
-extern Ogre::Quaternion OgreQuaternionGetConvexConjugate( const Ogre::Quaternion& q );
+extern Ogre::Quaternion OgreQuaternionGetComplexConjugate( const Ogre::Quaternion& q );
 extern void OgreVector3ClampAllAxes( Ogre::Vector3& target, float minVal, float maxVal );
 static void clamp( float &target, float minVal, float maxVal ) { target = std::min(std::max(minVal,target),maxVal); }
 

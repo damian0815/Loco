@@ -29,7 +29,7 @@ This source file is part of the
 using namespace std;
 
 static const bool PHYSICS_DEBUG_SHAPES = true ;
-static const float PHYSICS_FRAME_DURATION = 1.0f/180.0f;
+static const double PHYSICS_FRAME_DURATION = 1.0/1000.0;
 static const bool DO_ANIMATION = true;
 static const std::string DEFAULT_ANIMATION = "<none>";
 
@@ -588,7 +588,10 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		}
 		
 		mWorld->stepSimulation( PHYSICS_FRAME_DURATION, 1, PHYSICS_FRAME_DURATION );
-		mTimeAccumulator -= PHYSICS_FRAME_DURATION;
+		
+		while ( mTimeAccumulator > 0 )
+			mTimeAccumulator -= PHYSICS_FRAME_DURATION;
+		
 		if ( mSkeletonController.get() ) {
 			mSkeletonController->update( PHYSICS_FRAME_DURATION );
 		}

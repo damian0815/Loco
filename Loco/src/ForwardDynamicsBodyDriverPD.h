@@ -46,6 +46,8 @@ public:
 	
 	void debugDraw( OgreBulletCollisions::DebugLines* debugLines );
 	
+	static Ogre::Vector3 computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength );
+	
 private:
 	Ogre::SharedPtr<ForwardDynamicsBody> mBody;
 	

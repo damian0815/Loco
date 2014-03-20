@@ -46,7 +46,7 @@ void ForwardDynamicsBodyDriverPD::setTargetAngularVelocityWorld( const Ogre::Vec
  the desired values for the relative orientation and ang. vel, as well as the virtual motor's PD gains. The torque
  returned is expressed in the coordinate frame of the 'parent'.
  */
-static Ogre::Vector3 computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength )
+Ogre::Vector3 ForwardDynamicsBodyDriverPD::computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength )
 {
 	
 	Ogre::Vector3 torque;
@@ -121,11 +121,13 @@ void ForwardDynamicsBodyDriverPD::debugDraw( OgreBulletCollisions::DebugLines* d
 	if ( getOrientationActive() )
 	{
 		//const Ogre::ColourValue color = Ogre::ColourValue(0.2,0.5,0.5);
-		const Ogre::ColourValue targetColor = Ogre::ColourValue(0.2,1.0,0.5);
+		const Ogre::ColourValue targetColor = Ogre::ColourValue(1.0,1.0,0.5);
 		Ogre::Vector3 offs(0,0,0.1);
 		auto headPos = mBody->getHeadPositionWorld();
 		//auto tailPos = mBody->getTailPositionWorld();
-		auto tailPosTarget = headPos + getTargetOrientation()*Ogre::Vector3::UNIT_Y;
+		auto tailOffset = getTargetOrientation()*Ogre::Vector3::UNIT_Y;
+		OgreAssert( fabsf(tailOffset.squaredLength()-1.0) < 0.0001, "bad" );
+		auto tailPosTarget = headPos + tailOffset;
 		
 		// convert to debugLines space
 		headPos = debugLines->convertWorldToLocalPosition(headPos+offs);

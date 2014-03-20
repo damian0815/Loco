@@ -36,6 +36,7 @@ public:
 	/*! @brief Reset skeleton to its rest state, reset forward dynamics to rest state. */
 	virtual void reset();
 	
+	
 private:
 	
 	
@@ -43,7 +44,8 @@ protected:
 	virtual void debugDraw();
 	
 	/*! @brief Solve leg ik for the given leg ("L" or "R"), for the given foot target pos in world space. */
-	void solveLegIK( std::string whichLeg, Ogre::Vector3 footTargetPos, bool preserveFootOrientation=false, float kneeOut = 0.25f, float kneeUp = 0.5f );
+	void solveLegIKAndApply( const std::string &whichLeg, const Ogre::Vector3 &footTargetPos, bool preserveFootOrientation=false, float kneeOut = 0.25f, float kneeUp = 0.5f );
+	void solveLegIK( const std::string& whichLeg, const Ogre::Vector3& footTargetPos, Ogre::Quaternion& upperLegTargetWorld, Ogre::Quaternion& lowerLegTargetWorld, float kneeOut = 0.25f, float kneeUp = 0.5f );
 	/*! @brief Clear influence of a previously calculated IK forward dynamics solution for the given leg */
 	void clearLegIKForwardDynamics( std::string whichLeg );
 	

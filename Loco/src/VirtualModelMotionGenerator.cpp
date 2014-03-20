@@ -155,20 +155,27 @@ bool VirtualModelMotionGenerator::update(float dt)
 	return swapped;
 }
 
+std::string VirtualModelMotionGenerator::getTargetOrientationNameForBodyName(const std::string& bodyName)
+{
+	string targetName = bodyName + " Orientation";
+	if ( !mMotions[mCurrentMotionIndex].hasTargetForBody(targetName) )
+		targetName = convertBodyNameToSwingOrStance(bodyName) + " Orientation";
+	return targetName;
+}
+
 bool VirtualModelMotionGenerator::hasTargetOrientationForBody(const std::string &bodyName)
 {
-	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	return mMotions[mCurrentMotionIndex].hasTargetForBody(bodyNameStanceSwing+" Orientation");
+	string targetName = getTargetOrientationNameForBodyName(bodyName);
+	return mMotions[mCurrentMotionIndex].hasTargetForBody(targetName);
 }
 
 Ogre::Quaternion VirtualModelMotionGenerator::getTargetOrientationForBody( const std::string& bodyName )
 {
-	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	Ogre::Vector3 rot = mMotions[mCurrentMotionIndex].getTargetAtTime( bodyNameStanceSwing+" Orientation", mPhi );
+	string targetName = getTargetOrientationNameForBodyName(bodyName);
+	Ogre::Vector3 rot = mMotions[mCurrentMotionIndex].getTargetAtTime( targetName, mPhi );
 
-	// combine in order XZY
 	Matrix3 rotMat;
-	rotMat.FromEulerAnglesXZY( Radian(rot.x), Radian(rot.y), Radian(rot.z) );
+	rotMat.FromEulerAnglesXYZ( Radian(rot.x), Radian(rot.y), Radian(rot.z) );
 	
 	return Quaternion(rotMat);
 }
@@ -188,8 +195,8 @@ Ogre::Vector3 VirtualModelMotionGenerator::getTargetPositionForBody( const std::
 
 VirtualModelMotionComponent::ReferenceFrame VirtualModelMotionGenerator::getReferenceFrameForOrientation(const std::string &bodyName)
 {
-	string bodyNameStanceSwing = convertBodyNameToSwingOrStance(bodyName);
-	return mMotions[mCurrentMotionIndex].getReferenceFrame(bodyNameStanceSwing+" Orientation");
+	string targetName = getTargetOrientationNameForBodyName(bodyName);
+	return mMotions[mCurrentMotionIndex].getReferenceFrame(targetName);
 }
 
 VirtualModelMotionComponent::ReferenceFrame VirtualModelMotionGenerator::getReferenceFrameForPosition(const std::string &bodyName)

@@ -26,7 +26,7 @@ using namespace picojson;
 
 
 ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, Ogre::SceneNode* skeletonRootNode,  OgreBulletDynamics::DynamicsWorld* world, const value& bodyDefVal )
-: mParentBoneName(parentBone->getBone()->getName()), mKp(parentBone->getKp()), mKd(parentBone->getKd()), mMaxTorque(parentBone->getMaxAbsTorque()), mTorque(0,0,0), mPrevTorque(0,0,0), mRestOrientationLocal(Ogre::Quaternion::IDENTITY)
+: mParentBoneName(parentBone->getBone()->getName()), mKp(parentBone->getKp()), mKd(parentBone->getKd()), mMaxTorque(parentBone->getMaxAbsTorque()), mRestOrientationLocal(Ogre::Quaternion::IDENTITY), mTorque(0,0,0)
 {
 	object bodyDef = bodyDefVal.get<object>();
 	
@@ -288,6 +288,7 @@ std::string ForwardDynamicsBody::getAnyChildName()
 	return "";
 }
 
+
 void ForwardDynamicsBody::applyTorque()
 {
 	// clamp torque
@@ -310,7 +311,6 @@ void ForwardDynamicsBody::applyTorque()
 		BLog("torque: %s  rate of change: %s", describe(mTorque).c_str(), describe(mTorque-mPrevTorque).c_str() );
 	}*/
 	// clear torque
-	mPrevTorque = mTorque;
 	mTorque = Ogre::Vector3::ZERO;
 }
 

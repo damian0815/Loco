@@ -11,7 +11,7 @@
 
 using namespace std;
 
-Ogre::Quaternion OgreQuaternionGetConvexConjugate( const Ogre::Quaternion& q )
+Ogre::Quaternion OgreQuaternionGetComplexConjugate( const Ogre::Quaternion& q )
 {
 	return Ogre::Quaternion(q.w, -q.x, -q.y, -q.z);
 }
