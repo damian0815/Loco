@@ -128,9 +128,9 @@ void ForwardDynamicsSkeletonController::solveLegIK( const string& whichLeg, cons
 	Ogre::Vector3 planeNormal = Ogre::Vector3::UNIT_X;
 	// rotate by knee out and knee up angles
 	float kneeOutAng = kneeOut*-M_PI_4+(0.25f*M_PI_4);
-	if ( whichLeg == "L" ) {
+	/*if ( whichLeg == "L" ) {
 		kneeOutAng = -kneeOutAng;
-	}
+	}*/
 	float kneeUpAng = kneeUp*-M_PI_4+(0.5f*M_PI_4);
 	// note
 	Ogre::Quaternion kneeOutQ( Ogre::Radian(kneeOutAng), Ogre::Vector3::UNIT_Y );

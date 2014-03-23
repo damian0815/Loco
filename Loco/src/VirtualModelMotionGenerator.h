@@ -20,8 +20,9 @@
 class VirtualModelMotionComponent
 {
 public:
-	VirtualModelMotionComponent() {};
+	VirtualModelMotionComponent();
 	VirtualModelMotionComponent( picojson::value& params );
+	VirtualModelMotionComponent( const std::string& name );
 	
 	typedef enum _ReferencFrame {
 		RF_Parent,
@@ -73,6 +74,8 @@ public:
 	
 	const std::string& getName() const { return mName; }
 	
+	bool hasComponent( const std::string& name ) { return mComponents.count(name); }
+	void addEmptyComponent( const std::string& name );
 	VirtualModelMotionComponent& getComponent( const std::string& name ) { return mComponents.at(name); }
 	
 private:
@@ -113,6 +116,7 @@ public:
 	Ogre::Vector3 getTargetPositionForBody( const std::string& bodyName );
 	VirtualModelMotionComponent::ReferenceFrame getReferenceFrameForPosition( const std::string& bodyName );
 	
+	bool hasComponent( const std::string& componentName );
 	VirtualModelMotionComponent& getComponentReference( const std::string& componentName );
 	
 	float getPhi() { return mPhi; }

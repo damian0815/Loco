@@ -17,6 +17,9 @@
 #include <map>
 #include "OgreBulletDynamicsRigidBody.h"
 
+
+class ForwardDynamicsSkeleton;
+
 namespace Ogre {
 	class SceneNode;
 }
@@ -34,7 +37,7 @@ namespace OgreBulletCollisions {
 class ForwardDynamicsBody
 {
 public:
-	ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, Ogre::SceneNode* skeletonRootNode, OgreBulletDynamics::DynamicsWorld* world, const picojson::value& bodyDef );
+	ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, ForwardDynamicsSkeleton* owner, OgreBulletDynamics::DynamicsWorld* world, const picojson::value& bodyDef );
 	~ForwardDynamicsBody();
 	
 	/*! @brief Return the head position (== position of parent joint) in world space. */
@@ -47,11 +50,9 @@ public:
 	Ogre::Vector3 getTailPositionLocal(std::string tailName="");
 	/*! @brief Return the orientation in world space. */
 	Ogre::Quaternion getOrientationWorld();
-	/*! @brief Return the orientation in local space (ie relative to the scene node that is the parent of this bone. */
-	Ogre::Quaternion getOrientationLocal();
 	/*! @brief Return the rest orientation (the orientation on init) in local space. */
-	Ogre::Quaternion getParentRelativeRestOrientation() { return mRestOrientationLocal; }
-	void setParentRelativeRestOrientationLocal(const Ogre::Quaternion& q) { mRestOrientationLocal =q; }
+	Ogre::Quaternion getParentRelativeRestOrientation() { return mRestOrientationParentRelative; }
+	void setParentRelativeRestOrientation(const Ogre::Quaternion& q) { mRestOrientationParentRelative =q; }
 	/*! @brief Return the position of the center of mass in world space. */
 	Ogre::Vector3 getCoMWorld();
 	
@@ -61,10 +62,9 @@ public:
 	Ogre::Quaternion convertLocalToWorldOrientation(const Ogre::Quaternion& localOri) const { return mBody->getSceneNode()->convertLocalToWorldOrientation(localOri); }
 	Ogre::Quaternion convertWorldToLocalOrientation(const Ogre::Quaternion& worldOri) const { return mBody->getSceneNode()->convertWorldToLocalOrientation(worldOri); }
 	
-/**
- This method returns the absolute velocity of a point that is passed in as a parameter. The point is expressed in local coordinates, and the
- resulting velocity will be expressed in world coordinates.
- */
+	/**
+	 This method returns the absolute velocity of a point that is passed in as a parameter. The point is expressed in local coordinates, the resulting velocity will be expressed in world coordinates.
+	 */
 	Ogre::Vector3 getAbsoluteVelocityForLocalPoint(const Ogre::Vector3& localPoint);
 	
 	std::string getName() { return mParentBoneName; }
@@ -77,18 +77,29 @@ public:
 	
 	void reset( Ogre::SharedPtr<DriveableBone> parentBone, Ogre::SceneNode* skeletonRootNode );
 	
+	/*! @brief add torque to be applied to this body. will be moved up to the joint, if possible, at the last possible moment. */
 	void addTorque( const Ogre::Vector3& torque ) { mTorque += torque; }
-	// apply torque to this body and reset
+	/*! @brief apply torque to this body and reset */
 	void applyTorque();
-	void addImpulse( const Ogre::Vector3& impulse );
+	/*! @brief get existing torque to be applied */
+	const Ogre::Vector3& getTorque() { return mTorque; }
+	/*! @brief clear torque */
+	void clearTorque() { mTorque = Ogre::Vector3::ZERO; }
+	/*! @brief apply torque limit to given torque vector */
+	void limitTorque( Ogre::Vector3& torqueToLimit );
 	
+	
+	void addImpulse( const Ogre::Vector3& impulse );
 	
 	float getMass();
 	float getKp() { return mKp; }
 	float getKd() { return mKd; }
+	float getMaxTorque() { return mMaxTorque; }
 	
 private:
 	
+	
+	ForwardDynamicsSkeleton* mOwnerSkeleton;
 	
 	std::string mParentBoneName;
 	float mKp, mKd, mMaxTorque;
@@ -102,7 +113,7 @@ private:
 	Ogre::Vector3 mParentPositionLocal; // position of the parent in local coordinates
 	std::map<std::string,Ogre::Vector3> mChildPositionsLocal; // position of the child in local coordinates
 	
-	Ogre::Quaternion mRestOrientationLocal;
+	Ogre::Quaternion mRestOrientationParentRelative;
 };
 
 

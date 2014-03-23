@@ -42,39 +42,25 @@ namespace OgreBulletCollisions
         DebugLines(void);
         ~DebugLines(void);
 
-		void addLine (const Ogre::Vector3 &start, const Ogre::Vector3 &end, const Ogre::ColourValue& colour )
-		{
-            clear ();
-			
-            _points.push_back (start);
-            _points.push_back (end);
-			_colours.push_back( colour );
-			_colours.push_back( colour );
-		}
-        void addLine (const Ogre::Vector3 &start,const Ogre::Vector3 &end)
+        void addLine (const Ogre::Vector3 &start, const Ogre::Vector3 &end)
         {
-            clear ();
-
+			// DOES NOT CONVERT TO LOCAL COORDINATES
             _points.push_back (start);
             _points.push_back (end);
 			// default white
 			_colours.push_back( Ogre::ColourValue( 1, 1, 1, 1 ) );
 			_colours.push_back( Ogre::ColourValue( 1, 1, 1, 1 ) );
         }
-		void addCross( const Ogre::Vector3& center, float size, const Ogre::ColourValue& colour )
+		
+		void addLine (const Ogre::Vector3 &startW, const Ogre::Vector3 &endW, const Ogre::ColourValue& colour )
 		{
-			Ogre::Vector3 up(0,1,0), right(1,0,0), forward(0,0,1);
-			addLine( center+up*size*0.5f, center-up*size*0.5f, colour );
-			addLine( center+forward*size*0.5f, center-forward*size*0.5f, colour );
-			addLine( center+right*size*0.5f, center-right*size*0.5f, colour );
-		}
-		void addAxes( const Ogre::Vector3& center, const Ogre::Quaternion& orientation, float size )
-		{
-			Ogre::Vector3 up, right, forward;
-			orientation.ToAxes( right, up, forward );
-			addLine( center+right*size, center, Ogre::ColourValue::Red );
-			addLine( center+up*size, center, Ogre::ColourValue::Green );
-			addLine( center+forward*size, center, Ogre::ColourValue::Blue );
+			Ogre::Vector3 start = convertWorldToLocalPosition(startW);
+			Ogre::Vector3 end = convertWorldToLocalPosition(endW);
+			
+            _points.push_back (start);
+            _points.push_back (end);
+			_colours.push_back( colour );
+			_colours.push_back( colour );
 		}
 
         void addLine(Ogre::Real start_x, Ogre::Real start_y, Ogre::Real start_z, 
@@ -83,9 +69,36 @@ namespace OgreBulletCollisions
             addLine (Ogre::Vector3(start_x,start_y,start_z),
                 Ogre::Vector3(end_x,end_y,end_z));
         }
+		void addCross( const Ogre::Vector3& centerW, float size, const Ogre::ColourValue& colour )
+		{
+			//Ogre::Vector3 center = convertWorldToLocalPosition(centerW);
+			Ogre::Vector3 up(0,1,0), right(1,0,0), forward(0,0,1);
+			addLine( centerW+up*size*0.5f, centerW-up*size*0.5f, colour );
+			addLine( centerW+forward*size*0.5f, centerW-forward*size*0.5f, colour );
+			addLine( centerW+right*size*0.5f, centerW-right*size*0.5f, colour );
+		}
+		void addAxes( const Ogre::Vector3& centerW, const Ogre::Quaternion& orientationW, float size )
+		{
+			Ogre::Vector3 up, right, forward;
+			orientationW.ToAxes( right, up, forward );
+			addLine( centerW+right*size, centerW, Ogre::ColourValue::Red );
+			addLine( centerW+up*size, centerW, Ogre::ColourValue::Green );
+			addLine( centerW+forward*size, centerW, Ogre::ColourValue::Blue );
+		}
+		void addTorque( const Ogre::Vector3& centerW, const Ogre::Vector3& torqueW, float scale )
+		{
+			Ogre::Vector3 up(0,1,0), right(1,0,0), forward(0,0,1);
+			addLine( centerW+right*torqueW.x*scale, centerW, Ogre::ColourValue::Red );
+			addLine( centerW+up*torqueW.y*scale, centerW, Ogre::ColourValue::Green );
+			addLine( centerW+forward*torqueW.z*scale, centerW, Ogre::ColourValue::Blue );
+			
+		}
 
-		void addPoint( const Ogre::Vector3 &pt, const Ogre::ColourValue& colour ) {
+
+
+		void addPoint( const Ogre::Vector3 &ptW, const Ogre::ColourValue& colour ) {
             clear();
+			Ogre::Vector3 pt = convertWorldToLocalPosition(ptW);
 			
             _points.push_back(pt);
 			_colours.push_back( colour );

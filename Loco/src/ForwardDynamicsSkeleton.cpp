@@ -62,7 +62,7 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 		}
 			
 		// create the forward dynamics bone object
-		auto fdb = Ogre::SharedPtr<ForwardDynamicsBody>( new ForwardDynamicsBody( bone, childBones, mDriveableSkeleton->getRootSceneNode(), dynamicsWorld, bodyDefValue ) );
+		auto fdb = Ogre::SharedPtr<ForwardDynamicsBody>( new ForwardDynamicsBody( bone, childBones, this, dynamicsWorld, bodyDefValue ) );
 		
 		// save
 		mBodies[bodyName] = fdb;
@@ -79,8 +79,8 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 		if ( getParentBodyName(bodyName) != "" ) {
 			auto parentBody = getParentBody(bodyName);
 			auto body = getBody(bodyName);
-			Ogre::Quaternion parentOrientationInv = parentBody->getOrientationLocal().Inverse();
-			body->setParentRelativeRestOrientationLocal( parentOrientationInv * body->getOrientationLocal() );
+			Ogre::Quaternion parentOrientationInv = parentBody->getOrientationWorld().Inverse();
+			body->setParentRelativeRestOrientation( parentOrientationInv * body->getOrientationWorld() );
 		}
 	}
 		
@@ -129,7 +129,6 @@ void ForwardDynamicsSkeleton::debugDraw( OgreBulletCollisions::DebugLines* debug
 	for ( const auto it: mBodies )
 	{
 		it.second->debugDraw(debugLines);
-
 	}
 	
 	for ( const auto it: mJoints )
@@ -173,15 +172,23 @@ void ForwardDynamicsSkeleton::update( float dt )
 {
 	
 	// add PD driver torques
+	// this adds torque to the bodies
 	for ( auto it: mPDBodyDrivers ) {
 		it.second->updateTorque();
 	}
 	
+#ifdef LocoForwardDynamicsJoint_ConvertTorqueToForce
+	// pull torque from child bodies and put onto joints instead
+	for ( auto it: mJoints ) {
+		const Ogre::Vector3& torque = it.second->getChildFdb()->getTorque();
+		it.second->addTorque(torque);
+		it.second->getChildFdb()->clearTorque();
+	}
+#endif
 	// add joint torques (from gravity compensation)
 	for ( auto it: mJoints ) {
 		it.second->applyTorque();
 	}
-
 	
 	// actually apply the torques
 	for ( auto it: mBodies ) {
@@ -206,12 +213,12 @@ void ForwardDynamicsSkeleton::update( float dt )
 		// process the bone
 		string boneName = bone->getBone()->getName();
 		if ( mBodies.count(boneName) ) {
+			
+			
 			auto fdb = mBodies[boneName];
-			
+			Ogre::Quaternion orientationW = fdb->getOrientationWorld();
+			 
 			// update orientation
-			// the fdb's 'local' orientation/position is local to the skeleton's 'world'
-			Ogre::Quaternion orientation = fdb->getOrientationLocal();
-			
 			/*
 			if ( fdb->getNumChildren()==1 ) {
 				// the objects might not be perfectly aligned. so, also get the direction vector between parent and child
@@ -240,9 +247,9 @@ void ForwardDynamicsSkeleton::update( float dt )
 			}*/
 				
 			if ( bone->getBone()->getParent() ) {
-				bone->getBone()->setOrientation(bone->getBone()->getParent()->convertWorldToLocalOrientation(orientation));
+				bone->getBone()->setOrientation(bone->getBone()->getParent()->convertWorldToLocalOrientation(orientationW));
 			} else {
-				bone->getBone()->setOrientation(orientation);
+				bone->getBone()->setOrientation(orientationW);
 			}
 		
 			if ( first ) {

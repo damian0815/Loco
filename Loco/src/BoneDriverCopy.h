@@ -20,13 +20,14 @@ namespace OgreBulletCollisions {
 }
 
 #include <Ogre/OgreColourValue.h>
+#include <Ogre/OgreVector3.h>
 
 class BoneDriverCopy
 {
 public:
 	BoneDriverCopy( Ogre::Bone* sourceBone, Ogre::Bone* targetBone, float orientationCopyPct );
 	
-	void debugDraw( OgreBulletCollisions::DebugLines* debugLines, const Ogre::ColourValue& colour, float axisSize );
+	void debugDraw( OgreBulletCollisions::DebugLines* debugLines, const Ogre::ColourValue& colour, float axisSize, const Ogre::Vector3& offset=Ogre::Vector3::ZERO );
 	void update();
 	
 private:

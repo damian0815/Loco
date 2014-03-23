@@ -122,6 +122,8 @@ private:
 	float mTargetCoMVelocitySagittal, mTargetCoMVelocityCoronal;
 	
 	Ogre::Vector3 mFFRootTorque;
+	Ogre::Quaternion mDebugTargetRootOrientation;
+	Ogre::Vector3 mDebugRootTorque;
 	
 	Ogre::Quaternion mCharacterFrame;
 	Ogre::Vector3 mInitialSwingFootPosition; // swing foot position at start of this phi loop

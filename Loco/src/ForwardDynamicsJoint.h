@@ -9,6 +9,8 @@
 #ifndef __Loco__ForwardDynamicsJoint__
 #define __Loco__ForwardDynamicsJoint__
 
+//#define LocoForwardDynamicsJoint_ConvertTorqueToForce
+
 #include <iostream>
 #include "picojson.h"
 #include <map>

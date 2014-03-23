@@ -137,19 +137,21 @@ void SkeletonController::update(float dt)
 void SkeletonController::debugDraw()
 {
 	// show bones
+	Ogre::Vector3 rootOffset = mDriveableSkeleton->getRootSceneNode()->convertLocalToWorldPosition(Ogre::Vector3(0,0,0));
+	/*
 	auto allBones = mDriveableSkeleton->getAllBoneNames();
 	for ( auto boneName: allBones ) {
 		auto bone = mDriveableSkeleton->getBone(boneName);
-		bone->debugDraw( mDebugLines, Ogre::ColourValue(0.3f, 0.3f, 0.3f ), 0.05f );
+		bone->debugDraw( mDebugLines, Ogre::ColourValue(0.3f, 0.3f, 0.3f ), 0.05f, rootOffset );
 	}
 	
 	for ( auto fan: mFanBones ) {
-		fan->debugDraw( mDebugLines, Ogre::ColourValue(0.8f, 0.3f, 0.8f ), 0.05f );
-	}
+		fan->debugDraw( mDebugLines, Ogre::ColourValue(0.8f, 0.3f, 0.8f ), 0.05f, rootOffset );
+	}*/
 	
 	// show center of mass
 	Ogre::Vector3 CoM = mDriveableSkeleton->getCenterOfMassWorld();
-	mDebugLines->addCross( CoM, 0.01f, Ogre::ColourValue( 1.0f, 1.0f, 0.0f ) /* yellow */ );
+	mDebugLines->addCross( CoM+rootOffset, 0.01f, Ogre::ColourValue( 1.0f, 1.0f, 0.0f ) /* yellow */ );
 	
 	/*
 	mDebugLines->addCross( mDebugFootTarget_World, 0.01f, Ogre::ColourValue( 0.0f, 1.0f, 1.0f )  );

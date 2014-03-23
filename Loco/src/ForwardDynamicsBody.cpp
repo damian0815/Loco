@@ -14,6 +14,8 @@
 #include "OgreBulletCollisionsSphereShape.h"
 #include "OgreBulletConverter.h"
 #include "OgreBulletDynamicsRigidBody.h"
+#include "ForwardDynamicsSkeleton.h"
+#include "OgreBulletCollisionsDebugLines.h"
 #include "Utilities.h"
 
 #include <string>
@@ -25,8 +27,8 @@ using namespace picojson;
 
 
 
-ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, Ogre::SceneNode* skeletonRootNode,  OgreBulletDynamics::DynamicsWorld* world, const value& bodyDefVal )
-: mParentBoneName(parentBone->getBone()->getName()), mKp(parentBone->getKp()), mKd(parentBone->getKd()), mMaxTorque(parentBone->getMaxAbsTorque()), mRestOrientationLocal(Ogre::Quaternion::IDENTITY), mTorque(0,0,0)
+ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentBone, std::vector<Ogre::SharedPtr<DriveableBone> > childBones, ForwardDynamicsSkeleton* owner, OgreBulletDynamics::DynamicsWorld* world,  const value& bodyDefVal )
+: mParentBoneName(parentBone->getBone()->getName()), mKp(parentBone->getKp()), mKd(parentBone->getKd()), mMaxTorque(parentBone->getMaxAbsTorque()), mRestOrientationParentRelative(Ogre::Quaternion::IDENTITY), mTorque(0,0,0), mOwnerSkeleton(owner)
 {
 	object bodyDef = bodyDefVal.get<object>();
 	
@@ -155,6 +157,7 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 		restitution = bodyDef["restitution"].get<double>();
 	}
 	
+	auto skeletonRootNode = mOwnerSkeleton->getSkeletonRootSceneNode();
 	Ogre::Vector3 comPositionSkel = parentBone->getBone()->convertLocalToWorldPosition(-mParentPositionLocal);
 	Ogre::Vector3 comPositionW = skeletonRootNode->convertLocalToWorldPosition(comPositionSkel);
 	
@@ -175,7 +178,7 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 	// disable collisions
 	//mBody->getBulletRigidBody()->setCollisionFlags(0);
 	
-	mBody->showDebugShape(true);
+	//mBody->showDebugShape(true);
 	
 	reset( parentBone, skeletonRootNode );
 	
@@ -226,24 +229,23 @@ Ogre::Vector3 ForwardDynamicsBody::getCoMWorld()
 	return BtOgreConverter::to(mBody->getBulletRigidBody()->getCenterOfMassPosition());*/
 }
 
+/*
 Ogre::Quaternion ForwardDynamicsBody::getOrientationLocal()
 {
 	return mBody->getSceneNode()->getOrientation();
-}
+}*/
 
 Ogre::Quaternion ForwardDynamicsBody::getOrientationWorld()
 {
 	return mBody->getSceneNode()->convertLocalToWorldOrientation(Ogre::Quaternion::IDENTITY);
-	/*
-	return BtOgreConverter::to(mBody->getBulletRigidBody()->getOrientation());*/
 }
 
-void ForwardDynamicsBody::debugDraw( DebugLines* debugLines )
+void ForwardDynamicsBody::debugDraw( OgreBulletCollisions::DebugLines* debugLines )
 {
-	Ogre::Vector3 head = debugLines->getParentNode()->convertWorldToLocalPosition(	getHeadPositionWorld());
+	Ogre::Vector3 head = getHeadPositionWorld();
 	// draw to each tail
 	for ( const auto it: mChildPositionsLocal ) {
-		Ogre::Vector3 tail = debugLines->getParentNode()->convertWorldToLocalPosition(getTailPositionWorld(it.first));
+		Ogre::Vector3 tail = getTailPositionWorld(it.first);
 		debugLines->addLine( head, tail, Ogre::ColourValue(1.0f, 0.5f, 0.3f));
 	}
 	
@@ -251,10 +253,14 @@ void ForwardDynamicsBody::debugDraw( DebugLines* debugLines )
 	//debugLines->addCross( getCoMWorld(), 0.2f, Ogre::ColourValue(1.0f, 0.3f, 0.5f));
 	
 	// draw axis at the CoM	
-	debugLines->addAxes( debugLines->getParentNode()->convertWorldToLocalPosition(getCoMWorld()), debugLines->getParentNode()->convertWorldToLocalOrientation(getOrientationWorld()), 0.02f);
+	debugLines->addAxes( getCoMWorld(), getOrientationWorld(), 0.05f);
 	
-	// draw torque-forces
-	
+	/*
+	auto parent = mOwnerSkeleton->getBody(mParentBoneName);
+	if ( !parent.isNull() ) {
+		Ogre::Quaternion parentOrientationWorld = parent->getOrientationWorld();
+		debugLines->addAxes( getCoMWorld(), parentOrientationWorld*getParentRelativeRestOrientation(), 0.03f);
+	}*/
 	
 }
 
@@ -275,7 +281,7 @@ void ForwardDynamicsBody::reset( Ogre::SharedPtr<DriveableBone> parentBone, Ogre
 	mBody->getBulletRigidBody()->setLinearVelocity(btVector3(0,0,0));
 	mBody->getBulletRigidBody()->clearForces();
 	
-	mTorque = Ogre::Vector3::ZERO;
+	clearTorque();
 	
 }
 
@@ -288,12 +294,8 @@ std::string ForwardDynamicsBody::getAnyChildName()
 	return "";
 }
 
-
-void ForwardDynamicsBody::applyTorque()
+void ForwardDynamicsBody::limitTorque( Ogre::Vector3& t )
 {
-	// clamp torque
-	Ogre::Vector3 t = mTorque;
-	
 	// convert to local coordinates
 	t = getOrientationWorld().Inverse()*t;
 	
@@ -304,14 +306,21 @@ void ForwardDynamicsBody::applyTorque()
 	
 	// convert back to global coordinates
 	t = getOrientationWorld()*t;
+}
+
+void ForwardDynamicsBody::applyTorque()
+{
+	// clamp torque
+	Ogre::Vector3 t = mTorque;
+	
+	limitTorque(t);
 	
 	mBody->getBulletRigidBody()->applyTorque(OgreBtConverter::to(t));
 
 	/*if ( getName()=="SpineBase" ) {
 		BLog("torque: %s  rate of change: %s", describe(mTorque).c_str(), describe(mTorque-mPrevTorque).c_str() );
 	}*/
-	// clear torque
-	mTorque = Ogre::Vector3::ZERO;
+	clearTorque();
 }
 
 float ForwardDynamicsBody::getMass()

@@ -29,9 +29,8 @@ void BoneDriverCopy::update()
 	
 }
 
-void BoneDriverCopy::debugDraw( OgreBulletCollisions::DebugLines* debugLines, const Ogre::ColourValue& boneColour, float axisLength )
+void BoneDriverCopy::debugDraw( OgreBulletCollisions::DebugLines* debugLines, const Ogre::ColourValue& boneColour, float axisLength, const Ogre::Vector3& offset )
 {
-	Ogre::Vector3 offset(0,0,0);
 	auto bonePos = mTarget->_getDerivedPosition() + offset;
 	// draw line to parent
 	auto parent = mTarget->getParent();

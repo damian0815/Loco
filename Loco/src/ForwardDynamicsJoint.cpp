@@ -12,6 +12,7 @@
 #include "OgreBulletConverter.h"
 #include "btRigidBody.h"
 #include "Utilities.h"
+#include "MathUtilities.h"
 using namespace std;
 using namespace OgreBulletCollisions;
 
@@ -251,8 +252,7 @@ void ForwardDynamicsJoint::clearTorque()
 
 void ForwardDynamicsJoint::applyTorque()
 {
-#define CONVERT_TORQUE_TO_FORCE
-#ifdef CONVERT_TORQUE_TO_FORCE
+#ifdef LocoForwardDynamicsJoint_ConvertTorqueToForce
 	
 	/*
 	 http://boards.straightdope.com/sdmb/showthread.php?t=268477
@@ -306,19 +306,36 @@ void ForwardDynamicsJoint::applyTorque()
 	orthoNormIntermediate.normalise();
 	ortho = orthoNormIntermediate.crossProduct(dummy);
 	
-	Ogre::Vector3 force = (0.5f*mTorque).crossProduct(ortho);
+	// parent and child torque limiting must be calculated separately
+	Ogre::Vector3 torqueParent = mTorque;
+	Ogre::Vector3 torqueChild = mTorque;
+	mParentFdb->limitTorque(torqueParent);
+	mChildFdb->limitTorque(torqueChild);
+	
+	/*
+	a) respect torque limits
+	b) rewrite body->addTorque to add torque to the joint, not the body
+	c) look at bubbleUpTorques again
+	 */
+	
+	Ogre::Vector3 forceParent = (0.5f*torqueParent).crossProduct(ortho);
+	Ogre::Vector3 forceChild = (0.5f*torqueChild).crossProduct(ortho);
 	
 	// apply force at hinge pos
 	Ogre::Vector3 hingePos = getPositionWorld();
 	Ogre::Vector3 pos1 = hingePos + ortho;
 	Ogre::Vector3 pos2 = hingePos - ortho;
-	btVector3 forceBt = OgreBtConverter::to(force);
+	Ogre::Vector3 parentCoM = mParentFdb->getCoMWorld();
+	Ogre::Vector3 childCoM = mChildFdb->getCoMWorld();
+	btVector3 forceBtParent = OgreBtConverter::to(forceParent);
+	btVector3 forceBtChild = OgreBtConverter::to(forceChild);
 	// apply to parent
-	mParentFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos1)) );
-	mParentFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mParentFdb->convertWorldToLocalPosition(pos2)) );
+	// applyForce expects position to be an offset from the body's CoM in world space
+	mParentFdb->getBody()->getBulletRigidBody()->applyForce(  forceBtParent, OgreBtConverter::to(pos1-parentCoM) );
+	mParentFdb->getBody()->getBulletRigidBody()->applyForce( -forceBtParent, OgreBtConverter::to(pos2-parentCoM) );
 	// apply to child
-	mChildFdb->getBody()->getBulletRigidBody()->applyForce( -forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos1)) );
-	mChildFdb->getBody()->getBulletRigidBody()->applyForce(  forceBt, OgreBtConverter::to(mChildFdb->convertWorldToLocalPosition(pos2)) );
+	mChildFdb->getBody()->getBulletRigidBody()->applyForce(  forceBtChild, OgreBtConverter::to(pos1-childCoM) );
+	mChildFdb->getBody()->getBulletRigidBody()->applyForce( -forceBtChild, OgreBtConverter::to(pos2-childCoM) );
 	
 	
 	
@@ -337,11 +354,14 @@ void ForwardDynamicsJoint::applyTorque()
 void ForwardDynamicsJoint::debugDraw(OgreBulletCollisions::DebugLines* debugLines)
 {
 	Ogre::Vector3 worldPos = getPositionWorld();
-	debugLines->addCross( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), 0.1f, Ogre::ColourValue(1,0.3,0.8));
+	//debugLines->addCross( worldPos, 0.1f, Ogre::ColourValue(1,0.3,0.8));
 	
-	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(mDebugPrevTorque.x*0.1,0,0)), Ogre::ColourValue(1,0,0) );
-	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(0,mDebugPrevTorque.y*0.1,0)), Ogre::ColourValue(0,1,0) );
-	debugLines->addLine( debugLines->getParentNode()->convertWorldToLocalPosition(worldPos), debugLines->getParentNode()->convertWorldToLocalPosition(worldPos+Ogre::Vector3(0,0,mDebugPrevTorque.z*0.1)), Ogre::ColourValue(0,0,1) );
+	bool drawTorque = true;
+	if ( drawTorque ) {
+		debugLines->addLine( worldPos, worldPos+Ogre::Vector3(mDebugPrevTorque.x*0.1,0,0), Ogre::ColourValue(1,0,0) );
+		debugLines->addLine( worldPos, worldPos+Ogre::Vector3(0,mDebugPrevTorque.y*0.1,0), Ogre::ColourValue(0,1,0) );
+		debugLines->addLine( worldPos, worldPos+Ogre::Vector3(0,0,mDebugPrevTorque.z*0.1), Ogre::ColourValue(0,0,1) );
+	}
 	
 	
 	

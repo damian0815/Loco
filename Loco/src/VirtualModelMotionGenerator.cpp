@@ -14,8 +14,19 @@ using namespace picojson;
 using namespace std;
 using namespace Ogre;
 
+VirtualModelMotionComponent::VirtualModelMotionComponent()
+: mLastPosX(0), mLastPosY(0), mLastPosZ(0), mOffset(0,0,0), mSign(1), mInvertOnPhaseSwap(false), mReferenceFrame(RF_Character)
+{
+}
+
+VirtualModelMotionComponent::VirtualModelMotionComponent( const std::string& name )
+: VirtualModelMotionComponent()
+{
+	mBodyName = name;
+}
+
 VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
-: mLastPosX(0), mLastPosY(0), mLastPosZ(0), mOffset(0,0,0), mSign(1), mInvertOnPhaseSwap(false)
+: VirtualModelMotionComponent()
 {
 	object params = paramsValue.get<object>();
 	
@@ -109,6 +120,11 @@ VirtualModelMotion::VirtualModelMotion( value& paramsValue )
 		VirtualModelMotionComponent component(trajectoryValue);
 		mComponents[component.getBodyName()] = component;
 	}
+}
+
+void VirtualModelMotion::addEmptyComponent(const std::string &name)
+{
+	mComponents[name] = VirtualModelMotionComponent( name );
 }
 
 Vector3 VirtualModelMotion::getTargetAtTime( const std::string& bodyName, float phi )
@@ -243,8 +259,17 @@ string VirtualModelMotionGenerator::convertBodyNameToSwingOrStance( const std::s
 			
 }
 
+bool VirtualModelMotionGenerator::hasComponent( const std::string& componentName )
+{
+	return mMotions.at(mCurrentMotionIndex).hasComponent(componentName);
+}
+
 VirtualModelMotionComponent& VirtualModelMotionGenerator::getComponentReference( const std::string& componentName )
 {
 	auto& motion = mMotions.at(mCurrentMotionIndex);
+	if ( !motion.hasComponent(componentName) ) {
+		// add an empty component for this
+		motion.addEmptyComponent(componentName);
+	}
 	return motion.getComponent(componentName);
 }

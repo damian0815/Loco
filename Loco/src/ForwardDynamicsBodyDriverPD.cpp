@@ -49,7 +49,7 @@ void ForwardDynamicsBodyDriverPD::setTargetAngularVelocityWorld( const Ogre::Vec
 Ogre::Vector3 ForwardDynamicsBodyDriverPD::computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength )
 {
 	
-	Ogre::Vector3 torque;
+	Ogre::Vector3 torque(0,0,0);
 	
 	//	Quaternion qErr = qRel.getComplexConjugate() * qRelD;
 	Ogre::Quaternion qErr = qRel.UnitInverse();
@@ -126,16 +126,16 @@ void ForwardDynamicsBodyDriverPD::debugDraw( OgreBulletCollisions::DebugLines* d
 		auto headPos = mBody->getHeadPositionWorld();
 		//auto tailPos = mBody->getTailPositionWorld();
 		auto tailOffset = getTargetOrientation()*Ogre::Vector3::UNIT_Y;
-		OgreAssert( fabsf(tailOffset.squaredLength()-1.0) < 0.0001, "bad" );
+		//OgreAssert( fabsf(tailOffset.squaredLength()-1.0) < 0.0001, "bad" );
 		auto tailPosTarget = headPos + tailOffset;
 		
-		// convert to debugLines space
-		headPos = debugLines->convertWorldToLocalPosition(headPos+offs);
-		//tailPos = debugLines->convertWorldToLocalPosition(tailPos+offs);
-		tailPosTarget = debugLines->convertWorldToLocalPosition(tailPosTarget+offs);
+		// add offset
+		headPos += offs;
+		tailPosTarget += offs;
 		
 		//debugLines->addLine(headPos, tailPos, color);
 		debugLines->addLine(headPos, tailPosTarget, targetColor);
+		debugLines->addAxes((headPos+tailPosTarget)*0.5f, getTargetOrientation(), 0.04f);
 		/*auto tailPos = headPos + body->getBody()->getSceneNode()->convertLocalToWorldOrientation(it.second->getTargetOrientation())*Ogre::Vector3::UNIT_Y;
 		 headPos = debugLines->getParentNode()->convertWorldToLocalPosition(headPos);
 		 tailPos = debugLines->getParentNode()->convertWorldToLocalPosition(tailPos);

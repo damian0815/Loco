@@ -28,8 +28,8 @@ This source file is part of the
 
 using namespace std;
 
-static const bool PHYSICS_DEBUG_SHAPES = true ;
-static const double PHYSICS_FRAME_DURATION = 1.0/1000.0;
+static const bool PHYSICS_SHOW_DEBUG_SHAPES = false;
+static const double PHYSICS_FRAME_DURATION = 1.0/180.0;
 static const bool DO_ANIMATION = true;
 static const std::string DEFAULT_ANIMATION = "<none>";
 
@@ -250,8 +250,10 @@ void TutorialApplication::buttonHit(OgreBites::Button *button)
 			mAnimationState->setEnabled(false);
 			mAnimationState = NULL;
 		}
-		mSkeletonController->setEnabled(true);
-		mSkeletonController->setShowDebugInfo( true	 );
+		if ( !mSkeletonController.isNull() ) {
+			mSkeletonController->setEnabled(true);
+			mSkeletonController->setShowDebugInfo( true	 );
+		}
 	}
 }
 
@@ -344,7 +346,7 @@ void TutorialApplication::createPhysics(void)
 	debugDrawer->setDrawWireframe(false);
 	debugDrawer->setDrawAabb(true);
 	mWorld->setDebugDrawer(debugDrawer);
-	mWorld->setShowDebugShapes(PHYSICS_DEBUG_SHAPES);
+	mWorld->setShowDebugShapes(PHYSICS_SHOW_DEBUG_SHAPES);
 	
 	// use more iterations for the consraints solver
 	mWorld->getBulletDynamicsWorld()->getSolverInfo().m_numIterations = 30;
@@ -582,19 +584,20 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			mAnimationState->addTime(PHYSICS_FRAME_DURATION*mAnimationSpeed);
 		} else {
 			// hackity?
-			Ogre::AnimationStateSet* animStates = mFigureEnt->getAllAnimationStates();
+			//Ogre::AnimationStateSet* animStates = mFigureEnt->getAllAnimationStates();
 			// i don't know why i have to call this :/
-			animStates->_notifyDirty();
+			//animStates->_notifyDirty();
 		}
-		
-		mWorld->stepSimulation( PHYSICS_FRAME_DURATION, 1, PHYSICS_FRAME_DURATION );
-		
+
 		while ( mTimeAccumulator > 0 )
+		{
+			mWorld->stepSimulation( PHYSICS_FRAME_DURATION, 1, PHYSICS_FRAME_DURATION );
 			mTimeAccumulator -= PHYSICS_FRAME_DURATION;
-		
-		if ( mSkeletonController.get() ) {
-			mSkeletonController->update( PHYSICS_FRAME_DURATION );
+			if ( mSkeletonController.get() ) {
+				mSkeletonController->update( PHYSICS_FRAME_DURATION );
+			}
 		}
+		
 
 	}
 	

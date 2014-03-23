@@ -87,6 +87,9 @@ public:
 	Ogre::Vector3 getCenterOfMassWorld();
 	Ogre::Vector3 getCenterOfMassVelocityWorld();
 	
+	/*! @brief The root scene node of the driveable skeleton underlying this skeleton. */
+	Ogre::SceneNode* getSkeletonRootSceneNode() { return mDriveableSkeleton->getRootSceneNode(); }
+	
 private:
 	
 	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsBody> > mBodies;
