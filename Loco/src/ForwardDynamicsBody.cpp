@@ -164,6 +164,7 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 	Ogre::Quaternion orientationSkel = parentBone->getBone()->convertLocalToWorldOrientation(Ogre::Quaternion::IDENTITY);
 	Ogre::Quaternion orientationW = skeletonRootNode->convertLocalToWorldOrientation(orientationSkel);
 	
+	
 	mBody = new RigidBody( mParentBoneName+".RigidBody", world);
 	Ogre::SceneNode* boneNode = world->getSceneManager()->getRootSceneNode()->createChildSceneNode(mParentBoneName+".SceneNode");
 	mBody->setShape(boneNode, mCollisionShape, restitution, friction, mass, comPositionW, orientationW );
@@ -176,7 +177,10 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 	//mBody->setKinematicObject(true);
 	
 	// disable collisions
-	//mBody->getBulletRigidBody()->setCollisionFlags(0);
+	mBody->getBulletRigidBody()->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+	
+	// set coll
+	//mCollisionShape->getBulletShape()->setMargin(0.01f);
 	
 	//mBody->showDebugShape(true);
 	

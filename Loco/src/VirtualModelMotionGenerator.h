@@ -33,7 +33,7 @@ public:
 	const std::string& getBodyName() const { return mBodyName; }
 	ReferenceFrame getReferenceFrame() const { return mReferenceFrame; }
 	
-	void phaseSwapped();
+	void phaseSwapped( bool stanceIsLeft );
 	Ogre::Vector3 evaluateAtTime( float phi );
 	
 	// raw access
@@ -50,8 +50,8 @@ private:
 	
 	Ogre::Vector3 mOffset;
 	// if true, the spline is inverted on phase swap (but not the offset)
-	bool mInvertOnPhaseSwap;
-	float mSign;
+	bool mInvertXOnPhaseSwap, mInvertYOnPhaseSwap, mInvertZOnPhaseSwap;
+	float mSignX, mSignY, mSignZ;
 	
 	unsigned int mLastPosX, mLastPosY, mLastPosZ;
 	
@@ -70,7 +70,7 @@ public:
 	Ogre::Vector3 getTargetAtTime( const std::string& bodyName, float phi );
 	VirtualModelMotionComponent::ReferenceFrame getReferenceFrame( const std::string& bodyName ) const { return mComponents.at(bodyName).getReferenceFrame(); }
 	
-	void phaseSwapped();
+	void phaseSwapped( bool stanceIsLeft );
 	
 	const std::string& getName() const { return mName; }
 	

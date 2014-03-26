@@ -15,7 +15,8 @@ using namespace std;
 using namespace Ogre;
 
 VirtualModelMotionComponent::VirtualModelMotionComponent()
-: mLastPosX(0), mLastPosY(0), mLastPosZ(0), mOffset(0,0,0), mSign(1), mInvertOnPhaseSwap(false), mReferenceFrame(RF_Character)
+: mLastPosX(0), mLastPosY(0), mLastPosZ(0), mOffset(0,0,0), mSignX(1), mSignY(1), mSignZ(1),
+mInvertXOnPhaseSwap(false), mInvertYOnPhaseSwap(false), mInvertZOnPhaseSwap(false), mReferenceFrame(RF_Character)
 {
 }
 
@@ -30,7 +31,7 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 {
 	object params = paramsValue.get<object>();
 	
-	mBodyName = params["bodyName"].get<string>();
+	mBodyName = params.at("bodyName").get<string>();
 	
 	mReferenceFrame = RF_Parent;
 	if ( params.count("referenceFrame") ) {
@@ -75,16 +76,34 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 		}
 	}
 	
-	if ( params.count("invertOnPhaseSwap") ) {
-		mInvertOnPhaseSwap = params["invertOnPhaseSwap"].get<bool>();
+	if ( params.count("invertXOnPhaseSwap") ) {
+		mInvertXOnPhaseSwap = params["invertXOnPhaseSwap"].get<bool>();
 	}
-		
+	if ( params.count("invertYOnPhaseSwap") ) {
+		mInvertYOnPhaseSwap = params["invertYOnPhaseSwap"].get<bool>();
+	}
+	if ( params.count("invertZOnPhaseSwap") ) {
+		mInvertZOnPhaseSwap = params["invertZOnPhaseSwap"].get<bool>();
+	}
+				
 }
 
-void VirtualModelMotionComponent::phaseSwapped()
+void VirtualModelMotionComponent::phaseSwapped( bool stanceIsLeft )
 {
-	if ( mInvertOnPhaseSwap ) {
-		mSign = -mSign;
+	if ( stanceIsLeft ) {
+		mSignX = 1.0f;
+		mSignY = 1.0f;
+		mSignZ = 1.0f;
+	} else {
+		if ( mInvertXOnPhaseSwap ) {
+			mSignX = -1.0f;
+		}
+		if ( mInvertYOnPhaseSwap ) {
+			mSignY = -1.0f;
+		}
+		if ( mInvertZOnPhaseSwap ) {
+			mSignZ = -1.0f;
+		}
 	}
 }
 
@@ -103,9 +122,11 @@ Vector3 VirtualModelMotionComponent::evaluateAtTime( float phi )
 		zRot = evaluateCatmullRom( mSplineZ, phi, mLastPosZ );
 	}
 	
-	return mSign*Ogre::Vector3(xRot, yRot, zRot) + mOffset;
-
-
+	Ogre::Vector3 r = Ogre::Vector3(xRot, yRot, zRot) + mOffset;
+	r.x *= mSignX;
+	r.y *= mSignY;
+	r.z *= mSignZ;
+	return r;
 }
 
 
@@ -134,10 +155,10 @@ Vector3 VirtualModelMotion::getTargetAtTime( const std::string& bodyName, float 
 	return rot;
 }
 
-void VirtualModelMotion::phaseSwapped()
+void VirtualModelMotion::phaseSwapped( bool stanceIsLeft )
 {
 	for ( auto& it: mComponents ) {
-		it.second.phaseSwapped();
+		it.second.phaseSwapped( stanceIsLeft );
 	}
 }
 
@@ -165,7 +186,7 @@ bool VirtualModelMotionGenerator::update(float dt)
 	while ( mPhi>1.0 ) {
 		mPhi -= 1.0;
 		mStanceIsLeft = !mStanceIsLeft;
-		mMotions.at(mCurrentMotionIndex).phaseSwapped();
+		mMotions.at(mCurrentMotionIndex).phaseSwapped( mStanceIsLeft );
 		swapped = true;
 	}
 	return swapped;

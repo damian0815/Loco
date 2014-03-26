@@ -389,12 +389,13 @@ void VirtualModelSkeletonController::computeIKSwingLegTargets(double dt)
 	// now
 	string swingLeg = getStanceIsLeft()?"R":"L";
 	Ogre::Quaternion upperLegTargetWorld, lowerLegTargetWorld;
-	solveLegIK( swingLeg, pNow, upperLegTargetWorld, lowerLegTargetWorld );
+	float kneeOut = 0.25f;
+	solveLegIK( swingLeg, pNow, upperLegTargetWorld, lowerLegTargetWorld, kneeOut );
 	
 	// future
 	Ogre::Quaternion upperLegTargetFutureWorld, lowerLegTargetFutureWorld;
 	pFuture = getSwingFootTargetLocation(MIN(phi+dt, 1), mCoM + mCoMVelocity * dt, mCharacterFrame);
-	solveLegIK( swingLeg, pFuture, upperLegTargetFutureWorld, lowerLegTargetFutureWorld);
+	solveLegIK( swingLeg, pFuture, upperLegTargetFutureWorld, lowerLegTargetFutureWorld, kneeOut );
 	
 	// delta
 	// we could use complex conjugate instead of inverse because q's are normalised here
@@ -529,20 +530,16 @@ void VirtualModelSkeletonController::setDesiredSwingFootLocation( float phi, flo
 
 void VirtualModelSkeletonController::setKneeBend( float kneeBend, bool swingAlso )
 {
-	if ( mMotionGenerator->hasComponent("LegLower.STANCE Orientation") ) {
-		auto& stanceKneeOri = mMotionGenerator->getComponentReference("LegLower.STANCE Orientation");
-		Ogre::Vector3 offs = stanceKneeOri.getOffset();
-		offs.x = kneeBend;
-		stanceKneeOri.setOffset( offs );
-	}
+	auto& stanceKneeOri = mMotionGenerator->getComponentReference("LegLower.STANCE Orientation");
+	Ogre::Vector3 offs = stanceKneeOri.getOffset();
+	offs.x = kneeBend;
+	stanceKneeOri.setOffset( offs );
 		
 	if (swingAlso) {
-		if ( mMotionGenerator->hasComponent("LegLower.SWING Orientation") ) {
-			auto swingKneeOri = mMotionGenerator->getComponentReference("LegLower.SWING Orientation");
-			Ogre::Vector3 offs = swingKneeOri.getOffset();
-			offs.x = kneeBend;
-			swingKneeOri.setOffset( offs );
-		}
+		auto swingKneeOri = mMotionGenerator->getComponentReference("LegLower.SWING Orientation");
+		Ogre::Vector3 offs = swingKneeOri.getOffset();
+		offs.x = kneeBend;
+		swingKneeOri.setOffset( offs );
 	}
 }
 
@@ -822,8 +819,8 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	
 	mDebugRootTorque = rootTorque;
 	
-	root->addTorque(rootTorque);
-	return;
+	//root->addTorque(rootTorque);
+	//return;
 	
 	
 	

@@ -41,7 +41,7 @@ static const std::string SKELETON_CONTROLLER_FILENAME = "swimmer.posecontroller"
 static const float DEFAULT_TIME_MULTIPLIER = 0.0f;
 static const float DEFAULT_ANIMATION_SPEED = 1.0f;
 
-static const Ogre::Vector3 ROOT_POSITION = Ogre::Vector3(0,0,0);
+static const Ogre::Vector3 ROOT_POSITION = Ogre::Vector3(0,1.5f,0);
 
 //#define FLOOR_IS_PLANE
 
@@ -440,7 +440,7 @@ void TutorialApplication::createScene(void)
 	Ogre::Entity* entity = mSceneMgr->createEntity( name, path);
 	Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode( name + ".SceneNode" );
 	node->attachObject(entity);
-	node->setPosition(0,1.2,0);
+	node->setPosition(ROOT_POSITION);
 	
 	// save
 	mFigureEnt = entity;

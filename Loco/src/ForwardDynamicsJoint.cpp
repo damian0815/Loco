@@ -341,9 +341,9 @@ void ForwardDynamicsJoint::applyTorque()
 	
 #else
 	// apply to parent
-	mParentFdb->addTorque(mTorque);
+	mParentFdb->addTorque(0.5f*mTorque);
 	// apply to child
-	mChildFdb->addTorque(-mTorque);
+	mChildFdb->addTorque(-0.5f*mTorque);
 #endif
 	
 	// clear the torque
