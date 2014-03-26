@@ -38,13 +38,13 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 	// the position of the center of mass of the collision shape in world coordinates
 	
 	if ( bodyDef.count("kP") ) {
-		mKp = bodyDef.at("kP").get<double>();
+		OgreAssert(false, "kP belongs in the DriveableBone definition");
 	}
 	if ( bodyDef.count("kD") ) {
-		mKd = bodyDef.at("kD").get<double>();
+		OgreAssert(false, "kD belongs in the DriveableBone definition");
 	}
 	if ( bodyDef.count("maxTorque") ) {
-		mMaxTorque = bodyDef.at("maxTorque").get<double>();
+		OgreAssert(false, "maxTorque belongs in the DriveableBone definition");
 	}
 
 	mTorqueScale = Ogre::Vector3(1,1,1);

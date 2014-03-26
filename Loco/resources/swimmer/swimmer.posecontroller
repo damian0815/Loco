@@ -6,8 +6,8 @@
 				"params": {
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
-					"kp": 0.0012,
-					"kd": 0.0012,
+					"kP": 64.0,
+					"kD": 0.5,
 					"maxTorque": 100
 				}
 			}, 
@@ -16,8 +16,8 @@
 				"params": {
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
-					"kp": 0.0012,
-					"kd": 0.0012,
+					"kP": 64.0,
+					"kD": 0.5,
 					"maxTorque": 100
 				}
 			}, 
@@ -26,8 +26,8 @@
 				"params": {
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
-					"kp": 0.022,
-					"kd": 0.022,
+					"kP": 128.0,
+					"kD": 1.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -36,8 +36,8 @@
 				"params": {
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
-					"kp": 0.022,
-					"kd": 0.022,
+					"kP": 128.0,
+					"kD": 1.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -46,9 +46,9 @@
 				"params": {
 					"length": 0.200, 
 					"mass": 1.0, 
-					"kp": 0.1,
-					"kd": 0.1,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 0.1,
+					"maxTorque": 1000
 				}
 			}, 
 			{
@@ -56,9 +56,9 @@
 				"params": {
 					"length": 0.200, 
 					"mass": 1.0, 
-					"kp": 0.1,
-					"kd": 0.1,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 0.1,
+					"maxTorque": 1000
 				}
 			}, 
 			{
@@ -66,8 +66,8 @@
 				"params": {
 					"length": 0.039726756513118744, 
 					"mass": 0.38, 
-					"kp": 0.02,
-					"kd": 0.02,
+					"kP": 0.1,
+					"kD": 0.01,
 					"maxTorque": 100
 				}
 			}, 
@@ -76,8 +76,8 @@
 				"params": {
 					"length": 0.039725929498672485, 
 					"mass": 0.38, 
-					"kp": 0.04,
-					"kd": 0.04,
+					"kP": 0.1,
+					"kD": 0.01,
 					"maxTorque": 100
 				}
 			}, 
@@ -86,8 +86,8 @@
 				"params": {
 					"length": 0.08099213987588882, 
 					"mass": 4.2, 
-					"kp": 0.6,
-					"kd": 0.4,
+					"kP": 128.0,
+					"kD": 1,
 					"maxTorque": 100
 				}
 			}, 
@@ -96,9 +96,9 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kp": 4000.0,
-					"kd": 3000.0,
-					"maxTorque": 100
+					"kP": 256.0,
+					"kD": 0.5,
+					"maxTorque": 800.0
 				}
 			}, 
 			{
@@ -106,9 +106,9 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kp": 4000.0,
-					"kd": 3000.0,
-					"maxTorque": 100
+					"kP": 256.0,
+					"kD": 0.5,
+					"maxTorque": 800.0
 				}
 			}, 
 			{
@@ -116,9 +116,9 @@
 				"params": {
 					"length": 0.48978400230407715, 
 					"mass": 8, 
-					"kp": 16000.0,
-					"kd": 8000.0,
-					"maxTorque": 100
+					"kP": 512.0,
+					"kD": 8.0,
+					"maxTorque": 800.0
 				}
 			}, 
 			{
@@ -126,9 +126,9 @@
 				"params": {
 					"length": 0.48978400230407715, 
 					"mass": 8, 
-					"kp": 16000.0,
-					"kd": 8000.0,
-					"maxTorque": 100
+					"kP": 512.0,
+					"kD": 8.0,
+					"maxTorque": 800.0
 				}
 			}, 
 			{
@@ -136,8 +136,8 @@
 				"params": {
 					"length": 0.08444000035524368, 
 					"mass": 3.2, 
-					"kp": 1.0,
-					"kd": 1.0,
+				"kP": 128.0,
+				"kD": 1,
 					"maxTorque": 100
 				}
 			}, 
@@ -146,9 +146,9 @@
 				"params": {
 					"length": 0.22, 
 					"mass": 12.1, 
-					"kp": 1.0,
-					"kd": 0.8,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 1.0,
+					"maxTorque": 16000.0
 				}
 			}, 
 			{
@@ -156,9 +156,9 @@
 				"params": {
 					"length": 0.2111939936876297, 
 					"mass": 9.29, 
-					"kp": 0.9,
-					"kd": 0.9,
-					"maxTorque": 100
+					"kP": 256.0,
+					"kD": 4.0,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -166,9 +166,9 @@
 				"params": {
 					"length": 0.18924300372600555, 
 					"mass": 12.9, 
-					"kp": 1.3,
-					"kd": 1.3,
-					"maxTorque": 100
+					"kP": 256.0,
+					"kD": 4.0,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -176,9 +176,9 @@
 				"params": {
 					"length": 0.1, 
 					"mass": 0.2, 
-					"kp": 0.02,
-					"kd": 0.02,
-					"maxTorque": 100
+					"kP": 6.0,
+					"kD": 0.02,
+					"maxTorque": 10
 				}
 			}, 
 			{
@@ -186,9 +186,9 @@
 				"params": {
 					"length": 0.1, 
 					"mass": 0.2, 
-					"kp": 0.02,
-					"kd": 0.02,
-					"maxTorque": 100
+					"kP": 6.0,
+					"kD": 0.02,
+					"maxTorque": 10
 				}
 			}
 		]
@@ -222,8 +222,6 @@
 
 			{
 				"name": "Head",
-				"kP": 128.0,
-				"kD": 1,
 				"joints": {},
 				"shape": "sphere",
 				"radius": 0.11,
@@ -231,8 +229,6 @@
 			},
 			{
 				"name": "Neck",
-				"kP": 128.0,
-				"kD": 1,
 				"joints": { 
 				"Head": { 
 					"type": "coneTwist", 
@@ -247,9 +243,6 @@
 			},
 			{
 				"name": "SpineTop",
-				"kP": 256.0,
-				"kD": 4.0,
-				"maxTorque": 8000.0,
 				"joints": {
 					"Neck": { 
 						"type": "coneTwist", 
@@ -276,10 +269,6 @@
 			},
 			{
 				"name": "SpineMid",
-				"kP": 256.0,
-				"kD": 4.0,
-				"maxTorque": 8000.0,
-
 				"joints": { 
 					"SpineTop": { 
 						"type": "coneTwist", 
@@ -297,24 +286,18 @@
 			
 			{
 				"name": "ArmUpper.L",
-				"kP": 128.0,
-				"kD": 1.0,
 				"joints": { "ArmLower.L": { "axis":"z", "minAngle":-2.7, "maxAngle":2.7 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmUpper.R",
-				"kP": 128.0,
-				"kD": 1.0,
 				"joints": { "ArmLower.R": { "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmLower.R",
-				"kP": 64.0,
-				"kD": 0.5,
 				"joints": { 
 					"Hand.R":  {
 						"type": "coneTwist",
@@ -328,8 +311,6 @@
 			},
 			{
 				"name": "ArmLower.L",
-				"kP": 64.0,
-				"kD": 0.5,
 				"joints": { 
 					"Hand.L": {
 						"type": "coneTwist",
@@ -344,16 +325,12 @@
 			},
 			{
 				"name": "Hand.R",
-				"kP": 0.1,
-				"kD": 0.01,
 				"shape": "box",
 				"shapeSize": [ 0.03, 0.17, 0.08 ],
 				"comOffsetLocal": [ 0, 0.1, -0.01 ]
 			},
 			{
 				"name": "Hand.L",
-				"kP": 0.1,
-				"kD": 0.01,
 				"shape": "box",
 				"shapeSize": [ 0.03, 0.17, 0.08 ],
 				"comOffsetLocal": [ 0, 0.1, -0.01 ]
@@ -361,9 +338,6 @@
 			
 			{
 				"name": "SpineBase",
-				"kP": 128.0,
-				"kD": 1.0,
-				"maxTorque": 16000.0,
 				"joints": {
 					"SpineMid": {
 						
@@ -392,9 +366,6 @@
 
 			{
 				"name": "LegUpper.R",
-				"kP": 512.0,
-				"kD": 8.0,
-				"maxTorque": 800.0,
 				"joints": { "LegLower.R": { "type":"hinge", "axis":"x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.02, 0 ],
@@ -403,9 +374,6 @@
 			},
 			{
 				"name": "LegUpper.L",
-				"kP": 512.0,
-				"kD": 8.0,
-				"maxTorque": 800.0,
 				"joints": { "LegLower.L": { "type":"hinge", "axis": "x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.02, 0 ],
@@ -414,9 +382,6 @@
 			},
 			{
 				"name": "LegLower.R",
-				"kP": 256.0,
-				"kD": 0.5,
-				"maxTorque": 800.0,
 				"joints": { "Foot.R": { "type":"hinge", "minAngle": -2.4, "maxAngle": -0.3 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
@@ -425,9 +390,6 @@
 			},
 			{
 				"name": "LegLower.L",
-				"kP": 256.0,
-				"kD": 0.5,
-				"maxTorque": 800.0,
 				"joints": { "Foot.L": { "type":"hinge", "minAngle": 0.3, "maxAngle": 2.4 } },
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
@@ -436,9 +398,6 @@
 			},
 			{
 				"name": "Foot.R",
-				"kP": 128.0,
-				"kD": 0.1,
-				"maxTorque": 1000,
 				"friction": 0.8,
 				"restitution": 0.0,
 				"joints": { "Toe.R": { "type":"hinge", "axis":"z", "minAngle": -0.3, "maxAngle": 0.3 } },
@@ -449,9 +408,6 @@
 			},			
 			{
 				"name": "Foot.L",
-				"kP": 128.0,
-				"kD": 0.1,
-				"maxTorque": 1000,
 				"friction": 0.8,
 				"restitution": 0.0,
 				"joints": { "Toe.L": { "type":"hinge", "axis":"z", "minAngle": -0.3, "maxAngle": 0.3 } },
@@ -461,9 +417,6 @@
 			},
 			{
 				"name": "Toe.R",
-				"kP": 6.0,
-				"kD": 0.02,
-				"maxTorque": 10,
 				"friction": 0.8,
 				"restitution": 0.0,
 				"shape": "box",
@@ -472,9 +425,6 @@
 			},		
 			{
 				"name": "Toe.L",
-				"kP": 6.0,
-				"kD": 0.02,
-				"maxTorque": 10,
 				"friction": 0.8,
 				"restitution": 0.0,
 				"shape": "box",

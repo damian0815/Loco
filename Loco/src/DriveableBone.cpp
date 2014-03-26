@@ -64,8 +64,8 @@ picojson::value DriveableBone::serialize() const
 	contents["length"] = value(mLength);
 	contents["mass"] = value(mMass);
 	contents["maxTorque"] = value(mMaxAbsTorque);
-	contents["kp"] = value(mKp);
-	contents["kd"] = value(mKd);
+	contents["kP"] = value(mKp);
+	contents["kD"] = value(mKd);
 	return value(contents);
 }
 
@@ -75,8 +75,8 @@ void DriveableBone::deserialize( picojson::value& value )
 	mMass = contents["mass"].get<double>();
 	mLength = contents["length"].get<double>();
 	mMaxAbsTorque = contents["maxTorque"].get<double>();
-	mKp = contents["kp"].get<double>();
-	mKd = contents["kd"].get<double>();
+	mKp = contents["kP"].get<double>();
+	mKd = contents["kD"].get<double>();
 	
 }
 
