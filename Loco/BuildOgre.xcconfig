@@ -8,7 +8,7 @@ OGRE_INCLUDE = $(OGRE_BASE)/include
 OIS_INCLUDE = $(OGRE_BASE)/include/OIS
 BOOST_INCLUDE = $(OGRE_BASE)/boost
 // bullet
-BULLET_INCLUDE = $(SRCROOT)/../../bullet-2.81-rev2613/src
+BULLET_INCLUDE = $(SRCROOT)/../../bullet-2.82-r2704/src
 // ogrebullet
 OGREBULLET_COLLISIONS_INCLUDE = $(SRCROOT)/../ogreAddons/ogrebullet/Collisions/include
 OGREBULLET_DYNAMICS_INCLUDE = $(SRCROOT)/../ogreAddons/ogrebullet/Dynamics/include
@@ -16,7 +16,7 @@ OGREBULLET_INCLUDE = $(OGREBULLET_DYNAMICS_INCLUDE) $(OGREBULLET_COLLISIONS_INCL
 
 // libs
 // ogre
-OIS_LIB = -L$(OGRE_BASE)/lib/release -lois
+OIS_LIB = -L$(OGRE_BASE)/lib/release -L$(OGRE_BASE)/lib/debug -lois
 //OGRE_LIB = -framework $(OGRE_BASE)/lib/release/Ogre.framework
 
 

@@ -32,7 +32,6 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 {
 	object bodyDef = bodyDefVal.get<object>();
 	
-	
 	string shape = bodyDef["shape"].get<string>();
 	mCollisionShape = NULL;
 	// the position of the center of mass of the collision shape in world coordinates

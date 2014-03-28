@@ -54,8 +54,10 @@ mScnMgr(scn),
 mBounds(bounds),
 mShowDebugShapes(false),
 mShowDebugContactPoints(false),
+mDefaultCollisionConfiguration(),
 mDebugContactPoints(0),
 mDebugDrawer(0)
+	
 {
 	mDispatcher = new btCollisionDispatcher(&mDefaultCollisionConfiguration);
 

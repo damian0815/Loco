@@ -352,7 +352,7 @@ ConvexHullCollisionShape* VertexIndexToShape::createConvex()
 	btConvexHullShape* convexShape = new btConvexHullShape();
 	for (unsigned int i=0;i<(unsigned int )hull->numVertices();i++)
 	{
-		convexShape->addPoint(hull->getVertexPointer()[i]);	
+		convexShape->addPoint(hull->getVertexPointer()[i]);
 	}
 
 	delete tmpConvexShape;

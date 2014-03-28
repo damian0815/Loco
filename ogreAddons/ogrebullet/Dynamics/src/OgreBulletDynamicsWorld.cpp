@@ -41,6 +41,7 @@ THE SOFTWARE.
 
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 
 using namespace Ogre;
 using namespace OgreBulletCollisions;
