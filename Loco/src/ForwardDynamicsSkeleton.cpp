@@ -19,6 +19,20 @@
 #include "btPoint2PointConstraint.h"
 #include "ForwardDynamicsJoint.h"
 
+
+// featherstone
+#include "BulletDynamics/Featherstone/btMultiBody.h"
+#include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLink.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
+#include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
+
+
+
+
 using namespace OgreBulletCollisions;
 using namespace OgreBulletDynamics;
 
@@ -34,7 +48,36 @@ ForwardDynamicsSkeleton::ForwardDynamicsSkeleton( DynamicsWorld* dynamicsWorld, 
 : mDriveableSkeleton(outputSkeleton),
 mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 {
+	/*
+	// setup featherstone multibody
+	// count joints
+	unsigned int jointCount = 0;
+	float baseMass = 0;
+	const string rootJointName = "SpineBase";
+	for ( const auto bodyDefValue: bodyDefs ) {
+		object bodyDef = bodyDefValue.get<object>();
+		// get bone
+		auto bodyName = bodyDef["name"].get<string>();
+		auto bone = mDriveableSkeleton->getBone(bodyName);
+		if ( bodyName == rootJointName ) {
+			baseMass = bone->getMass();
+		}
+		
+		// get children
+		if ( bodyDef.count("joints") ) {
+			auto childJointDefs = bodyDef["joints"].get<object>();
+			jointCount += childJointDefs.size();
+		}
+	}
 	
+	mFeatherstoneMultiBody = new btMultiBody(int jointCount,                // NOT including the base
+											 btScalar mTotalMass,                // mass of base
+															  const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
+															  bool fixed_base_,           // whether the base is fixed (true) or can move (false)
+															  bool can_sleep_);
+		
+	 */
+	// ...
 	object controllerDef = params.get<object>();
 	if ( controllerDef.count("limitSoftness") ) {
 		ForwardDynamicsJoint::mLimitSoftness = controllerDef.at("limitSoftness").get<double>();

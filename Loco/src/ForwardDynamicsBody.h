@@ -91,10 +91,11 @@ public:
 	
 	void addImpulse( const Ogre::Vector3& impulse );
 	
-	float getMass();
-	float getKp() { return mKp; }
-	float getKd() { return mKd; }
-	float getMaxTorque() { return mMaxTorque; }
+	float getMass() const;
+	float getKp() const { return mKp; }
+	float getKd() const { return mKd; }
+	float getMaxTorque() const { return mMaxTorque; }
+	Ogre::Matrix3 getInertiaTensor() const { return mBody->getInertiaTensor(); }
 	
 private:
 	

@@ -57,10 +57,11 @@ namespace OgreBulletDynamics
     {
         //btSequentialImpulseConstraintSolver
         //btSequentialImpulseConstraintSolver3
-        mConstraintsolver = new btSequentialImpulseConstraintSolver();
+		mConstraintsolver = new btSequentialImpulseConstraintSolver();
 
         //only if init is true, otherwise you have to create mWorld manually later on
         if (init) {
+			
             mWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadphase, mConstraintsolver, &mDefaultCollisionConfiguration);
 			static_cast <btDiscreteDynamicsWorld *> (mWorld)->setGravity(btVector3(gravity.x,gravity.y,gravity.z));
 

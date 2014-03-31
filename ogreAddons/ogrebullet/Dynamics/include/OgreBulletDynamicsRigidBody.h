@@ -112,6 +112,9 @@ namespace OgreBulletDynamics
         inline const btTransform &getCenterOfMassTransform() const;
         inline Ogre::Quaternion    getCenterOfMassOrientation () const;
         inline Ogre::Vector3 getCenterOfMassPosition() const;
+		
+		/*! @brief inertia tensor in world space */
+		inline Ogre::Matrix3 getInertiaTensor() const;
 
         Ogre::Vector3       getCenterOfMassPivot (const Ogre::Vector3 &pivotPosition) const;
         
@@ -203,7 +206,11 @@ namespace OgreBulletDynamics
     {
         return OgreBulletCollisions::BtOgreConverter::to(getBulletRigidBody()->getCenterOfMassPosition());
     }
-    // -------------------------------------------------------------------------   
+    // -------------------------------------------------------------------------
+	inline Ogre::Matrix3 RigidBody::getInertiaTensor() const
+	{
+		return OgreBulletCollisions::BtOgreConverter::to(getBulletRigidBody()->getInvInertiaTensorWorld().inverse());
+	}
     
 }
 #endif //_OGREBULLETDYNAMICS_RigidObject_H

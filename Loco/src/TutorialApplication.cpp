@@ -22,6 +22,7 @@ This source file is part of the
 #include "Shapes/OgreBulletCollisionsBoxShape.h"
 #include <Ogre/OgreMath.h>
 
+#include "FeatherstoneMultibodyDynamicsWorld.h"
 #include "ForwardDynamicsSkeletonController.h"
 #include "VirtualModelSkeletonController.h"
 #include "Utilities.h"
@@ -340,7 +341,8 @@ void TutorialApplication::createPhysics(void)
 	Ogre::AxisAlignedBox bounds( Ogre::Vector3(-100,-100,-100), Ogre::Vector3(100,100,100));
 	mNumEntitiesInstanced = 0;
 	// start bullet
-	mWorld = new OgreBulletDynamics::DynamicsWorld( mSceneMgr, bounds, gravityVector );
+	//mWorld = new OgreBulletDynamics::DynamicsWorld( mSceneMgr, bounds, gravityVector );
+	mWorld = new FeatherstoneMultibodyDynamicsWorld( mSceneMgr, bounds, gravityVector );
 	// add debug info display tool
 	debugDrawer = new OgreBulletCollisions::DebugDrawer();
 	debugDrawer->setDrawWireframe(false);
@@ -375,7 +377,7 @@ void TutorialApplication::createPhysics(void)
 	OgreBulletCollisions::CollisionShape *floorShape = new OgreBulletCollisions::StaticPlaneCollisionShape(Ogre::Vector3(0,1,0), 0); // normal vector, distance
 	OgreBulletDynamics::RigidBody* defaultPlaneBody = new OgreBulletDynamics::RigidBody( "BasePlane", mWorld );
 	float restitution = 0.0f;
-	float friction = 100.0f;
+	float friction = 1.0f;
 	defaultPlaneBody->setStaticShape(floorShape, restitution, friction); // shape, restitution, friction
 	// store
 	mShapes.push_back(floorShape);

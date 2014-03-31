@@ -43,6 +43,7 @@ namespace OgreBulletDynamics
     class DynamicsWorld : public OgreBulletCollisions::CollisionsWorld
     {
     public:
+		// if init is false, don't create mConstraintSolver or mWorld
         DynamicsWorld(Ogre::SceneManager *mgr, 
             const Ogre::AxisAlignedBox &bounds,  
             const Ogre::Vector3 &gravity,

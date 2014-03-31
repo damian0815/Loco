@@ -111,6 +111,7 @@
 		2DD02078181D1C4300784E84 /* Serializable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DD02077181D1C4300784E84 /* Serializable.cpp */; };
 		2DD0207B181D326200784E84 /* BoneDriverBreath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DD02079181D326200784E84 /* BoneDriverBreath.cpp */; };
 		2DD16C19181AD66E0077E72C /* TwoLinkIK.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DD16C18181AD66D0077E72C /* TwoLinkIK.cpp */; };
+		2DD9219C18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DD9219A18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.cpp */; };
 		2DDC83A318E45767008198EF /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDC817B18E45767008198EF /* btAxisSweep3.cpp */; };
 		2DDC83A418E45767008198EF /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDC817E18E45767008198EF /* btBroadphaseProxy.cpp */; };
 		2DDC83A518E45767008198EF /* btCollisionAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDC818018E45767008198EF /* btCollisionAlgorithm.cpp */; };
@@ -522,6 +523,8 @@
 		2DD0207A181D326200784E84 /* BoneDriverBreath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoneDriverBreath.h; sourceTree = "<group>"; };
 		2DD16C17181AD66D0077E72C /* TwoLinkIK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwoLinkIK.h; sourceTree = "<group>"; };
 		2DD16C18181AD66D0077E72C /* TwoLinkIK.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TwoLinkIK.cpp; sourceTree = "<group>"; };
+		2DD9219A18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatherstoneMultibodyDynamicsWorld.cpp; sourceTree = "<group>"; };
+		2DD9219B18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatherstoneMultibodyDynamicsWorld.h; sourceTree = "<group>"; };
 		2DDC817B18E45767008198EF /* btAxisSweep3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btAxisSweep3.cpp; sourceTree = "<group>"; };
 		2DDC817C18E45767008198EF /* btAxisSweep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btAxisSweep3.h; sourceTree = "<group>"; };
 		2DDC817D18E45767008198EF /* btBroadphaseInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBroadphaseInterface.h; sourceTree = "<group>"; };
@@ -1458,6 +1461,7 @@
 		2DB4BB7716DF992600D9A6AE /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2DD9219918E5A7A900CB67CD /* Physics */,
 				2D9B440618128F0D00BF4CC8 /* Serialization */,
 				2DAC719B181052610022070A /* Animation */,
 				2D941FE717A28B3F00154DED /* LocoAppDelegate.h */,
@@ -1491,6 +1495,15 @@
 				2DC92DE41815BE1900AF6C9F /* SkeletonController.h */,
 			);
 			name = SkeletonController;
+			sourceTree = "<group>";
+		};
+		2DD9219918E5A7A900CB67CD /* Physics */ = {
+			isa = PBXGroup;
+			children = (
+				2DD9219A18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.cpp */,
+				2DD9219B18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.h */,
+			);
+			name = Physics;
 			sourceTree = "<group>";
 		};
 		2DDC817918E45767008198EF /* BulletCollision */ = {
@@ -2337,6 +2350,7 @@
 				2D9B4405181189A500BF4CC8 /* PoseSnapshot.cpp in Sources */,
 				2DDC847C18E45767008198EF /* btSoftBodyHelpers.cpp in Sources */,
 				2DDC83B518E45767008198EF /* btCompoundCollisionAlgorithm.cpp in Sources */,
+				2DD9219C18E5A7C700CB67CD /* FeatherstoneMultibodyDynamicsWorld.cpp in Sources */,
 				2DDC847418E45767008198EF /* btDantzigLCP.cpp in Sources */,
 				2DDC83A518E45767008198EF /* btCollisionAlgorithm.cpp in Sources */,
 				2D6BFFCF16E4F9CF0075A3DD /* OgreBulletDynamics6DofSpringConstraint.cpp in Sources */,

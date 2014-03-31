@@ -938,7 +938,7 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	//so this is the net torque that the root wants to see, in world coordinates
 	auto root = mForwardDynamicsSkeleton->getBody("SpineBase");
 	Vector3 rootAngularVelocity = mCharacterFrame*BtOgreConverter::to(root->getBody()->getBulletRigidBody()->getAngularVelocity());
-	Vector3 rootTorque = ForwardDynamicsBodyDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getKp(), root->getKd(), rootControlParamsStrength);
+	Vector3 rootTorque = ForwardDynamicsBodyDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getInertiaTensor(), root->getKp(), root->getKd(), rootControlParamsStrength);
 	
 	mDebugRootTorque = rootTorque;
 	

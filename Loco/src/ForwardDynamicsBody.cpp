@@ -175,10 +175,9 @@ ForwardDynamicsBody::ForwardDynamicsBody( Ogre::SharedPtr<DriveableBone> parentB
 	//mBody->setOrientation(parentBone->getBone()->_getDerivedOrientation());
 	//mBody->setKinematicObject(true);
 	
-	// disable collisions
-	mBody->getBulletRigidBody()->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+	//mBody->getBulletRigidBody()->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	
-	// set coll
+	// set collision margin
 	//mCollisionShape->getBulletShape()->setMargin(0.01f);
 	
 	//mBody->showDebugShape(true);
@@ -326,7 +325,7 @@ void ForwardDynamicsBody::applyTorque()
 	clearTorque();
 }
 
-float ForwardDynamicsBody::getMass()
+float ForwardDynamicsBody::getMass() const
 {
 	float invMass = mBody->getBulletRigidBody()->getInvMass();
 	

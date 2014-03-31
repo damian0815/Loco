@@ -41,7 +41,10 @@ namespace OgreBulletCollisions {
 }
 
 
+
 #include <iostream>
+
+class btMultiBody;
 
 class ForwardDynamicsSkeleton
 {
@@ -97,6 +100,9 @@ private:
 	std::map<std::string, Ogre::SharedPtr<ForwardDynamicsBodyDriverPD> > mPDBodyDrivers;
 	
 	Ogre::SceneNode* mPhysicsRootSceneNode;
+	
+	
+	btMultiBody* mFeatherstoneMultiBody;
 	
 	Ogre::SharedPtr<DriveableSkeleton> mDriveableSkeleton;
 	float mTotalMass;

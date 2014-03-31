@@ -34,6 +34,7 @@ THE SOFTWARE.
 
 #include "OGRE/OgreVector3.h"
 #include "OGRE/OgreQuaternion.h"
+#include "OGRE/OgreMatrix3.h"
 
 namespace OgreBulletCollisions
 {
@@ -70,6 +71,16 @@ namespace OgreBulletCollisions
             return Ogre::Quaternion(Q.w(), Q.x(), Q.y(), Q.z());
             //return Ogre::Quaternion(Q.x(), Q.y(), Q.z(), Q[3]);
         };
+		
+		static Ogre::Matrix3 to( const btMatrix3x3 &m)
+		{
+			btVector3 r0 = m.getRow(0);
+			btVector3 r1 = m.getRow(1);
+			btVector3 r2 = m.getRow(2);
+			return Ogre::Matrix3( r0.x(), r0.y(), r0.z(),
+								  r1.x(), r1.y(), r1.z(),
+								  r2.x(), r2.y(), r2.z() );
+		}
     };
 }
 #endif //_OGREBULLETCOLLISIONS_OgreBtConverter_H
