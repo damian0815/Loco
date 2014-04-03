@@ -164,7 +164,7 @@ void VirtualModelMotion::phaseSwapped( bool stanceIsLeft )
 
 
 VirtualModelMotionGenerator::VirtualModelMotionGenerator( picojson::value& paramsValue )
-: mPhi(1.0), mStanceIsLeft(true), mCycleDuration(1.0f)
+: mPhi(1.0), mStanceIsLeft(true), mCycleDuration(1.0f), mSwingStrikeOccurred(true)
 {
 	object params = paramsValue.get<object>();
 	
@@ -183,13 +183,24 @@ bool VirtualModelMotionGenerator::update(float dt)
 {
 	mPhi += dt/mCycleDuration;
 	bool swapped = false;
-	while ( mPhi>1.0 ) {
-		mPhi -= 1.0;
+	// if a swing-foot strike occurred and we're far enough through the phase, jump forward
+	if ( mSwingStrikeOccurred && mPhi>=1.0f ) {
+		mPhi = 0.0f;
 		mStanceIsLeft = !mStanceIsLeft;
 		mMotions.at(mCurrentMotionIndex).phaseSwapped( mStanceIsLeft );
 		swapped = true;
+		mSwingStrikeOccurred = false;
 	}
+	mPhi = std::min(mPhi,1.0f);
 	return swapped;
+	
+}
+
+void VirtualModelMotionGenerator::footStrikeOccurred(bool leftFoot)
+{
+	if ( mStanceIsLeft == !leftFoot ) {
+		mSwingStrikeOccurred = true;
+	}
 }
 
 std::string VirtualModelMotionGenerator::getTargetOrientationNameForBodyName(const std::string& bodyName)

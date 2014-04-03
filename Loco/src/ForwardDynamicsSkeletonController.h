@@ -14,8 +14,10 @@ namespace Ogre {
 	class SceneNode;
 };
 
+
 namespace OgreBulletDynamics {
 	class DynamicsWorld;
+	class RigidBody;
 }
 
 #include "SkeletonController.h"
@@ -26,8 +28,8 @@ namespace OgreBulletDynamics {
 class ForwardDynamicsSkeletonController: public SkeletonController
 {
 public:
-	ForwardDynamicsSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, const picojson::value& jsonSource );
-	virtual ~ForwardDynamicsSkeletonController() {};
+	ForwardDynamicsSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundBody, const picojson::value& jsonSource );
+	virtual ~ForwardDynamicsSkeletonController();
 	
 	void createForwardDynamicsSkeleton( const picojson::value& params );
 	
@@ -53,14 +55,35 @@ protected:
 	/*! @brief Reflect the current pelvis orientation in the spine. */
 	void reflectPelvisInSpine( float shoulderMirror = 1.5f, float neckMirror = 0.5f );
 
+	/*! @brief Check for a collision between the two objects. */
+	bool checkForObjectPairCollision( OgreBulletDynamics::RigidBody* objA, OgreBulletDynamics::RigidBody* objB, btManifoldPoint& result );
+	
+	/*! @brief Called when the foot contact state changes. Subclasses should override. 
+	 @param whichFoot "L" or "R"
+	 @param contact true if contact has just occurred, else false.
+	 @param contactPos World position where the contact occurred, only valid if contect==true. */
+	virtual void footGroundContactStateChanged( const std::string& whichFoot, bool contact, const Ogre::Vector3& contactPos );
+	
+	/*! @brief Bind the given body to the ground/environment at its current position. */
+	void bindBodyToEnvironment( const std::string& bodyName );
+	/*! @brief Release a body from its ground/environment binding. */
+	void releaseBodyFromEnvironmentBinding( const std::string& bodyName );
 	
 	Ogre::SharedPtr<ForwardDynamicsSkeleton> mForwardDynamicsSkeleton;
 
 	OgreBulletDynamics::DynamicsWorld* mDynamicsWorld;
+	OgreBulletDynamics::RigidBody* mGroundBody;
+	
+	
 	
 private:
 	
+	float mLeftFootGroundContactTime, mRightFootGroundContactTime;
+	bool mLeftFootInContact, mRightFootInContact;
+	
 	std::map<std::string,Ogre::SharedPtr<PoseSnapshot> > mPoseSnapshots;
+	
+	std::map<std::string,Ogre::SharedPtr<btTypedConstraint> > mEnvironmentBindingConstraints;
 	
 };
 

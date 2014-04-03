@@ -20,20 +20,32 @@
 
 using namespace std;
 using namespace OgreBulletDynamics;
+using namespace OgreBulletCollisions;
 
 
-ForwardDynamicsSkeletonController::ForwardDynamicsSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, const picojson::value& jsonSource )
-: SkeletonController( skelRootSceneNode, skeleton, jsonSource ), mDynamicsWorld(dynamicsWorld)
+ForwardDynamicsSkeletonController::ForwardDynamicsSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundObject, const picojson::value& jsonSource )
+: SkeletonController( skelRootSceneNode, skeleton, jsonSource ), mDynamicsWorld(dynamicsWorld), mGroundBody(groundObject),
+mLeftFootInContact(false), mRightFootInContact(false), mLeftFootGroundContactTime(0), mRightFootGroundContactTime(0)
 {
 	picojson::object jsonRoot = jsonSource.get<picojson::object>();
 	// create forward dynamics
 	createForwardDynamicsSkeleton(jsonRoot["forwardDynamics"] );
 }
 
+ForwardDynamicsSkeletonController::~ForwardDynamicsSkeletonController()
+{
+	// release all environment constraints
+	std::set<std::string> boundBodies;
+	for ( const auto& it: mEnvironmentBindingConstraints ) {
+		boundBodies.insert(it.first);
+	}
+	for ( const auto& name: boundBodies ) {
+		releaseBodyFromEnvironmentBinding(name);
+	}
+}
 
 void ForwardDynamicsSkeletonController::update(float dt)
 {
-	
 	if ( !mEnabled ) {
 		return;
 	}
@@ -49,6 +61,106 @@ void ForwardDynamicsSkeletonController::update(float dt)
 	}
 	
 	SkeletonController::update(dt);
+	
+	// check for contacts
+	RigidBody* groundObject = mGroundBody;
+	btManifoldPoint result;
+	
+	// 50ms = contact
+	const float FOOT_CONTACT_THRESH_TIME = 0.05f;
+	
+	// left foot
+	RigidBody* leftFootObject = mForwardDynamicsSkeleton->getBody("Foot.L")->getBody();
+	float oldLeftFootGroundContactTime = mLeftFootGroundContactTime;
+	if ( checkForObjectPairCollision( leftFootObject, groundObject, result ) ) {
+		mLeftFootGroundContactTime = MAX(0.0f,mLeftFootGroundContactTime)+dt;
+		//BLog(" + left foot contact time %f", mLeftFootGroundContactTime );
+		if ( oldLeftFootGroundContactTime<FOOT_CONTACT_THRESH_TIME && mLeftFootGroundContactTime>=FOOT_CONTACT_THRESH_TIME ) {
+			if ( !mLeftFootInContact ) {
+				btVector3 worldPosOnGround = result.getPositionWorldOnB();
+				//BLog("left foot strike at %s", describe(BtOgreConverter::to(worldPosOnGround)).c_str() );
+				mLeftFootInContact = true;
+				footGroundContactStateChanged( "L", true, BtOgreConverter::to(worldPosOnGround) );
+			}
+		}
+	} else {
+		//BLog(" - left foot contact time %f", mLeftFootGroundContactTime );
+		mLeftFootGroundContactTime = MAX(0.0f,MIN(mLeftFootGroundContactTime,FOOT_CONTACT_THRESH_TIME)-dt);
+		if ( oldLeftFootGroundContactTime>0.0f && mLeftFootGroundContactTime<=0.0f ) {
+			if ( mLeftFootInContact ) {
+				mLeftFootInContact = false;
+				footGroundContactStateChanged( "L", false, Ogre::Vector3::ZERO );
+			}
+		}
+	}
+	
+	// right foot
+	RigidBody* rightFootObject = mForwardDynamicsSkeleton->getBody("Foot.R")->getBody();
+	float oldRightFootGroundContactTime = mRightFootGroundContactTime;
+	if ( checkForObjectPairCollision( rightFootObject, groundObject, result ) ) {
+		mRightFootGroundContactTime = MAX(0.0f,mRightFootGroundContactTime)+dt;
+		//BLog(" + right foot contact time %f", mRightFootGroundContactTime );
+		if ( oldRightFootGroundContactTime<FOOT_CONTACT_THRESH_TIME && mRightFootGroundContactTime>=FOOT_CONTACT_THRESH_TIME ) {
+			if ( !mRightFootInContact ) {
+				btVector3 worldPosOnGround = result.getPositionWorldOnB();
+				//BLog("right foot strike at %s", describe(BtOgreConverter::to(worldPosOnGround)).c_str() );
+				mRightFootInContact = true;
+				footGroundContactStateChanged( "R", true, BtOgreConverter::to(worldPosOnGround) );
+			}
+		}
+	} else {
+		//BLog(" - right foot contact time %f", mRightFootGroundContactTime );
+		mRightFootGroundContactTime = MAX(0.0f,MIN(mRightFootGroundContactTime,FOOT_CONTACT_THRESH_TIME)-dt);
+		if ( oldRightFootGroundContactTime>0.0f && mRightFootGroundContactTime<=0.0f ) {
+			if ( mRightFootInContact ) {
+				//BLog("right foot lift");
+				mRightFootInContact = false;
+				footGroundContactStateChanged( "R", false, Ogre::Vector3::ZERO );
+			}
+		}
+	}
+
+}
+
+void ForwardDynamicsSkeletonController::footGroundContactStateChanged( const std::string& whichFoot, bool contact, const Ogre::Vector3& contactPos )
+{
+	BLog("%s foot %s at %s", whichFoot.c_str(), contact?"strike":"lift", describe(contactPos).c_str() );
+}
+
+
+bool ForwardDynamicsSkeletonController::checkForObjectPairCollision( OgreBulletDynamics::RigidBody* objA, OgreBulletDynamics::RigidBody* objB, btManifoldPoint& result )
+{
+	// local struct to get the result. this is a bit of a mess.
+	struct ContactResultCallback: public btCollisionWorld::ContactResultCallback
+	{
+		bool mCollisionFound;
+		btManifoldPoint mCollisionPoint;
+		
+		ContactResultCallback()
+		: btCollisionWorld::ContactResultCallback(),
+		mCollisionFound(false)
+		{
+		}
+		
+		virtual	btScalar	addSingleResult(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
+		{
+			mCollisionPoint = cp;
+			mCollisionFound = true;
+			return 0;
+		}
+	};
+	
+	
+	ContactResultCallback resultCallback;
+	mDynamicsWorld->getBulletDynamicsWorld()->contactPairTest( objA->getBulletObject(), objB->getBulletObject(), resultCallback);
+	if ( resultCallback.mCollisionFound ) {
+		result = resultCallback.mCollisionPoint;
+		return true;
+	} else {
+		return false;
+	}
+	
+	
 }
 
 
@@ -217,6 +329,58 @@ void ForwardDynamicsSkeletonController::reset()
 	if ( mForwardDynamicsSkeleton.get() ) {
 		mForwardDynamicsSkeleton->reset();
 	}
+}
+
+void ForwardDynamicsSkeletonController::releaseBodyFromEnvironmentBinding( const std::string& bodyName )
+{
+	if ( mEnvironmentBindingConstraints.count(bodyName) ) {
+		auto binding = mEnvironmentBindingConstraints[bodyName];
+		mDynamicsWorld->getBulletDynamicsWorld()->removeConstraint(binding.get());
+		mEnvironmentBindingConstraints.erase(bodyName);
+	}
+}
+
+void ForwardDynamicsSkeletonController::bindBodyToEnvironment(const std::string &bodyName)
+{
+	if ( mEnvironmentBindingConstraints.count(bodyName) ) {
+		releaseBodyFromEnvironmentBinding(bodyName);
+	}
+	
+	auto body = mForwardDynamicsSkeleton->getBody(bodyName);
+	
+//	Ogre::SharedPtr<btTypedConstraint> binding( new btPoint2PointConstraint( *body->getBody()->getBulletRigidBody(), OgreBtConverter::to(body->getHeadPositionLocal()) ) );
+	Ogre::Vector3 axisWorld = body->getHeadPositionWorld();
+	Ogre::Vector3 axisInA = body->convertWorldToLocalPosition(axisWorld);
+	
+	Ogre::Vector3 axisInB = axisWorld;
+	// convert axisInB to ground body space if necessary
+	if ( mGroundBody->getSceneNode() ) {
+		axisInB = mGroundBody->getSceneNode()->convertWorldToLocalPosition(axisWorld);
+	}
+	Ogre::Quaternion orientationA = body->getOrientationWorld();
+	
+	btTransform transformA( OgreBtConverter::to(orientationA), OgreBtConverter::to(axisInA) );
+	btTransform transformB( btQuaternion::getIdentity(), OgreBtConverter::to(axisInB) );
+	// make transform
+	// use reference frame B so that we can unbind the Y axis in world space
+	
+	//Ogre::SharedPtr<btTypedConstraint> binding( new btGeneric6DofConstraint( *body->getBody()->getBulletRigidBody(), *mGroundBody->getBulletRigidBody(), transformA, transformB, /* use frame B */ true ) );
+	Ogre::SharedPtr<btTypedConstraint> binding( new btFixedConstraint( *body->getBody()->getBulletRigidBody(), *mGroundBody->getBulletRigidBody(), transformA, transformB ) );
+	
+	/*
+	btGeneric6DofConstraint* constraint = (btGeneric6DofConstraint*)(binding.get());
+	// lock tx,tz
+	constraint->setLimit(0, 0, 0);
+	constraint->setLimit(2, 0, 0);
+	// free ty
+	constraint->setLimit(1, 1, 0);
+	// lock rotation
+	constraint->setLimit(3, 0, 0);
+	constraint->setLimit(4, 0, 0);
+	constraint->setLimit(5, 0, 0);*/
+	
+	mDynamicsWorld->getBulletDynamicsWorld()->addConstraint(binding.get());
+	mEnvironmentBindingConstraints[bodyName] = binding;
 }
 
 

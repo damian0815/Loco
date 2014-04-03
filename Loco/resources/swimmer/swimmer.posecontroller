@@ -46,8 +46,8 @@
 				"params": {
 					"length": 0.200, 
 					"mass": 1.0, 
-					"kP": 128.0,
-					"kD": 0.1,
+					"kP": 32.0,
+					"kD": 1.0,
 					"maxTorque": 1000
 				}
 			}, 
@@ -56,8 +56,8 @@
 				"params": {
 					"length": 0.200, 
 					"mass": 1.0, 
-					"kP": 128.0,
-					"kD": 0.1,
+					"kP": 32.0,
+					"kD": 1.0,
 					"maxTorque": 1000
 				}
 			}, 
@@ -195,23 +195,6 @@
 	},
 	"kneeAxis": [ 1,0,0 ],
 
-	"enableGravityCompensation": true,
-	"gravityCompensationFactor": 1.0,
-	"enableCoMVirtualForce": true,
-	"CoMVirtualForceFactor": 1.0,
-	
-	"enableFootIK": false,
-	"footIKDoubleStance": true,
-	"stepWidth": 0.3,
-
-	"targetCoMVelocitySagittal": 2.0,
-	"targetCoMVelocityCoronal": 0.0,
-
-	"CoMKp": 500,
-	"CoMKd": 40,
-	
-	"rootPredictiveTorqueFactor": 1.0,
-	
 	"forwardDynamics": {
 	
 		"limitSoftness": 0.7,
@@ -239,7 +222,7 @@
 				},				
 				"shape": "rod",
 				"radius": 0.042,
-				"comOffsetLocal": [ 0, 0, 0.03 ]
+				"comOffsetLocal": [ 0, -0.05, 0 ]
 			},
 			{
 				"name": "SpineTop",
@@ -368,7 +351,7 @@
 				"name": "LegUpper.R",
 				"joints": { "LegLower.R": { "type":"hinge", "axis":"x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
-				"comOffsetLocal": [ 0, -0.02, 0 ],
+				"comOffsetLocal": [ 0, 0.02, 0 ],
 				"heightFactor": 0.8,
 				"radiusFactor": 0.13
 			},
@@ -376,7 +359,7 @@
 				"name": "LegUpper.L",
 				"joints": { "LegLower.L": { "type":"hinge", "axis": "x", "minAngle": 0, "maxAngle": 3.1 } },
 				"shape": "rod",
-				"comOffsetLocal": [ 0, -0.02, 0 ],
+				"comOffsetLocal": [ 0, 0.02, 0 ],
 				"heightFactor": 0.8,
 				"radiusFactor": 0.13
 			},
@@ -435,6 +418,30 @@
 		]
 	},
 	
+
+	"enableGravityCompensation": true,
+	"enableSwingLegGravityCompensation": true,
+	"enableStanceLegGravityCompensation": false,
+	"enableMotionGeneration": true,
+	"enableMotionGenerationSwingLegTargets": true,
+	"enableHipTorques": true,
+	"enableCoMVirtualForce": true,
+
+	"gravityCompensationFactor": 1.0,
+	"CoMVirtualForceFactor": 10.0,
+	
+	"stepWidth": 0.3,
+
+	"CoMVelocitySmoothingFactor": 0.5,
+	"targetCoMVelocitySagittal": 0.0,
+	"targetCoMVelocityCoronal": 0.0,
+
+	"CoMKp": 500,
+	"CoMKd": 40,
+	
+	"rootPredictiveTorqueFactor": 0.3,
+	
+
 	"motionGenerator":
 	{
 		"cycleDuration": 0.6,
@@ -455,9 +462,10 @@
 					},
 					{ 
 						"bodyName": "Foot.SWING Orientation",
-						"referenceFrame": "parent",
-						"invertZOnPhaseSwap": true,
-						"z": [ [ 0, 0.4 ], [ 0.4, -1.0 ], [ 0.7, 0.0 ], [ 1, 0.4 ] ]
+						"referenceFrame": "character",
+						"invertYOnPhaseSwap": true,
+						"x": [ [ 0, 1.7 ], [ 0.4, 1.7 ], [ 0.7, 1.7 ], [ 1, 1.7 ] ],
+						"y": [ [ 0, -1.57 ] ]
 					},
 					{ 
 						"bodyName": "Foot.STANCE Orientation",
@@ -483,7 +491,7 @@
 						"referenceFrame": "character",
 						"invertYOnPhaseSwap": true,
 						"y": [ [ 0, 3.1415 ] ],
-						"x": [ [ 0, 3.0415 ] ]
+						"x": [ [ 0, 3.1415 ] ]
 					},
 					{
 						"bodyName": "LegUpper.SWING Orientation",

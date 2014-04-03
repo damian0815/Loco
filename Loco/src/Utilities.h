@@ -23,5 +23,6 @@
 #include <string>
 std::string describe( const Ogre::Quaternion& q );
 std::string describe( const Ogre::Vector3& q );
+std::string describe( const Ogre::Vector3& v, const char* floatFormat );
 
 #endif /* defined(__Loco__Utilities__) */

@@ -70,6 +70,7 @@ public:
 	Ogre::Vector3 getTargetAtTime( const std::string& bodyName, float phi );
 	VirtualModelMotionComponent::ReferenceFrame getReferenceFrame( const std::string& bodyName ) const { return mComponents.at(bodyName).getReferenceFrame(); }
 	
+	/*! @brief Call to inform the motion that the phase swapped. stanceIsLeft indicates the new phase. */
 	void phaseSwapped( bool stanceIsLeft );
 	
 	const std::string& getName() const { return mName; }
@@ -97,6 +98,10 @@ public:
 	/*! @brief Advance time by the given amount. Automatically swap stance/swing at the end of each cycle. 
 	 @return true if phi just reset (stance/swing was swapped). */
 	bool update( float deltaTime );
+	
+	/*! @brief Call to inform the motion generator that a foot strike occurred. If the foot is the current swing foot, it's likely (but not guaranteed) that next time update() is called the phase will swap. 
+	 @param leftFoot true if the left foot struck, false if the right. */
+	void footStrikeOccurred( bool leftFoot );
 	
 	/*! @brief Set the active motion to the given motionName.
 	 @return true on success, false if motion name was not found. */
@@ -132,6 +137,8 @@ private:
 	
 	float mCycleDuration;
 	float mPhi;
+	// set by footStrikeOccurred if foot==swing foot
+	bool mSwingStrikeOccurred;
 	
 	bool mStanceIsLeft;
 };

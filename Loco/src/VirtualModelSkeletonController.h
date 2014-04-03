@@ -111,13 +111,18 @@ private:
 	void setKneeBend( float bend, bool swingAlso=false );
 	void setUpperBodyPose( float leanSagittal, float leanCoronal, float twist);
 	
+	// inherited
+	virtual void footGroundContactStateChanged( const std::string& whichFoot, bool contact, const Ogre::Vector3& contactPos );
 	
-	bool mDoGravityCompensation, mDoCoMVirtualForce, mDoFootIK;
+	/*! @brief Bind the stance foot to ground. */
+	void bindStanceFootToGround();
+	
 	float mGravityCompensationFactor, mCoMVirtualForceFactor;
 	float mRootPredictiveTorqueFactor;
 	
 	float mCoMkP, mCoMkD;
 	Ogre::Vector3 mCoM, mPrevCoM, mCoMVelocity;
+	float mCoMVelocitySmoothingFactor;
 	
 	float mTargetCoMVelocitySagittal, mTargetCoMVelocityCoronal;
 	
@@ -136,12 +141,12 @@ private:
 	float mLeftKneeOut, mRightKneeOut;
 	Ogre::Vector3 mDebugCoMVirtualForce;
 	
-	bool mDoubleStance;
 	float mStepWidth;
-	float mLegLength;
+	float mLegLength;	
 	
-	OgreBulletDynamics::RigidBody* mGroundPlaneBody;
-	
+	bool mDoGravityCompensation, mDoCoMVirtualForce;
+	bool mDoMotionGeneration, mDoSwingLegTargets, mDoHipTorques;
+	bool mDoSwingLegGravityCompensation, mDoStanceLegGravityCompensation;
 	
 	Ogre::SharedPtr<VirtualModelMotionGenerator> mMotionGenerator;
 	
