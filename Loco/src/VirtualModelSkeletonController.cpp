@@ -633,10 +633,12 @@ void VirtualModelSkeletonController::update( float dt )
 	mFFRootTorque = Ogre::Vector3::ZERO;
 	
 	// update CoM
+	Ogre::Vector3 prevCoM = mCoM;
 	mCoM = mForwardDynamicsSkeleton->getCenterOfMassWorld();
 	// update CoM velocity
+	Ogre::Vector3 newCoMVelocity = (mCoM-prevCoM)/dt;
+	//Ogre::Vector3 newCoMVelocity = mForwardDynamicsSkeleton->getCenterOfMassVelocityWorld();
 	// low pass filter the CoM velocity
-	Ogre::Vector3 newCoMVelocity = mForwardDynamicsSkeleton->getCenterOfMassVelocityWorld();
 	float alpha = powf(mCoMVelocitySmoothingFactor,dt);
 	mCoMVelocity = mCoMVelocity*alpha + newCoMVelocity*(1.0f-alpha);
 	

@@ -432,13 +432,13 @@
 	
 	"stepWidth": 0.2,
 
-	"CoMVelocitySmoothingFactor": 0.9,
+	"CoMVelocitySmoothingFactor": 0.1,
 	
-	"targetCoMVelocitySagittal": 0.0,
+	"targetCoMVelocitySagittal": 1.1,
 	"targetCoMVelocityCoronal": 0.0,
 
-	"CoMkP": 16,
-	"CoMkD": 120,
+	"CoMkP": 0.4,
+	"CoMkD": 30,
 	
 	"rootPredictiveTorqueFactor": 0.0,
 	
@@ -449,7 +449,7 @@
 
 	"motionGenerator":
 	{
-		"cycleDuration": 0.6,
+		"cycleDuration": 0.5,
 		"motions": [
 			{
 				"name": "splineTest",
@@ -459,7 +459,7 @@
 						"referenceFrame": "character",
 						"sagittal": [ [ 0, 0.0 ], [ 1, -0.0 ] ],
 						"coronal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
-						"axial": [ [ 0, 0.1 ], [ 0.5, 0.4 ], [ 1.0, 0.1 ] ]
+						"axial": [ [ 0, 0.1 ], [ 0.5, 0.5 ], [ 1.0, 0.1 ] ]
 					},
 					{
 						"bodyName": "FootDelta.SWING Position",
