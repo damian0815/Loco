@@ -299,9 +299,9 @@ bool VirtualModelMotionGenerator::hasComponent( const std::string& componentName
 VirtualModelMotionComponent& VirtualModelMotionGenerator::getComponentReference( const std::string& componentName )
 {
 	auto& motion = mMotions.at(mCurrentMotionIndex);
-	if ( !motion.hasComponent(componentName) ) {
+	/*if ( !motion.hasComponent(componentName) ) {
 		// add an empty component for this
 		motion.addEmptyComponent(componentName);
-	}
+	}*/
 	return motion.getComponent(componentName);
 }

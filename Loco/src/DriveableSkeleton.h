@@ -11,7 +11,6 @@
 
 #include <iostream>
 #include "DriveableBone.h"
-#include "BoneDriverPD.h"
 #include "PoseSnapshot.h"
 #include <Ogre/OgreSharedPtr.h>
 #include <set>

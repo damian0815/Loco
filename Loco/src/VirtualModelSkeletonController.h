@@ -134,15 +134,18 @@ private:
 	Ogre::Vector3 mInitialSwingFootPosition; // swing foot position at start of this phi loop
 	
 	float mPelvisHeightAboveFeet;
+	float mLegLength;
 	Ogre::Vector3 mSwingLegPlaneOfRotation;
 
 	Ogre::Vector3 mFootTargetL, mFootTargetR;
 	Ogre::Vector3 mFootIPTargetL, mFootIPTargetR;
-	float mLeftKneeOut, mRightKneeOut;
 	Ogre::Vector3 mDebugCoMVirtualForce;
 	
 	float mStepWidth;
-	float mLegLength;	
+	
+	float mKneeBend;
+	float mLeftKneeOut, mRightKneeOut;
+	
 	
 	bool mDoGravityCompensation, mDoCoMVirtualForce;
 	bool mDoMotionGeneration, mDoSwingLegTargets, mDoHipTorques;

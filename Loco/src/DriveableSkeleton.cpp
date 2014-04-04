@@ -12,7 +12,6 @@
 #include <Ogre/OgreSkeleton.h>
 #include <Ogre/OgreBone.h>
 #include <Ogre/OgreSceneNode.h>
-#include "BoneDriverPD.h"
 #include "picojson.h"
 
 using namespace std;

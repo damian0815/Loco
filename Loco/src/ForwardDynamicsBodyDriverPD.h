@@ -16,6 +16,7 @@
 #include <Ogre/OgreQuaternion.h>
 #include <Ogre/OgreSharedPtr.h>
 #include "ForwardDynamicsBody.h"
+#include "ProportionalDerivativeController.h"
 
 namespace OgreBulletCollisions {
 	class DebugLines;
@@ -23,7 +24,7 @@ namespace OgreBulletCollisions {
 
 /*! @brief Proportional derivative bone orientation/position driver. */
 
-class ForwardDynamicsBodyDriverPD
+class ForwardDynamicsBodyDriverPD: public ProportionalDerivativeController
 {
 public:
 	ForwardDynamicsBodyDriverPD( Ogre::SharedPtr<ForwardDynamicsBody> body, float strength=1.0f );
@@ -45,8 +46,6 @@ public:
 	void updateTorque();
 	
 	void debugDraw( OgreBulletCollisions::DebugLines* debugLines );
-	
-	static Ogre::Vector3 computePDTorque(const Ogre::Quaternion& qRel, const Ogre::Quaternion& qRelD, const Ogre::Vector3& wRel, const Ogre::Vector3& wRelD, double kp, double kd, double strength );
 	
 private:
 	Ogre::SharedPtr<ForwardDynamicsBody> mBody;

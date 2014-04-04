@@ -21,7 +21,7 @@ using namespace Ogre;
 VirtualModelSkeletonController::VirtualModelSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundPlaneBody, const picojson::value& jsonSource )
 : ForwardDynamicsSkeletonController(skelRootSceneNode,skeleton,dynamicsWorld,groundPlaneBody,jsonSource), mFootTargetL(0,0,0), mFootTargetR(0,0,0),
 mCoMkP(100.0f), mCoMkD(4.0f), mCoMVelocity(0,0,0), mCoM(0,0,0), mCoMVelocitySmoothingFactor(0.2f),
-mLeftKneeOut(0.5), mRightKneeOut(0.5),
+mLeftKneeOut(0.5), mRightKneeOut(0.5), mKneeBend(0.0f),
 mStepWidth(0.3f), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X),
 mTargetCoMVelocitySagittal(0.0), mTargetCoMVelocityCoronal(0.0), mRootPredictiveTorqueFactor(0),
 mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDoMotionGeneration(true), mDoSwingLegTargets(true), mDoSwingLegGravityCompensation(true), mDoStanceLegGravityCompensation(false)
@@ -69,6 +69,10 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 	if ( jsonRoot.count("stepWidth") ) {
 		mStepWidth = jsonRoot["stepWidth"].get<double>();
 	}
+	if ( jsonRoot.count("kneeBend") ) {
+		mKneeBend = -jsonRoot["kneeBend"].get<double>();
+	}
+	
 	if ( jsonRoot.count("targetCoMVelocitySagittal") ) {
 		mTargetCoMVelocitySagittal = jsonRoot["targetCoMVelocitySagittal"].get<double>();
 	}
@@ -76,11 +80,11 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 		mTargetCoMVelocityCoronal = jsonRoot["targetCoMVelocityCoronal"].get<double>();
 	}
 		
-	if ( jsonRoot.count("CoMKd") ) {
-		mCoMkD = jsonRoot["CoMKd"].get<double>();
+	if ( jsonRoot.count("CoMkD") ) {
+		mCoMkD = jsonRoot["CoMkD"].get<double>();
 	}
-	if ( jsonRoot.count("CoMKp") ) {
-		mCoMkP = jsonRoot["CoMKp"].get<double>();
+	if ( jsonRoot.count("CoMkP") ) {
+		mCoMkP = jsonRoot["CoMkP"].get<double>();
 	}
 	if ( jsonRoot.count("rootPredictiveTorqueFactor") ) {
 		mRootPredictiveTorqueFactor = jsonRoot["rootPredictiveTorqueFactor"].get<double>();
@@ -124,6 +128,14 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 	mForwardDynamicsSkeleton->getJointBetween("LegLower.R", "Foot.R")->getBulletConstraint()->setOverrideNumSolverIterations(20);
 	mForwardDynamicsSkeleton->getJointBetween("LegUpper.R", "LegLower.R")->getBulletConstraint()->setOverrideNumSolverIterations(20);
 	mForwardDynamicsSkeleton->getJointBetween("SpineBase", "LegUpper.R")->getBulletConstraint()->setOverrideNumSolverIterations(20);*/
+	
+	// bind the stance foot to the ground
+	if ( jsonRoot.count("bindLeftFootOnStartup") && jsonRoot["bindLeftFootOnStartup"].get<bool>() ) {
+		bindBodyToEnvironment("Foot.L");
+	}
+	if ( jsonRoot.count("bindRightFootOnStartup") && jsonRoot["bindRightFootOnStartup"].get<bool>() ) {
+		bindBodyToEnvironment("Foot.R");
+	}
 }
 
 Ogre::SharedPtr<ForwardDynamicsJoint> VirtualModelSkeletonController::getStanceAnkle()
@@ -524,6 +536,7 @@ void VirtualModelSkeletonController::setDesiredSwingFootLocation( float phi, flo
 {
 	Vector3 step = computeSwingFootLocationEstimate(mCoM, phi);
 	
+	OgreAssert( mMotionGenerator->hasComponent("Foot.SWING Position"), "Must have 'Foot.SWING Position' component in JSON");
 	auto& swingFootPos = mMotionGenerator->getComponentReference("Foot.SWING Position");
 	// coronal = x, sagittal = z
 	swingFootPos.mSplineX.at(0) = make_pair(phi, step.x);
@@ -547,12 +560,14 @@ void VirtualModelSkeletonController::setDesiredSwingFootLocation( float phi, flo
 
 void VirtualModelSkeletonController::setKneeBend( float kneeBend, bool swingAlso )
 {
+	OgreAssert( mMotionGenerator->hasComponent("LegLower.STANCE Orientation"), "Must have 'LegLower.STANCE Orientation' component in JSON");
 	auto& stanceKneeOri = mMotionGenerator->getComponentReference("LegLower.STANCE Orientation");
 	Ogre::Vector3 offs = stanceKneeOri.getOffset();
 	offs.x = kneeBend;
 	stanceKneeOri.setOffset( offs );
 		
 	if (swingAlso) {
+		OgreAssert( mMotionGenerator->hasComponent("LegLower.SWING Orientation"), "Must have 'LegLower.SWING Orientation' component in JSON");
 		auto swingKneeOri = mMotionGenerator->getComponentReference("LegLower.SWING Orientation");
 		Ogre::Vector3 offs = swingKneeOri.getOffset();
 		offs.x = kneeBend;
@@ -564,15 +579,19 @@ void VirtualModelSkeletonController::setUpperBodyPose( float leanSagittal, float
 {
 	int sign = getStanceIsLeft()?(-1):(1);
 	
+	OgreAssert( mMotionGenerator->hasComponent("SpineBase Orientation"), "Must have 'SpineBase Orientation' component in JSON");
 	auto& rootComponent = mMotionGenerator->getComponentReference("SpineBase Orientation");
 	rootComponent.setOffset( Ogre::Vector3(leanCoronal*sign, twist*sign*0, leanSagittal ) );
 	
+	OgreAssert( mMotionGenerator->hasComponent("SpineMid Orientation"), "Must have 'SpineMid Orientation' component in JSON");
 	auto& spine1Component = mMotionGenerator->getComponentReference("SpineMid Orientation");
 	spine1Component.setOffset( Vector3( leanCoronal*1.5*sign, twist*1.5*sign, leanSagittal*1.5 ) );
 	
+	OgreAssert( mMotionGenerator->hasComponent("SpineTop Orientation"), "Must have 'SpineTop Orientation' component in JSON");
 	auto& spine2Component = mMotionGenerator->getComponentReference("SpineTop Orientation");
 	spine2Component.setOffset( Vector3( leanCoronal*2.5*sign, twist*sign,  leanSagittal*2.5 ) );
 	
+	OgreAssert( mMotionGenerator->hasComponent("Neck Orientation"), "Must have 'Neck Orientation' component in JSON");
 	auto& neckComponent = mMotionGenerator->getComponentReference("Neck Orientation");
 	neckComponent.setOffset( Vector3( leanCoronal*1.0*sign, twist*3.0*sign, leanSagittal*3.0 ) );
 }
@@ -586,7 +605,8 @@ Ogre::Vector3 VirtualModelSkeletonController::getForceOnFoot( bool stance, cfs )
 
 float VirtualModelSkeletonController::getStanceFootWeightRatio()
 {
-	return 1.0f;
+	//return 1.0f;
+	return 0.8f;
 	/*
 	if (getStanceIsLeft()) {
 		return 1.0f;
@@ -637,15 +657,20 @@ void VirtualModelSkeletonController::update( float dt )
 		// rest of body
 		// compensate for hip
 		Ogre::Quaternion rootQ = mCharacterFrame.Inverse()*mForwardDynamicsSkeleton->getBody("SpineBase")->getOrientationWorld();
-		float targetSagittalLean = 0.2f*rootQ.getPitch().valueRadians();
-		float currentCoronalLean = rootQ.getRoll().valueRadians();
-		float targetCoronalLean = -0.2f*currentCoronalLean;
+		
+		/*float targetSagittalLean = 0.2f*rootQ.getPitch().valueRadians();
+		
+		 float currentCoronalLean = rootQ.getRoll().valueRadians();
+		float targetCoronalLean = -0.2f*currentCoronalLean;*/
+		
 		//BLog("ubCoronalLean: %f (roll %f)", targetCoronalLean, currentCoronalLean);
 		float ubTwist = 0;
+		float targetSagittalLean = 0;
+		float targetCoronalLean = 0;
 		setUpperBodyPose(targetSagittalLean, targetCoronalLean, ubTwist);
 		
 		// knee bend keeps the com lifted up
-		setKneeBend( 0.0 );
+		setKneeBend( mKneeBend );
 
 	}
 	
@@ -655,13 +680,14 @@ void VirtualModelSkeletonController::update( float dt )
 	//evaluate the target orientation for every joint, using the SIMBICON state information
 	if ( mDoMotionGeneration ) {
 		evaluateMotionTargets( dt );
+		//now overwrite the target angles for the swing hip and the swing knee in order to ensure foot-placement control
+		//if (doubleStanceMode == false)
+		if ( mDoSwingLegTargets ) {
+			computeIKSwingLegTargets(dt);
+		}
 	}
 	
-	//now overwrite the target angles for the swing hip and the swing knee in order to ensure foot-placement control
-	//if (doubleStanceMode == false)
-	if ( mDoSwingLegTargets ) {
-		computeIKSwingLegTargets(dt);
-	}
+
 	
 	/*computePDTorques(cfs);
 	
@@ -681,14 +707,18 @@ void VirtualModelSkeletonController::update( float dt )
 		
 	
 	//and now separetely compute the torques for the hips - together with the feedback term, this is what defines simbicon
-	// qRootD = desired root orientation
+	// qRootD = desired root orientation in character frame
 	if ( mDoHipTorques ) {
-		Quaternion qRootD = Ogre::Quaternion::IDENTITY;
+		Quaternion qRootD = mCharacterFrame.Inverse()*Ogre::Quaternion::IDENTITY;
 		if ( mMotionGenerator->hasTargetOrientationForBody("SpineBase") ) {
 			qRootD = mMotionGenerator->getTargetOrientationForBody("SpineBase");
+			if ( mMotionGenerator->getReferenceFrameForOrientation("SpineBase") == VirtualModelMotionComponent::RF_World ) {
+				// it's in world space
+				qRootD = mCharacterFrame.Inverse()*qRootD;
+			}
 		}
 		computeHipTorques(qRootD, getStanceFootWeightRatio(/*cfs*/), mFFRootTorque);
-		mDebugTargetRootOrientation = qRootD;
+		mDebugTargetRootOrientation = mCharacterFrame*qRootD;
 	}
 	
 	
@@ -743,8 +773,8 @@ void VirtualModelSkeletonController::computeGravityCompensationTorques( )
 
 Ogre::Vector3 VirtualModelSkeletonController::computeCoMVirtualForce()
 {
-	float velDSagittal = mTargetCoMVelocitySagittal;
-	float velDCoronal = mTargetCoMVelocityCoronal;
+
+	
 	
 	/* 
 	 // from carthwheel-lib:
@@ -758,14 +788,41 @@ Ogre::Vector3 VirtualModelSkeletonController::computeCoMVirtualForce()
 
 	 */
 	
+	
+	
 	Vector3 v = getCoMVelocityInCharacterFrame();
 	// vector from cm of stance foot to cm of character, in character frame
-	Vector3 dWorld = (mCoM - getStanceAnkle()->getChildFdb()->getCoMWorld());
+	Vector3 dWorld = (mCoM - getStanceAnkle()->getChildFdb()->getHeadPositionWorld());
 	Vector3 d = mCharacterFrame.Inverse() * dWorld;
 	
+	// In character frame, CoM is at (0,0,0).
+	// We want to move CoM so it is directly over the stance foot.
+	// We also want the distance from d to CoM to be at least the leg length.
+	Vector3 comTarget = Ogre::Vector3(-d.x,max(mLegLength-d.y,0.0f),0);
+	
+	// velocity target
+	Vector3 vTarget( mTargetCoMVelocityCoronal, 0, mTargetCoMVelocitySagittal );
+	
+	Vector3 acceleration = ProportionalDerivativeController::computePDForce(Ogre::Vector3::ZERO, comTarget, v, vTarget, mCoMkP, mCoMkD);
+	Vector3 force = acceleration*mForwardDynamicsSkeleton->getTotalMass();
+	
+	/*
+	// clamp so it doesn't get too large
+	if ( fabsf(force.x)>100.0f || fabsf(force.z)>60.0f ) {
+		BLog("clamped fA (%s)", describe(force).c_str() );
+	}
+	clamp(force.x, -100.0f, 100.0f);
+	clamp(force.z, -60.0f, 60.0f);*/
+
+	// convert to world frame
+	force = mCharacterFrame*force;
+	
+	/*
+	float velDSagittal = mTargetCoMVelocitySagittal;
+	float velDCoronal = mTargetCoMVelocityCoronal;
 	
 	// coronal = x, sagittal = z
-	//float comOffsetCoronal = /* (1.0f-panicLevel) * */ (getStanceIsLeft() ? -mStepWidth : mStepWidth);
+	//float comOffsetCorol = (1.0f-panicLevel) * mStepWidth;
 	float comOffsetCoronal = 0.0f;
 	
 	
@@ -779,14 +836,13 @@ Ogre::Vector3 VirtualModelSkeletonController::computeCoMVirtualForce()
 	desA.x = (velDCoronal - v.x);
 	//BLog("[%s] v: %s, desA: %s", getSwingLegSuffix().c_str(), describe(v).c_str(), describe(desA).c_str() );
 	
-	/*
-	bool doubleStanceMode = false;
-	if (doubleStanceMode) {
-		Vector3d errV = characterFrame.inverseRotate(doubleStanceCOMError*-1);
-		desA.x = (-errV.x + comOffsetCoronal) * 20 + (velDCoronal - v.x) * 9;
-		desA.z = (-errV.z + comOffsetSagittal) * 10 + (velDSagittal - v.z) * 150;
-	}
-	 */
+	
+//	bool doubleStanceMode = false;
+//	if (doubleStanceMode) {
+//		Vector3d errV = characterFrame.inverseRotate(doubleStanceCOMError*-1);
+//		desA.x = (-errV.x + comOffsetCoronal) * 20 + (velDCoronal - v.x) * 9;
+//		desA.z = (-errV.z + comOffsetSagittal) * 10 + (velDSagittal - v.z) * 150;
+//	}
 	
 	//and this is the force that would achieve that - make sure it's not too large...
 	Vector3 fA = (desA) * mForwardDynamicsSkeleton->getTotalMass();
@@ -800,8 +856,13 @@ Ogre::Vector3 VirtualModelSkeletonController::computeCoMVirtualForce()
 	//now change this quantity to world coordinates...
 	fA = mCharacterFrame * fA;
 	
-	return fA;
+	*/
 	
+	mDebugCoMVirtualForce = force*0.001f;
+	
+	return force;
+	
+
 }
 
 /**
@@ -874,7 +935,7 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	
 	//so this is the net torque that the root wants to see, in world coordinates
 	auto root = mForwardDynamicsSkeleton->getBody("SpineBase");
-	Vector3 rootAngularVelocity = BtOgreConverter::to(root->getBody()->getBulletRigidBody()->getAngularVelocity());
+	Vector3 rootAngularVelocity = mCharacterFrame*BtOgreConverter::to(root->getBody()->getBulletRigidBody()->getAngularVelocity());
 	Vector3 rootTorque = ForwardDynamicsBodyDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getKp(), root->getKd(), rootControlParamsStrength);
 	
 	mDebugRootTorque = rootTorque;
@@ -966,7 +1027,6 @@ void VirtualModelSkeletonController::COMJT(/*DynamicArray<ContactPoint> *cfs*/)
 	int lBackIndex = character->getJointIndex("pelvis_lowerback");
 	int mBackIndex = character->getJointIndex("lowerback_torso");*/
 
-	double m = 0;
 	/*
 	ArticulatedRigidBody* tibia = character->joints[stanceAnkleIndex]->parent;
 	ArticulatedRigidBody* femur = character->joints[stanceKneeIndex]->parent;
@@ -994,11 +1054,10 @@ void VirtualModelSkeletonController::COMJT(/*DynamicArray<ContactPoint> *cfs*/)
 	
 	//total mass...
 	//m = tibia->props.mass + femur->props.mass + pelvis->props.mass + lBack->props.mass + mBack->props.mass;
-	m = tibia->getMass() + femur->getMass() + pelvis->getMass() + lBack->getMass() + mBack->getMass();
+	float m = tibia->getMass() + femur->getMass() + pelvis->getMass() + lBack->getMass() + mBack->getMass();
 
 	
 	Ogre::Vector3 fA = computeCoMVirtualForce();
-	mDebugCoMVirtualForce = fA;
 
 	Ogre::Vector3 f1 = (tibia->getCoMWorld()-anklePos) * tibia->getMass() +
 		(femur->getCoMWorld()-anklePos) * femur->getMass() +
@@ -1030,10 +1089,7 @@ void VirtualModelSkeletonController::COMJT(/*DynamicArray<ContactPoint> *cfs*/)
 	f5 /= m;
 	
 	
-	Ogre::Vector3 ankleTorque = f1.crossProduct(fA);
-	//BLog("ankleTorque: %s", describe(ankleTorque).c_str());
-	//Ogre::Vector3 ankleTorque(0,0,0);
-	//preprocessAnkleVTorque(stanceAnkleIndex, cfs, &ankleTorque);
+
 
 	string ankleJointName = lowerLegName+"-"+footName;
 	string kneeJointName = upperLegName+"-"+lowerLegName;
@@ -1041,6 +1097,11 @@ void VirtualModelSkeletonController::COMJT(/*DynamicArray<ContactPoint> *cfs*/)
 	string lBackJointName = pelvisName+"-"+lowerBackName;
 	string mBackJointName = lowerBackName+"-"+midBackName;
 	
+	Ogre::Vector3 ankleTorque = f1.crossProduct(fA);
+	//BLog("ankle torque %s, knee %s, hip %s, lBack %s, mBack %s", describe(ankleTorque).c_str(), describe(f2.crossProduct(fA)).c_str(), describe(f3.crossProduct(fA)).c_str(), describe(-f4.crossProduct(fA)*0.5).c_str(), describe(-f5.crossProduct(fA)*0.3).c_str() );
+	//BLog("ankleTorque: %s", describe(ankleTorque).c_str());
+	//Ogre::Vector3 ankleTorque(0,0,0);
+	//preprocessAnkleVTorque(stanceAnkleIndex, cfs, &ankleTorque);
 	mForwardDynamicsSkeleton->addJointTorque(ankleJointName, ankleTorque);
 	mForwardDynamicsSkeleton->addJointTorque(kneeJointName, f2.crossProduct(fA));
 	mForwardDynamicsSkeleton->addJointTorque(hipJointName, f3.crossProduct(fA));
@@ -1063,13 +1124,14 @@ void VirtualModelSkeletonController::debugDraw()
 	
 	//mDebugLines->addTorqueVector(mDebugLines->getParentSceneNode()->convertWorldToLocalPosition(rootCoMWorld), mDebugTargetRootOrientation, 0.1);
 	Ogre::Vector3 rootCoMWorld = mForwardDynamicsSkeleton->getBody("SpineBase")->getCoMWorld();
-	mDebugLines->addAxes(rootCoMWorld, mCharacterFrame*mDebugTargetRootOrientation, 0.08f);
-	mDebugLines->addTorque( rootCoMWorld, mDebugRootTorque, 0.1 );
+	mDebugLines->addAxes(rootCoMWorld, mDebugTargetRootOrientation, 0.08f);
+	mDebugLines->addTorque( rootCoMWorld+Ogre::Vector3(0,-0.02,0), mDebugRootTorque, 0.1 );
 	
 	mDebugLines->addCross(mCoM, 0.1, Ogre::ColourValue(0.5f, 1.0f, 0.0f));
 	
 	// draw com virtual force
-	mDebugLines->addLine(mCoM, mCoM+mDebugCoMVirtualForce, Ogre::ColourValue(0.2, 0.2, 1.0) );
+	mDebugLines->addLine(mCoM, mCoM+mDebugCoMVirtualForce, Ogre::ColourValue(0, 0.5, 1.0) );
+	mDebugLines->addLine(mCoM, mCoM+mCoMVelocity, Ogre::ColourValue(0.5, 0, 1.0));
 }
 
 void VirtualModelSkeletonController::pushModel(Ogre::Vector3 force)

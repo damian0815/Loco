@@ -7,7 +7,7 @@
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
 					"kP": 64.0,
-					"kD": 0.5,
+					"kD": 5,
 					"maxTorque": 100
 				}
 			}, 
@@ -17,7 +17,7 @@
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
 					"kP": 64.0,
-					"kD": 0.5,
+					"kD": 5,
 					"maxTorque": 100
 				}
 			}, 
@@ -27,7 +27,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 1.0,
+					"kD": 10.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -37,7 +37,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 1.0,
+					"kD": 10.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -48,7 +48,7 @@
 					"mass": 1.0, 
 					"kP": 32.0,
 					"kD": 1.0,
-					"maxTorque": 1000
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -58,7 +58,7 @@
 					"mass": 1.0, 
 					"kP": 32.0,
 					"kD": 1.0,
-					"maxTorque": 1000
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -86,9 +86,9 @@
 				"params": {
 					"length": 0.08099213987588882, 
 					"mass": 4.2, 
-					"kP": 128.0,
+					"kP": 32.0,
 					"kD": 1,
-					"maxTorque": 100
+					"maxTorque": 1000
 				}
 			}, 
 		   {
@@ -96,9 +96,9 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 256.0,
-					"kD": 0.5,
-					"maxTorque": 800.0
+					"kP": 512.0,
+					"kD": 20,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -106,9 +106,9 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 256.0,
-					"kD": 0.5,
-					"maxTorque": 800.0
+					"kP": 512.0,
+					"kD": 20,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -117,8 +117,8 @@
 					"length": 0.48978400230407715, 
 					"mass": 8, 
 					"kP": 512.0,
-					"kD": 8.0,
-					"maxTorque": 800.0
+					"kD": 20,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -127,8 +127,8 @@
 					"length": 0.48978400230407715, 
 					"mass": 8, 
 					"kP": 512.0,
-					"kD": 8.0,
-					"maxTorque": 800.0
+					"kD": 20,
+					"maxTorque": 8000.0
 				}
 			}, 
 			{
@@ -137,7 +137,7 @@
 					"length": 0.08444000035524368, 
 					"mass": 3.2, 
 				"kP": 128.0,
-				"kD": 1,
+				"kD": 32,
 					"maxTorque": 100
 				}
 			}, 
@@ -146,8 +146,8 @@
 				"params": {
 					"length": 0.22, 
 					"mass": 12.1, 
-					"kP": 128.0,
-					"kD": 1.0,
+					"kP": 1024.0,
+					"kD": 4.0,
 					"maxTorque": 16000.0
 				}
 			}, 
@@ -176,8 +176,8 @@
 				"params": {
 					"length": 0.1, 
 					"mass": 0.2, 
-					"kP": 6.0,
-					"kD": 0.02,
+					"kP": 2.0,
+					"kD": 0.1,
 					"maxTorque": 10
 				}
 			}, 
@@ -186,8 +186,8 @@
 				"params": {
 					"length": 0.1, 
 					"mass": 0.2, 
-					"kP": 6.0,
-					"kD": 0.02,
+					"kP": 2.0,
+					"kD": 0.1,
 					"maxTorque": 10
 				}
 			}
@@ -198,7 +198,7 @@
 	"forwardDynamics": {
 	
 		"limitSoftness": 0.7,
-		"limitDamping": 1.0,
+		"limitDamping": 0.9,
 	
 				
 		"bones": [
@@ -428,19 +428,24 @@
 	"enableCoMVirtualForce": true,
 
 	"gravityCompensationFactor": 1.0,
-	"CoMVirtualForceFactor": 10.0,
+	"CoMVirtualForceFactor": 1.0,
 	
-	"stepWidth": 0.3,
+	"stepWidth": 0.2,
 
-	"CoMVelocitySmoothingFactor": 0.5,
+	"CoMVelocitySmoothingFactor": 0.9,
+	
 	"targetCoMVelocitySagittal": 0.0,
 	"targetCoMVelocityCoronal": 0.0,
 
-	"CoMKp": 500,
-	"CoMKd": 40,
+	"CoMkP": 16,
+	"CoMkD": 120,
 	
-	"rootPredictiveTorqueFactor": 0.3,
+	"rootPredictiveTorqueFactor": 0.0,
 	
+	"bindLeftFootOnStartup": false,
+	"bindRightFootOnStartup": false,
+
+	"kneeBend": 0.3,
 
 	"motionGenerator":
 	{
@@ -487,11 +492,9 @@
 						"referenceFrame": "parent"
 					},
 					{
-						"bodyName": "LegUpper.STANCE Orientation",
+						"bodyName": "-LegUpper.STANCE Orientation",
 						"referenceFrame": "character",
-						"invertYOnPhaseSwap": true,
-						"y": [ [ 0, 3.1415 ] ],
-						"x": [ [ 0, 3.1415 ] ]
+						"invertYOnPhaseSwap": true
 					},
 					{
 						"bodyName": "LegUpper.SWING Orientation",
@@ -502,12 +505,25 @@
 						"bodyName": "SpineBase Orientation",
 						"referenceFrame": "character"
 					},
+					{
+						"bodyName": "SpineMid Orientation",
+						"referenceFrame": "character"
+					},
+					{
+						"bodyName": "SpineTop Orientation",
+						"referenceFrame": "character"
+					},
+					{
+						"bodyName": "Neck Orientation",
+						"referenceFrame": "parent"
+					},
 					
 					{
 						"bodyName": "Head Orientation",
 						"referenceFrame": "character",
 						"x": [ [ 0, 0.6 ] ]
 					},
+					
 					
 					
 					{

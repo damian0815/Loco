@@ -93,7 +93,6 @@
 		2D9B4405181189A500BF4CC8 /* PoseSnapshot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D9B4403181189A500BF4CC8 /* PoseSnapshot.cpp */; };
 		2DA69463182BC260009230A7 /* VirtualModelSkeletonController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DA69461182BC260009230A7 /* VirtualModelSkeletonController.cpp */; };
 		2DA69466182BC714009230A7 /* ForwardDynamicsJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DA69464182BC714009230A7 /* ForwardDynamicsJoint.cpp */; };
-		2DAC719E1810528A0022070A /* BoneDriverPD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DAC719C1810528A0022070A /* BoneDriverPD.cpp */; };
 		2DB4BB5716DF98B100D9A6AE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DB4BB5616DF98B100D9A6AE /* Cocoa.framework */; };
 		2DB4BB6116DF98B200D9A6AE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2DB4BB5F16DF98B200D9A6AE /* InfoPlist.strings */; };
 		2DB4BB6316DF98B200D9A6AE /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2DB4BB6216DF98B200D9A6AE /* main.mm */; };
@@ -105,6 +104,7 @@
 		2DB4BBAF16DFD76800D9A6AE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DB4BBAE16DFD76700D9A6AE /* IOKit.framework */; };
 		2DB4BBB116DFD77000D9A6AE /* libIOKit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DB4BBB016DFD77000D9A6AE /* libIOKit.dylib */; };
 		2DB4BBB316DFD79A00D9A6AE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DB4BBB216DFD79A00D9A6AE /* Carbon.framework */; };
+		2DB5560018EDCD5A00A8BBED /* ProportionalDerivativeController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DB555FE18EDCD5A00A8BBED /* ProportionalDerivativeController.cpp */; };
 		2DC92DE51815BE1900AF6C9F /* SkeletonController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DC92DE31815BE1900AF6C9F /* SkeletonController.cpp */; };
 		2DCCF22F16ECA8DB00180E37 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DCCF22E16ECA8DB00180E37 /* libOIS.a */; };
 		2DD02076181D12A800784E84 /* BoneDriverCopy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DD02074181D12A800784E84 /* BoneDriverCopy.cpp */; };
@@ -491,8 +491,6 @@
 		2DA69462182BC260009230A7 /* VirtualModelSkeletonController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirtualModelSkeletonController.h; sourceTree = "<group>"; };
 		2DA69464182BC714009230A7 /* ForwardDynamicsJoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsJoint.cpp; sourceTree = "<group>"; };
 		2DA69465182BC714009230A7 /* ForwardDynamicsJoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsJoint.h; sourceTree = "<group>"; };
-		2DAC719C1810528A0022070A /* BoneDriverPD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoneDriverPD.cpp; sourceTree = "<group>"; };
-		2DAC719D1810528A0022070A /* BoneDriverPD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoneDriverPD.h; sourceTree = "<group>"; };
 		2DB4BB5316DF98B100D9A6AE /* Loco.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Loco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DB4BB5616DF98B100D9A6AE /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		2DB4BB5916DF98B100D9A6AE /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -512,6 +510,8 @@
 		2DB4BBAE16DFD76700D9A6AE /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		2DB4BBB016DFD77000D9A6AE /* libIOKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libIOKit.dylib; path = /usr/lib/libIOKit.dylib; sourceTree = "<absolute>"; };
 		2DB4BBB216DFD79A00D9A6AE /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		2DB555FE18EDCD5A00A8BBED /* ProportionalDerivativeController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProportionalDerivativeController.cpp; path = src/ProportionalDerivativeController.cpp; sourceTree = "<group>"; };
+		2DB555FF18EDCD5A00A8BBED /* ProportionalDerivativeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProportionalDerivativeController.h; path = src/ProportionalDerivativeController.h; sourceTree = "<group>"; };
 		2DC92DE31815BE1900AF6C9F /* SkeletonController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonController.cpp; sourceTree = "<group>"; };
 		2DC92DE41815BE1900AF6C9F /* SkeletonController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonController.h; sourceTree = "<group>"; };
 		2DCCF22E16ECA8DB00180E37 /* libOIS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOIS.a; path = "../../OgreSDK-1.8.1-manual/lib/relwithdebinfo/libOIS.a"; sourceTree = "<group>"; };
@@ -1309,8 +1309,6 @@
 		2D9B43FF1811570F00BF4CC8 /* Driving */ = {
 			isa = PBXGroup;
 			children = (
-				2DAC719C1810528A0022070A /* BoneDriverPD.cpp */,
-				2DAC719D1810528A0022070A /* BoneDriverPD.h */,
 				2DD02074181D12A800784E84 /* BoneDriverCopy.cpp */,
 				2DD02075181D12A800784E84 /* BoneDriverCopy.h */,
 				2DD02079181D326200784E84 /* BoneDriverBreath.cpp */,
@@ -1383,6 +1381,8 @@
 		2DB4BB4A16DF98B100D9A6AE = {
 			isa = PBXGroup;
 			children = (
+				2DB555FE18EDCD5A00A8BBED /* ProportionalDerivativeController.cpp */,
+				2DB555FF18EDCD5A00A8BBED /* ProportionalDerivativeController.h */,
 				2D06850E17D4AE72002293A1 /* Ogre.framework */,
 				2DB4BB5C16DF98B200D9A6AE /* Source Files */,
 				2DB4BB5516DF98B100D9A6AE /* Frameworks */,
@@ -2296,6 +2296,7 @@
 				2DDC841018E45767008198EF /* MiniCLTask.cpp in Sources */,
 				2D6BFE3A16E4F9CF0075A3DD /* OgreBulletCollisionsCompoundShape.cpp in Sources */,
 				2D6BFE3B16E4F9CF0075A3DD /* OgreBulletCollisionsConeShape.cpp in Sources */,
+				2DB5560018EDCD5A00A8BBED /* ProportionalDerivativeController.cpp in Sources */,
 				2DDC83FB18E45767008198EF /* btGjkEpaPenetrationDepthSolver.cpp in Sources */,
 				2DDC844C18E45767008198EF /* SpuFakeDma.cpp in Sources */,
 				2DDC83DA18E45767008198EF /* btMultimaterialTriangleMeshShape.cpp in Sources */,
@@ -2472,7 +2473,6 @@
 				2D08A39D170A51C800E5D159 /* MeshTools.cpp in Sources */,
 				2DDC83A918E45767008198EF /* btMultiSapBroadphase.cpp in Sources */,
 				2D941FE917A28B3F00154DED /* LocoAppDelegate.mm in Sources */,
-				2DAC719E1810528A0022070A /* BoneDriverPD.cpp in Sources */,
 				2DDC83D618E45767008198EF /* btCylinderShape.cpp in Sources */,
 				2DDC846818E45767008198EF /* btUniversalConstraint.cpp in Sources */,
 				2DDC83EC18E45767008198EF /* btContactProcessing.cpp in Sources */,
