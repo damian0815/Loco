@@ -117,10 +117,13 @@ private:
 	/*! @brief Bind the stance foot to ground. */
 	void bindStanceFootToGround();
 	
-	float mGravityCompensationFactor, mCoMVirtualForceFactor;
+	float mGravityCompensationFactor;
 	float mRootPredictiveTorqueFactor;
 	
-	float mCoMkP, mCoMkD;
+	// virtual force stuff
+	float mCoMVirtualForceKp, mCoMVirtualForceKd;
+	Ogre::Vector3 mCoMVirtualForceScale;
+	
 	Ogre::Vector3 mCoM, mPrevCoM, mCoMVelocity;
 	float mCoMVelocitySmoothingFactor;
 	

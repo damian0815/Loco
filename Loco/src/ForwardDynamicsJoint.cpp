@@ -16,11 +16,36 @@
 using namespace std;
 using namespace OgreBulletCollisions;
 
-float ForwardDynamicsJoint::mLimitDamping = 1.0;
-float ForwardDynamicsJoint::mLimitSoftness = 0.5;
-float ForwardDynamicsJoint::mLinearLimitDamping = 1.0;
-float ForwardDynamicsJoint::mLinearLimitSoftness = 0.7;
+// defaults from bullet
+// can be overriden by json
+float ForwardDynamicsJoint::kLimitDamping = 1.0;
+float ForwardDynamicsJoint::kLimitSoftness = 0.5;
 
+float ForwardDynamicsJoint::kNormalCFM = 0;
+float ForwardDynamicsJoint::kLimitCFM = 0;
+float ForwardDynamicsJoint::kLimitERP = 0.2f;
+
+float ForwardDynamicsJoint::kLinearLimitDamping = 1.0;
+float ForwardDynamicsJoint::kLinearLimitSoftness = 0.5;
+
+
+/* 
+ m_accumulatedImpulse = 0.f;
+ m_targetVelocity = 0;
+ m_maxMotorForce = 0.1f;
+ m_maxLimitForce = 300.0f;
+ m_loLimit = 1.0f;
+ m_hiLimit = -1.0f;
+ m_normalCFM = 0.f;
+ m_stopERP = 0.2f;
+ m_stopCFM = 0.f;
+ m_bounce = 0.0f;
+ m_damping = 1.0f;
+ m_limitSoftness = 0.5f;
+ m_currentLimit = 0;
+ m_currentLimitError = 0;
+ m_enableMotor = false;
+ */
 
 ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dynamicsWorld, Ogre::SharedPtr<ForwardDynamicsBody> parentFdb, Ogre::SharedPtr<ForwardDynamicsBody> childFdb, picojson::object jointDef)
 : mChildFdb(childFdb), mParentFdb(parentFdb), mDynamicsWorld(dynamicsWorld), mTorque(0,0,0), mDebugPrevTorque(0,0,0), mSecondaryConstraint(NULL)
@@ -178,14 +203,18 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		
 		// make position limits extremely hard
 		btTranslationalLimitMotor* linearMotor = con->getTranslationalLimitMotor();
-		linearMotor->m_limitSoftness = mLinearLimitSoftness;
-		linearMotor->m_damping = mLinearLimitDamping;
+		linearMotor->m_limitSoftness = kLinearLimitSoftness;
+		linearMotor->m_damping = kLinearLimitDamping;
 		for ( int i=0; i<3; i++ ) {
 			linearMotor->m_enableMotor[i] = true;
-			linearMotor->m_stopERP[i] = 0.8;
+			linearMotor->m_stopERP[i] = kLimitERP;
+			linearMotor->m_stopCFM[i] = kLimitCFM;
+			linearMotor->m_normalCFM[i] = kNormalCFM;
+		}
+		for ( int i=0; i<3; i++ ) {
 			con->getRotationalLimitMotor(i)->m_enableMotor = true;
-			con->getRotationalLimitMotor(i)->m_limitSoftness = mLimitSoftness;
-			con->getRotationalLimitMotor(i)->m_damping = mLimitDamping;
+			con->getRotationalLimitMotor(i)->m_limitSoftness = kLimitSoftness;
+			con->getRotationalLimitMotor(i)->m_damping = kLimitDamping;
 		}
 		//constraint->setParam(BT_CONSTRAINT_STOP_CFM, myCFMvalue, index)
 		//constraint->setParam(BT_CONSTRAINT_STOP_ERP, myERPvalue, index)

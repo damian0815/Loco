@@ -20,7 +20,8 @@ using namespace Ogre;
 
 VirtualModelSkeletonController::VirtualModelSkeletonController(Ogre::SceneNode* skelRootSceneNode, Ogre::Skeleton* skeleton, OgreBulletDynamics::DynamicsWorld* dynamicsWorld, OgreBulletDynamics::RigidBody* groundPlaneBody, const picojson::value& jsonSource )
 : ForwardDynamicsSkeletonController(skelRootSceneNode,skeleton,dynamicsWorld,groundPlaneBody,jsonSource), mFootTargetL(0,0,0), mFootTargetR(0,0,0),
-mCoMkP(100.0f), mCoMkD(4.0f), mCoMVelocity(0,0,0), mCoM(0,0,0), mCoMVelocitySmoothingFactor(0.2f),
+mCoMVirtualForceKp(100.0f), mCoMVirtualForceKd(4.0f), mCoMVirtualForceScale(1,1,1),
+mCoMVelocity(0,0,0), mCoM(0,0,0), mCoMVelocitySmoothingFactor(0.2f),
 mLeftKneeOut(0.5), mRightKneeOut(0.5), mKneeBend(0.0f),
 mStepWidth(0.3f), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X),
 mTargetCoMVelocitySagittal(0.0), mTargetCoMVelocityCoronal(0.0), mRootPredictiveTorqueFactor(0),
@@ -49,9 +50,28 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 		mGravityCompensationFactor = jsonRoot["gravityCompensationFactor"].get<double>();
 	}
 	mDoCoMVirtualForce = jsonRoot["enableCoMVirtualForce"].get<bool>();
-	if ( jsonRoot.count("CoMVirtualForceFactor") ) {
-		mCoMVirtualForceFactor = jsonRoot["CoMVirtualForceFactor"].get<double>();
+	
+	// com virtual force
+	if ( jsonRoot.count("CoMVirtualForce") ) {
+		picojson::object comVF = jsonRoot["CoMVirtualForce"].get<picojson::object>();
+		if ( comVF.count("kD") ) {
+			mCoMVirtualForceKd = comVF["kD"].get<double>();
+		}
+		if ( comVF.count("kP") ) {
+			mCoMVirtualForceKp = comVF["kP"].get<double>();
+		}
+		if ( comVF.count("sagittalScale") ) {
+			mCoMVirtualForceScale.z = comVF["sagittalScale"].get<double>();
+		}
+		if ( comVF.count("coronalScale") ) {
+			mCoMVirtualForceScale.x = comVF["coronalScale"].get<double>();
+		}
+		if ( comVF.count("axialScale") ) {
+			mCoMVirtualForceScale.y = comVF["axialScale"].get<double>();
+		}
+
 	}
+	
 	mDoHipTorques = jsonRoot["enableHipTorques"].get<bool>();
 	mDoMotionGeneration = jsonRoot["enableMotionGeneration"].get<bool>();
 	mDoSwingLegTargets = jsonRoot["enableMotionGenerationSwingLegTargets"].get<bool>();
@@ -80,12 +100,6 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 		mTargetCoMVelocityCoronal = jsonRoot["targetCoMVelocityCoronal"].get<double>();
 	}
 		
-	if ( jsonRoot.count("CoMkD") ) {
-		mCoMkD = jsonRoot["CoMkD"].get<double>();
-	}
-	if ( jsonRoot.count("CoMkP") ) {
-		mCoMkP = jsonRoot["CoMkP"].get<double>();
-	}
 	if ( jsonRoot.count("rootPredictiveTorqueFactor") ) {
 		mRootPredictiveTorqueFactor = jsonRoot["rootPredictiveTorqueFactor"].get<double>();
 	}
@@ -273,6 +287,11 @@ void VirtualModelSkeletonController::evaluateMotionTargets( float deltaTime )
 			}
 			
 			mForwardDynamicsSkeleton->setOrientationTarget(bodyName, orientationW);
+			
+			// store spine base
+			if ( bodyName == "SpineBase") {
+				mDebugTargetRootOrientation = orientationW;
+			}
 		} else {
 			// clear any previously set target
 			mForwardDynamicsSkeleton->clearOrientationTarget(bodyName);
@@ -644,7 +663,12 @@ void VirtualModelSkeletonController::update( float dt )
 	
 	// get heading, store as mCharacterFrame
 	Ogre::Radian heading( mForwardDynamicsSkeleton->getBody("SpineBase")->getOrientationWorld().getYaw().valueRadians());
-	mCharacterFrame = Ogre::Quaternion( heading, Ogre::Vector3::UNIT_Y );
+	//mCharacterFrame = Ogre::Quaternion( heading, Ogre::Vector3::UNIT_Y );
+	Ogre::Vector3 gravityDirection = mDynamicsWorld->getGravity().normalisedCopy();
+	if ( gravityDirection.isZeroLength() ) {
+		gravityDirection = -Ogre::Vector3::UNIT_Y;
+	}
+	mCharacterFrame = Ogre::Quaternion( heading, -gravityDirection );
 
 	// simStepPlan
 	{
@@ -805,7 +829,10 @@ Ogre::Vector3 VirtualModelSkeletonController::computeCoMVirtualForce()
 	// velocity target
 	Vector3 vTarget( mTargetCoMVelocityCoronal, 0, mTargetCoMVelocitySagittal );
 	
-	Vector3 acceleration = ProportionalDerivativeController::computePDForce(Ogre::Vector3::ZERO, comTarget, v, vTarget, mCoMkP, mCoMkD);
+	Vector3 acceleration = ProportionalDerivativeController::computePDForce(Ogre::Vector3::ZERO, comTarget, v, vTarget, mCoMVirtualForceKp, mCoMVirtualForceKd);
+	acceleration.x *= mCoMVirtualForceScale.x;
+	acceleration.y *= mCoMVirtualForceScale.y;
+	acceleration.z *= mCoMVirtualForceScale.z;
 	Vector3 force = acceleration*mForwardDynamicsSkeleton->getTotalMass();
 	
 	/*
@@ -938,7 +965,7 @@ void VirtualModelSkeletonController::computeHipTorques(const Ogre::Quaternion& q
 	//so this is the net torque that the root wants to see, in world coordinates
 	auto root = mForwardDynamicsSkeleton->getBody("SpineBase");
 	Vector3 rootAngularVelocity = mCharacterFrame*BtOgreConverter::to(root->getBody()->getBulletRigidBody()->getAngularVelocity());
-	Vector3 rootTorque = ForwardDynamicsBodyDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getInertiaTensor(), root->getKp(), root->getKd(), rootControlParamsStrength);
+	Vector3 rootTorque = ForwardDynamicsBodyDriverPD::computePDTorque(root->getOrientationWorld(), qRootDW, rootAngularVelocity, Vector3(0,0,0), root->getKp(), root->getKd(), rootControlParamsStrength);
 	
 	mDebugRootTorque = rootTorque;
 	

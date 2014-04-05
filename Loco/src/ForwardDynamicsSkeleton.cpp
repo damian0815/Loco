@@ -80,11 +80,21 @@ mPhysicsRootSceneNode(dynamicsWorld->getSceneManager()->getRootSceneNode())
 	// ...
 	object controllerDef = params.get<object>();
 	if ( controllerDef.count("limitSoftness") ) {
-		ForwardDynamicsJoint::mLimitSoftness = controllerDef.at("limitSoftness").get<double>();
+		ForwardDynamicsJoint::kLimitSoftness = controllerDef.at("limitSoftness").get<double>();
 	}
 	if ( controllerDef.count("limitDamping") ) {
-		ForwardDynamicsJoint::mLimitDamping = controllerDef.at("limitDamping").get<double>();
+		ForwardDynamicsJoint::kLimitDamping = controllerDef.at("limitDamping").get<double>();
 	}
+	if ( controllerDef.count("normalCFM") ) {
+		ForwardDynamicsJoint::kNormalCFM = controllerDef.at("normalCFM").get<double>();
+	}
+	if ( controllerDef.count("limitCFM") ) {
+		ForwardDynamicsJoint::kLimitCFM = controllerDef.at("limitCFM").get<double>();
+	}
+	if ( controllerDef.count("limitERP") ) {
+		ForwardDynamicsJoint::kLimitERP = controllerDef.at("limitERP").get<double>();
+	}
+		
 	
 	array bodyDefs = controllerDef["bones"].get<array>();
 	for ( const auto bodyDefValue: bodyDefs ) {

@@ -35,10 +35,15 @@ class btTypedConstraint;
 class ForwardDynamicsJoint {
 public:
 	
-	static float mLimitDamping;
-	static float mLimitSoftness;
-	static float mLinearLimitDamping;
-	static float mLinearLimitSoftness;
+	static float kLimitDamping;
+	static float kLimitSoftness;
+
+	static float kNormalCFM;
+	static float kLimitCFM;
+	static float kLimitERP;
+
+	static float kLinearLimitDamping;
+	static float kLinearLimitSoftness;
 	
 	ForwardDynamicsJoint( OgreBulletDynamics::DynamicsWorld* dynamicsWorld, Ogre::SharedPtr<ForwardDynamicsBody> parentFdb, Ogre::SharedPtr<ForwardDynamicsBody> childFdb, picojson::object jointDef );
 	~ForwardDynamicsJoint();

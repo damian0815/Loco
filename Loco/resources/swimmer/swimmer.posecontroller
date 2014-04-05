@@ -27,7 +27,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 10.0,
+					"kD": 5.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -37,7 +37,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 10.0,
+					"kD": 5.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -96,7 +96,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 512.0,
+					"kP": 1024.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -106,7 +106,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 512.0,
+					"kP": 1024.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -136,9 +136,9 @@
 				"params": {
 					"length": 0.08444000035524368, 
 					"mass": 3.2, 
-				"kP": 128.0,
-				"kD": 32,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 8,
+					"maxTorque": 1000
 				}
 			}, 
 		   {
@@ -146,8 +146,8 @@
 				"params": {
 					"length": 0.22, 
 					"mass": 12.1, 
-					"kP": 1024.0,
-					"kD": 4.0,
+					"kP": 2048.0,
+					"kD": 32.0,
 					"maxTorque": 16000.0
 				}
 			}, 
@@ -156,8 +156,8 @@
 				"params": {
 					"length": 0.2111939936876297, 
 					"mass": 9.29, 
-					"kP": 256.0,
-					"kD": 4.0,
+					"kP": 1024.0,
+					"kD": 8.0,
 					"maxTorque": 8000.0
 				}
 			}, 
@@ -166,8 +166,8 @@
 				"params": {
 					"length": 0.18924300372600555, 
 					"mass": 12.9, 
-					"kP": 256.0,
-					"kD": 4.0,
+					"kP": 1024.0,
+					"kD": 16.0,
 					"maxTorque": 8000.0
 				}
 			}, 
@@ -198,7 +198,10 @@
 	"forwardDynamics": {
 	
 		"limitSoftness": 0.7,
-		"limitDamping": 0.9,
+		"limitDamping": 1.0,
+		"normalCFM": 0,
+		"limitCFM": 0, 
+		"stopERP": 0.2,
 	
 				
 		"bones": [
@@ -208,7 +211,7 @@
 				"joints": {},
 				"shape": "sphere",
 				"radius": 0.11,
-				"comOffsetLocal": [ 0, 0.010, 0.052 ]
+				"comOffsetLocal": [ 0, 0.00, 0.0 ]
 			},
 			{
 				"name": "Neck",
@@ -222,7 +225,7 @@
 				},				
 				"shape": "rod",
 				"radius": 0.042,
-				"comOffsetLocal": [ 0, -0.05, 0 ]
+				"comOffsetLocal": [ 0, 0.0, 0 ]
 			},
 			{
 				"name": "SpineTop",
@@ -235,20 +238,20 @@
 					}, 
 					"ArmUpper.L": { 
 						"type": "coneTwist", 
-						"swing1Span": 0.4, 
-						"swing2Span": 0.4, 
-						"twistSpan": 0.1
+						"swing1Span": 1.7, 
+						"swing2Span": 1.1, 
+						"twistSpan": 0.7
 					},
 					"ArmUpper.R": { 
 						"type": "coneTwist", 
-						"swing1Span": 0.8, 
-						"swing2Span": 1.2, 
+						"swing1Span": 1.7, 
+						"swing2Span": 3.2, 
 						"twistSpan": 0.7
 					}
 				},
 				"shape": "box",
 				"shapeSize": [ 0.20, 0.12, 0.12 ],
-				"comOffsetLocal": [ 0, 0.08, 0.05 ]
+				"comOffsetLocal": [ 0, 0.12, 0.05 ]
 			},
 			{
 				"name": "SpineMid",
@@ -424,28 +427,32 @@
 	"enableStanceLegGravityCompensation": false,
 	"enableMotionGeneration": true,
 	"enableMotionGenerationSwingLegTargets": true,
-	"enableHipTorques": true,
-	"enableCoMVirtualForce": true,
+	"enableHipTorques": false,
+	"enableCoMVirtualForce": false,
 
-	"gravityCompensationFactor": 1.0,
-	"CoMVirtualForceFactor": 1.0,
+	"gravityCompensationFactor": 0,
 	
-	"stepWidth": 0.2,
+	"stepWidth": 0.1,
 
-	"CoMVelocitySmoothingFactor": 0.1,
+	"CoMVelocitySmoothingFactor": 0.0,
 	
-	"targetCoMVelocitySagittal": 1.1,
-	"targetCoMVelocityCoronal": 0.0,
+	"targetCoMVelocitySagittal": 0,
+	"targetCoMVelocityCoronal": 0.5,
 
-	"CoMkP": 0.4,
-	"CoMkD": 30,
+	"CoMVirtualForce": {
+		"kP": 0.4,
+		"kD": 60,
+		"sagittalScale": 1.0,
+		"coronalScale": 0.5,
+		"axialScale": 1.0
+	},
 	
 	"rootPredictiveTorqueFactor": 0.0,
 	
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
 
-	"kneeBend": 0.3,
+	"kneeBend": 0.2,
 
 	"motionGenerator":
 	{
@@ -459,7 +466,7 @@
 						"referenceFrame": "character",
 						"sagittal": [ [ 0, 0.0 ], [ 1, -0.0 ] ],
 						"coronal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
-						"axial": [ [ 0, 0.1 ], [ 0.5, 0.5 ], [ 1.0, 0.1 ] ]
+						"axial": [ [ 0, 0.05 ], [ 0.5, 0.5 ], [ 1.0, 0.05 ] ]
 					},
 					{
 						"bodyName": "FootDelta.SWING Position",
@@ -515,31 +522,31 @@
 					},
 					{
 						"bodyName": "Neck Orientation",
-						"referenceFrame": "parent"
+						"referenceFrame": "character"
 					},
 					
 					{
 						"bodyName": "Head Orientation",
 						"referenceFrame": "character",
-						"x": [ [ 0, 0.6 ] ]
+						"x": [ [ 0, 0.0 ] ]
 					},
 					
 					
 					
 					{
-						"bodyName": "ArmUpper.L Orientation",
+						"bodyName": "-ArmUpper.L Orientation",
 						"z": [ [ 0, 0 ] ]
 					},
 					{
-						"bodyName": "ArmUpper.R Orientation",
+						"bodyName": "-ArmUpper.R Orientation",
 						"z": [ [ 0, 0 ] ]
 					},
 					{
-						"bodyName": "ArmLower.L Orientation",
+						"bodyName": "-ArmLower.L Orientation",
 						"z": [ [ 0, -0.5 ] ]
 					},
 					{
-						"bodyName": "ArmLower.R Orientation",
+						"bodyName": "-ArmLower.R Orientation",
 						"z": [ [ 0, 0.5 ] ]
 					}
 					

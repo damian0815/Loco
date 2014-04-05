@@ -60,7 +60,7 @@ void ForwardDynamicsBodyDriverPD::updateTorque()
 	//BLog("%15s: ", mBone->getBone()->getName().c_str());
 	
 	//Ogre::Euler torque = computePDTorque(qRel, qRelD, wRel, wRelD, mBone->getKp(), mBone->getKd(), mStrength);
-	Ogre::Vector3 torqueV3 = computePDTorque(qRel, qRelD, wRel, wRelD, mBody->getInertiaTensor(), mBody->getKp(), mBody->getKd(), mStrength);
+	Ogre::Vector3 torqueV3 = computePDTorque(qRel, qRelD, wRel, wRelD, mBody->getKp(), mBody->getKd(), mStrength);
 	
 	/*if ( mBody->getName() == "SpineBase" ) {
 		BLog("%15s: qRel %s wRel %s", mBody->getName().c_str(), describe(qRel).c_str(), describe(wRel).c_str() );
