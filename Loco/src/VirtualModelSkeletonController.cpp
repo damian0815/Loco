@@ -22,7 +22,7 @@ VirtualModelSkeletonController::VirtualModelSkeletonController(Ogre::SceneNode* 
 : ForwardDynamicsSkeletonController(skelRootSceneNode,skeleton,dynamicsWorld,groundPlaneBody,jsonSource), mFootTargetL(0,0,0), mFootTargetR(0,0,0),
 mCoMVirtualForceKp(100.0f), mCoMVirtualForceKd(4.0f), mCoMVirtualForceScale(1,1,1),
 mCoMVelocity(0,0,0), mCoM(0,0,0), mCoMVelocitySmoothingFactor(0.2f),
-mLeftKneeOut(0.5), mRightKneeOut(0.5), mKneeBend(0.0f),
+mKneeOutFactor(0.5), mKneeUpFactor(0.5), mKneeBend(0.0f),
 mStepWidth(0.3f), mSwingLegPlaneOfRotation(Ogre::Vector3::UNIT_X),
 mTargetCoMVelocitySagittal(0.0), mTargetCoMVelocityCoronal(0.0), mRootPredictiveTorqueFactor(0),
 mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDoMotionGeneration(true), mDoSwingLegTargets(true), mDoSwingLegGravityCompensation(true), mDoStanceLegGravityCompensation(false)
@@ -92,7 +92,13 @@ mDoGravityCompensation(true), mDoCoMVirtualForce(true), mDoHipTorques(true), mDo
 	if ( jsonRoot.count("kneeBend") ) {
 		mKneeBend = -jsonRoot["kneeBend"].get<double>();
 	}
-	
+	if ( jsonRoot.count("kneeOut") ) {
+		mKneeOutFactor = jsonRoot["kneeOut"].get<double>();
+	}
+	if ( jsonRoot.count("kneeUp") ) {
+		mKneeUpFactor = jsonRoot["kneeUp"].get<double>();
+	}
+			
 	if ( jsonRoot.count("targetCoMVelocitySagittal") ) {
 		mTargetCoMVelocitySagittal = jsonRoot["targetCoMVelocitySagittal"].get<double>();
 	}
@@ -437,13 +443,12 @@ void VirtualModelSkeletonController::computeIKSwingLegTargets(double dt)
 	// now
 	string swingLeg = getStanceIsLeft()?"R":"L";
 	Ogre::Quaternion upperLegTargetWorld, lowerLegTargetWorld;
-	float kneeOut = 0.25f;
-	solveLegIK( swingLeg, pNow, upperLegTargetWorld, lowerLegTargetWorld, kneeOut );
+	solveLegIK( swingLeg, pNow, upperLegTargetWorld, lowerLegTargetWorld, mKneeOutFactor, mKneeUpFactor );
 	
 	// future
 	Ogre::Quaternion upperLegTargetFutureWorld, lowerLegTargetFutureWorld;
 	pFuture = getSwingFootTargetLocation(MIN(phi+dt, 1), mCoM + mCoMVelocity * dt, mCharacterFrame);
-	solveLegIK( swingLeg, pFuture, upperLegTargetFutureWorld, lowerLegTargetFutureWorld, kneeOut );
+	solveLegIK( swingLeg, pFuture, upperLegTargetFutureWorld, lowerLegTargetFutureWorld, mKneeOutFactor, mKneeUpFactor );
 	
 	// delta
 	// we could use complex conjugate instead of inverse because q's are normalised here
@@ -474,8 +479,11 @@ Ogre::Vector3 VirtualModelSkeletonController::computeIPStepLocation()
 	auto stanceAnkle = getStanceAnkle();
 	double h = fabsf(mCoM.y - stanceAnkle->getPositionWorld().y);
 	Ogre::Vector3 v = getCoMVelocityInCharacterFrame();
-	step.x = v.x * sqrt(h/9.8 + v.x * v.x / (4*9.8*9.8)) * 1.3;
-	step.z = v.z * sqrt(h/9.8 + v.z * v.z / (4*9.8*9.8)) * 1.1;
+	//float magicNumberX = 1.3f;
+	float magicNumberX = 1.0f;
+	float magicNumberZ = 1.0f;
+	step.x = v.x * sqrt(h/9.8 + v.x * v.x / (4*9.8*9.8)) * magicNumberX;
+	step.z = v.z * sqrt(h/9.8 + v.z * v.z / (4*9.8*9.8)) * magicNumberZ;
 	step.y = 0;
 	if ( getStanceIsLeft() )
 		mFootIPTargetR = step;
@@ -788,7 +796,7 @@ void VirtualModelSkeletonController::computeGravityCompensationTorques( )
 			// don't do this if there's no parent
 			if ( !mForwardDynamicsSkeleton->getJointToParent(name).isNull() ) {
 				Ogre::Vector3 force = gravity/invMass;
-				force *= mGravityCompensationFactor;
+				force *= -mGravityCompensationFactor;
 				computeJointTorquesEquivalentToForce( name, Ogre::Vector3::ZERO, force );
 			}
 		}

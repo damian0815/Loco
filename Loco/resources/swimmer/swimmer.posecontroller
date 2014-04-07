@@ -146,7 +146,7 @@
 				"params": {
 					"length": 0.22, 
 					"mass": 12.1, 
-					"kP": 2048.0,
+					"kP": 512.0,
 					"kD": 32.0,
 					"maxTorque": 16000.0
 				}
@@ -199,8 +199,8 @@
 	
 		"limitSoftness": 0.7,
 		"limitDamping": 1.0,
-		"normalCFM": 0,
-		"limitCFM": 0, 
+		"normalCFM": 0.0,
+		"limitCFM": 0.0, 
 		"stopERP": 0.2,
 	
 				
@@ -237,15 +237,15 @@
 						"twistSpan": 0.1
 					}, 
 					"ArmUpper.L": { 
-						"type": "coneTwist", 
+						"type": "free", 
 						"swing1Span": 1.7, 
 						"swing2Span": 1.1, 
 						"twistSpan": 0.7
 					},
 					"ArmUpper.R": { 
-						"type": "coneTwist", 
+						"type": "free", 
 						"swing1Span": 1.7, 
-						"swing2Span": 3.2, 
+						"swing2Span": 1.1, 
 						"twistSpan": 0.7
 					}
 				},
@@ -272,13 +272,13 @@
 			
 			{
 				"name": "ArmUpper.L",
-				"joints": { "ArmLower.L": { "axis":"z", "minAngle":-2.7, "maxAngle":2.7 } },
+				"joints": { "ArmLower.L": { "type":"free", "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmUpper.R",
-				"joints": { "ArmLower.R": { "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
+				"joints": { "ArmLower.R": { "type":"free", "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
@@ -368,18 +368,32 @@
 			},
 			{
 				"name": "LegLower.R",
-				"joints": { "Foot.R": { "type":"hinge", "minAngle": -2.4, "maxAngle": -0.3 } },
+				"joints": { 
+					"Foot.R": { 
+						"type":"coneTwist", 
+						"swing1Span": 0.5,
+						"twistSpan": 0.3,
+						"swing2Min": -0.6, "swing2Max": 0.8 
+						} 
+					},
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
-				"heightFactor": 0.9,
+				"heightFactor": 0.5,
 				"radiusFactor": 0.07
 			},
 			{
 				"name": "LegLower.L",
-				"joints": { "Foot.L": { "type":"hinge", "minAngle": 0.3, "maxAngle": 2.4 } },
+				"joints": { 
+					"Foot.L": { 
+						"type":"coneTwist", 
+						"swing1Span": 0.5,
+						"twistSpan": 0.3,
+						"swing2Min": -0.8, "swing2Max": 0.6 
+						}
+					},
 				"shape": "rod",
 				"comOffsetLocal": [ 0, -0.00, 0 ],
-				"heightFactor": 0.9,
+				"heightFactor": 0.5,
 				"radiusFactor": 0.1
 			},
 			{
@@ -425,35 +439,38 @@
 	"enableGravityCompensation": true,
 	"enableSwingLegGravityCompensation": true,
 	"enableStanceLegGravityCompensation": false,
+	
 	"enableMotionGeneration": true,
 	"enableMotionGenerationSwingLegTargets": true,
-	"enableHipTorques": false,
-	"enableCoMVirtualForce": false,
+	"enableHipTorques": true,
+	"enableCoMVirtualForce": true,
 
-	"gravityCompensationFactor": 0,
+	"gravityCompensationFactor": 1.0,
 	
 	"stepWidth": 0.1,
 
 	"CoMVelocitySmoothingFactor": 0.0,
 	
-	"targetCoMVelocitySagittal": 0,
-	"targetCoMVelocityCoronal": 0.5,
+	"targetCoMVelocitySagittal": 0.0,
+	"targetCoMVelocityCoronal": 0.0,
 
 	"CoMVirtualForce": {
 		"kP": 0.4,
-		"kD": 60,
-		"sagittalScale": 1.0,
+		"kD": 20,
+		"sagittalScale": 2.0,
 		"coronalScale": 0.5,
-		"axialScale": 1.0
+		"axialScale": 0.1
 	},
 	
-	"rootPredictiveTorqueFactor": 0.0,
+	"rootPredictiveTorqueFactor": 0.5,
 	
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
 
-	"kneeBend": 0.2,
-
+	"kneeBend": 0.0,
+	"kneeOut": 0.25,
+	"kneeUp": 0.5,
+	
 	"motionGenerator":
 	{
 		"cycleDuration": 0.5,
@@ -464,7 +481,7 @@
 					{
 						"bodyName": "Foot.SWING Position",
 						"referenceFrame": "character",
-						"sagittal": [ [ 0, 0.0 ], [ 1, -0.0 ] ],
+						"sagittal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
 						"coronal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
 						"axial": [ [ 0, 0.05 ], [ 0.5, 0.5 ], [ 1.0, 0.05 ] ]
 					},
@@ -510,7 +527,8 @@
 					
 					{
 						"bodyName": "SpineBase Orientation",
-						"referenceFrame": "character"
+						"referenceFrame": "character",
+						"x": [ [ 0, 0.0 ] ]
 					},
 					{
 						"bodyName": "SpineMid Orientation",
@@ -522,7 +540,7 @@
 					},
 					{
 						"bodyName": "Neck Orientation",
-						"referenceFrame": "character"
+						"referenceFrame": "parent"
 					},
 					
 					{

@@ -147,7 +147,7 @@ private:
 	float mStepWidth;
 	
 	float mKneeBend;
-	float mLeftKneeOut, mRightKneeOut;
+	float mKneeOutFactor, mKneeUpFactor;
 	
 	
 	bool mDoGravityCompensation, mDoCoMVirtualForce;

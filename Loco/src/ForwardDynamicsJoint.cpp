@@ -13,6 +13,7 @@
 #include "btRigidBody.h"
 #include "Utilities.h"
 #include "MathUtilities.h"
+
 using namespace std;
 using namespace OgreBulletCollisions;
 
@@ -98,6 +99,13 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		} else if ( jointDef.count("minAngle") || jointDef.count("maxAngle") ) {
 			BLog("Warning: missing minANgle or maxAngle definition for joint connecting %s to %s", bodyA->getName().c_str(), bodyB->getName().c_str() );
 		}
+		
+		constraint = con;
+		
+	} else if ( jointType == "free" ) {
+		
+		// point2point
+		btPoint2PointConstraint* con = new btPoint2PointConstraint( *bodyABody, *bodyBBody, OgreBtConverter::to(pivotInA), OgreBtConverter::to(pivotInB) );
 		
 		constraint = con;
 		
