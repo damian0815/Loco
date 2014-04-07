@@ -96,7 +96,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 1024.0,
+					"kP": 512.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -106,7 +106,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 1024.0,
+					"kP": 512.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -136,7 +136,7 @@
 				"params": {
 					"length": 0.08444000035524368, 
 					"mass": 3.2, 
-					"kP": 128.0,
+					"kP": 256.0,
 					"kD": 8,
 					"maxTorque": 1000
 				}
@@ -451,11 +451,11 @@
 
 	"CoMVelocitySmoothingFactor": 0.0,
 	
-	"targetCoMVelocitySagittal": 0.0,
+	"targetCoMVelocitySagittal": 1.1,
 	"targetCoMVelocityCoronal": 0.0,
 
 	"CoMVirtualForce": {
-		"kP": 0.4,
+		"kP": 4.0,
 		"kD": 20,
 		"sagittalScale": 2.0,
 		"coronalScale": 0.5,
@@ -483,7 +483,7 @@
 						"referenceFrame": "character",
 						"sagittal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
 						"coronal": [ [ 0, 0.0 ], [ 1, 0.0 ] ],
-						"axial": [ [ 0, 0.05 ], [ 0.5, 0.5 ], [ 1.0, 0.05 ] ]
+						"axial": [ [ 0, 0.0 ], [ 0.5, 0.3 ], [ 1.0, 0.0 ] ]
 					},
 					{
 						"bodyName": "FootDelta.SWING Position",
