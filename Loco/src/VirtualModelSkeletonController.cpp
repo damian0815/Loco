@@ -604,23 +604,23 @@ void VirtualModelSkeletonController::setKneeBend( float kneeBend, bool swingAlso
 
 void VirtualModelSkeletonController::setUpperBodyPose( float leanSagittal, float leanCoronal, float twist)
 {
-	int sign = getStanceIsLeft()?(-1):(1);
+	float sign = getStanceIsLeft()?(-1.0f):(1.0f);
 	
 	OgreAssert( mMotionGenerator->hasComponent("SpineBase Orientation"), "Must have 'SpineBase Orientation' component in JSON");
 	auto& rootComponent = mMotionGenerator->getComponentReference("SpineBase Orientation");
-	rootComponent.setOffset( Ogre::Vector3(leanCoronal*sign, twist*sign*0, leanSagittal ) );
+	rootComponent.setOffset( Ogre::Vector3( leanCoronal*sign, twist*sign, leanSagittal ) );
 	
 	OgreAssert( mMotionGenerator->hasComponent("SpineMid Orientation"), "Must have 'SpineMid Orientation' component in JSON");
 	auto& spine1Component = mMotionGenerator->getComponentReference("SpineMid Orientation");
-	spine1Component.setOffset( Vector3( leanCoronal*1.5*sign, twist*1.5*sign, leanSagittal*1.5 ) );
+	spine1Component.setOffset( Vector3( leanCoronal*sign, twist*sign, leanSagittal ) );
 	
 	OgreAssert( mMotionGenerator->hasComponent("SpineTop Orientation"), "Must have 'SpineTop Orientation' component in JSON");
 	auto& spine2Component = mMotionGenerator->getComponentReference("SpineTop Orientation");
-	spine2Component.setOffset( Vector3( leanCoronal*2.5*sign, twist*sign,  leanSagittal*2.5 ) );
+	spine2Component.setOffset( Vector3( leanCoronal*sign, twist*sign,  leanSagittal ) );
 	
 	OgreAssert( mMotionGenerator->hasComponent("Neck Orientation"), "Must have 'Neck Orientation' component in JSON");
 	auto& neckComponent = mMotionGenerator->getComponentReference("Neck Orientation");
-	neckComponent.setOffset( Vector3( leanCoronal*1.0*sign, twist*3.0*sign, leanSagittal*3.0 ) );
+	neckComponent.setOffset( Vector3( leanCoronal*sign, twist*sign, leanSagittal ) );
 }
 
 /*
@@ -690,17 +690,21 @@ void VirtualModelSkeletonController::update( float dt )
 		
 		// rest of body
 		// compensate for hip
+		// get root orientation in character frame
 		Ogre::Quaternion rootQ = mCharacterFrame.Inverse()*mForwardDynamicsSkeleton->getBody("SpineBase")->getOrientationWorld();
 		
-		/*float targetSagittalLean = 0.2f*rootQ.getPitch().valueRadians();
+		float currentSagittalLean = rootQ.getRoll().valueRadians();
+		float targetSagittalLean = -0.5f*currentSagittalLean;
+		//float targetSagittalLean = 0;
+
+		float currentCoronalLean = rootQ.getPitch().valueRadians();
+		float targetCoronalLean = -0.3f*currentCoronalLean;
+		//float targetCoronalLean = 0;
+		BLog("ubCoronalLean: %f (pitch %f), sagital: %f (roll %f)", targetCoronalLean, currentCoronalLean, targetSagittalLean, currentSagittalLean );
 		
-		 float currentCoronalLean = rootQ.getRoll().valueRadians();
-		float targetCoronalLean = -0.2f*currentCoronalLean;*/
-		
-		//BLog("ubCoronalLean: %f (roll %f)", targetCoronalLean, currentCoronalLean);
 		float ubTwist = 0;
-		float targetSagittalLean = 0;
-		float targetCoronalLean = 0;
+		//float targetSagittalLean = 0;
+		//float targetCoronalLean = 0;
 		setUpperBodyPose(targetSagittalLean, targetCoronalLean, ubTwist);
 		
 		// knee bend keeps the com lifted up

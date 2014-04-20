@@ -156,8 +156,8 @@
 				"params": {
 					"length": 0.2111939936876297, 
 					"mass": 9.29, 
-					"kP": 1024.0,
-					"kD": 8.0,
+					"kP": 512.0,
+					"kD": 16.0,
 					"maxTorque": 8000.0
 				}
 			}, 
@@ -166,7 +166,7 @@
 				"params": {
 					"length": 0.18924300372600555, 
 					"mass": 12.9, 
-					"kP": 1024.0,
+					"kP": 512.0,
 					"kD": 16.0,
 					"maxTorque": 8000.0
 				}
@@ -237,16 +237,22 @@
 						"twistSpan": 0.1
 					}, 
 					"ArmUpper.L": { 
-						"type": "free", 
-						"swing1Span": 1.7, 
-						"swing2Span": 1.1, 
-						"twistSpan": 0.7
+						"type": "coneTwist",
+						"swing1Min": -1.9,
+						"swing1Max": 0.8,
+						"swing2Min": 0.3,
+						"swing2Max": 3.1,
+						"twistMin": -1.5,
+						"twistMax": 1.2
 					},
 					"ArmUpper.R": { 
-						"type": "free", 
-						"swing1Span": 1.7, 
-						"swing2Span": 1.1, 
-						"twistSpan": 0.7
+						"type": "coneTwist",
+						"swing1Min": -1.9,
+						"swing1Max": 0.8,
+						"swing2Min": -3.1,
+						"swing2Max": -0.3,
+						"twistMin": -1.2,
+						"twistMax": 1.5
 					}
 				},
 				"shape": "box",
@@ -272,13 +278,23 @@
 			
 			{
 				"name": "ArmUpper.L",
-				"joints": { "ArmLower.L": { "type":"free", "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
+				"joints": { "ArmLower.L": { 
+					"type":"hinge", 
+					"axis":"x", 
+					"minAngle":-1.7, 
+					"maxAngle":-1.7 
+					} },
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmUpper.R",
-				"joints": { "ArmLower.R": { "type":"free", "axis":"z", "minAngle":-2.7, "maxAngle":0.0 } },
+				"joints": { "ArmLower.R": { 
+						"type":"hinge", 
+						"axis":"x", 
+						"minAngle":-1.7, 
+						"maxAngle":-1.7 } 
+						},
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
@@ -462,7 +478,7 @@
 		"axialScale": 0.1
 	},
 	
-	"rootPredictiveTorqueFactor": 0.5,
+	"rootPredictiveTorqueFactor": 0.0,
 	
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
@@ -528,15 +544,17 @@
 					{
 						"bodyName": "SpineBase Orientation",
 						"referenceFrame": "character",
-						"x": [ [ 0, 0.0 ] ]
+						"invertZOnPhaseSwap": true,
+						"coronal": [ [ 0, 0.0 ] ],
+						"sagittal": [ [ 0, -0.3 ], [ 0.5, 0.0 ], [ 1.0, 0.3 ] ]
 					},
 					{
 						"bodyName": "SpineMid Orientation",
-						"referenceFrame": "character"
+						"referenceFrame": "parent"
 					},
 					{
 						"bodyName": "SpineTop Orientation",
-						"referenceFrame": "character"
+						"referenceFrame": "parent"
 					},
 					{
 						"bodyName": "Neck Orientation",
