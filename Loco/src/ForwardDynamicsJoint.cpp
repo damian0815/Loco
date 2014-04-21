@@ -27,7 +27,7 @@ float ForwardDynamicsJoint::kLimitCFM = 0;
 float ForwardDynamicsJoint::kLimitERP = 0.2f;
 
 float ForwardDynamicsJoint::kLinearLimitDamping = 1.0;
-float ForwardDynamicsJoint::kLinearLimitSoftness = 0.5;
+float ForwardDynamicsJoint::kLinearLimitSoftness = 0.7;
 
 
 /* 
@@ -60,6 +60,7 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 	
 	Ogre::Vector3 pivotInA = bodyA->getTailPositionLocal(childFdb->getName());
 	Ogre::Vector3 pivotInB = bodyB->getHeadPositionLocal();
+	Ogre::Vector3 pivotWorld = bodyB->getHeadPositionWorld();
 	
 	Ogre::Quaternion orientationOfBRelativeToA = bodyA->getOrientationWorld().Inverse() * bodyB->getOrientationWorld();
 	
@@ -109,6 +110,18 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		
 		constraint = con;
 		
+	} else if ( jointType == "fixed" ) {
+
+		btTransform constraintWorldTransform = bodyBBody->getWorldTransform();
+		constraintWorldTransform.setOrigin(OgreBtConverter::to(pivotWorld));
+		
+		btTransform aFrame = bodyABody->getWorldTransform().inverse() * constraintWorldTransform;
+		btTransform bFrame = bodyBBody->getWorldTransform().inverse() * constraintWorldTransform;
+
+		btFixedConstraint* con = new btFixedConstraint( *bodyABody, *bodyBBody, aFrame, bFrame );
+		
+		constraint = con;
+		
 	} else if ( jointType == "coneTwist" ) {
 		
 		/*
@@ -133,7 +146,8 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		 */
 		
 		// for generic 6dof constraint:
-		btTransform constraintWorldTransform(OgreBtConverter::to(bodyB->getOrientationWorld()), OgreBtConverter::to(bodyB->getHeadPositionWorld()));
+		btTransform constraintWorldTransform = bodyBBody->getWorldTransform();
+		constraintWorldTransform.setOrigin(OgreBtConverter::to(pivotWorld));
 		
 		// get frames
 		// http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=7853&sid=21b3f9941f23b61ac3db08467f2da5c5#p7853
@@ -214,13 +228,13 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		linearMotor->m_limitSoftness = kLinearLimitSoftness;
 		linearMotor->m_damping = kLinearLimitDamping;
 		for ( int i=0; i<3; i++ ) {
-			linearMotor->m_enableMotor[i] = true;
+			linearMotor->m_enableMotor[i] = false;
 			linearMotor->m_stopERP[i] = kLimitERP;
 			linearMotor->m_stopCFM[i] = kLimitCFM;
 			linearMotor->m_normalCFM[i] = kNormalCFM;
 		}
 		for ( int i=0; i<3; i++ ) {
-			con->getRotationalLimitMotor(i)->m_enableMotor = true;
+			con->getRotationalLimitMotor(i)->m_enableMotor = false;
 			con->getRotationalLimitMotor(i)->m_limitSoftness = kLimitSoftness;
 			con->getRotationalLimitMotor(i)->m_damping = kLimitDamping;
 		}

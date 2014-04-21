@@ -350,6 +350,8 @@ void ForwardDynamicsSkeletonController::bindBodyToEnvironment(const std::string 
 	
 //	Ogre::SharedPtr<btTypedConstraint> binding( new btPoint2PointConstraint( *body->getBody()->getBulletRigidBody(), OgreBtConverter::to(body->getHeadPositionLocal()) ) );
 	Ogre::Vector3 axisWorld = body->getHeadPositionWorld();
+	
+	/*
 	Ogre::Vector3 axisInA = body->convertWorldToLocalPosition(axisWorld);
 	
 	Ogre::Vector3 axisInB = axisWorld;
@@ -364,8 +366,21 @@ void ForwardDynamicsSkeletonController::bindBodyToEnvironment(const std::string 
 	// make transform
 	// use reference frame B so that we can unbind the Y axis in world space
 	
-	//Ogre::SharedPtr<btTypedConstraint> binding( new btGeneric6DofConstraint( *body->getBody()->getBulletRigidBody(), *mGroundBody->getBulletRigidBody(), transformA, transformB, /* use frame B */ true ) );
 	Ogre::SharedPtr<btTypedConstraint> binding( new btFixedConstraint( *body->getBody()->getBulletRigidBody(), *mGroundBody->getBulletRigidBody(), transformA, transformB ) );
+	*/
+	
+	
+	btRigidBody* bodyABody = body->getBody()->getBulletRigidBody();
+	btRigidBody* bodyBBody = mGroundBody->getBulletRigidBody();
+	
+	btTransform constraintWorldTransform = bodyBBody->getWorldTransform();
+	constraintWorldTransform.setOrigin(OgreBtConverter::to(axisWorld));
+	
+	btTransform aFrame = bodyABody->getWorldTransform().inverse() * constraintWorldTransform;
+	btTransform bFrame = bodyBBody->getWorldTransform().inverse() * constraintWorldTransform;
+	
+	Ogre::SharedPtr<btTypedConstraint> binding(  new btFixedConstraint( *bodyABody, *bodyBBody, aFrame, bFrame ) );
+
 	
 	/*
 	btGeneric6DofConstraint* constraint = (btGeneric6DofConstraint*)(binding.get());

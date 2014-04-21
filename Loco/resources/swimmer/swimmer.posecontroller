@@ -137,7 +137,7 @@
 					"length": 0.08444000035524368, 
 					"mass": 3.2, 
 					"kP": 256.0,
-					"kD": 8,
+					"kD": 4,
 					"maxTorque": 1000
 				}
 			}, 
@@ -196,12 +196,21 @@
 	"kneeAxis": [ 1,0,0 ],
 
 	"forwardDynamics": {
-	
-		"limitSoftness": 0.7,
-		"limitDamping": 1.0,
-		"normalCFM": 0.0,
-		"limitCFM": 0.0, 
-		"stopERP": 0.2,
+
+		"--defaultLimitSoftness": 0.5,	
+		"--limitSoftness": 0.7,
+
+		"--defaultLimitDamping": 1.0,
+		"--limitDamping": 1.0,
+		
+		"--defaultNormalCFM": 0,
+		"--normalCFM": 0.0,
+		
+		"--defaultLimitCFM": 0,
+		"--limitCFM": 0.0, 
+		
+		"--defaultStopERP": 0.2,
+		"--stopERP": 0.2,
 	
 				
 		"bones": [
@@ -237,22 +246,22 @@
 						"twistSpan": 0.1
 					}, 
 					"ArmUpper.L": { 
-						"type": "coneTwist",
-						"swing1Min": -1.9,
+						"type": "fixed",
+						"swing1Min": -0.8,
 						"swing1Max": 0.8,
-						"swing2Min": 0.3,
-						"swing2Max": 3.1,
-						"twistMin": -1.5,
-						"twistMax": 1.2
+						"swing2Min": -2.0,
+						"swing2Max": 0.7,
+						
+						"twistSpan": 0
 					},
 					"ArmUpper.R": { 
 						"type": "coneTwist",
-						"swing1Min": -1.9,
+						"swing1Min": -0.8,
 						"swing1Max": 0.8,
-						"swing2Min": -3.1,
-						"swing2Max": -0.3,
-						"twistMin": -1.2,
-						"twistMax": 1.5
+						"swing2Min": -0.7,
+						"swing2Max": 2.0,
+						
+						"twistSpan": 0
 					}
 				},
 				"shape": "box",
@@ -279,7 +288,7 @@
 			{
 				"name": "ArmUpper.L",
 				"joints": { "ArmLower.L": { 
-					"type":"hinge", 
+					"type":"free", 
 					"axis":"x", 
 					"minAngle":-1.7, 
 					"maxAngle":-1.7 
@@ -290,11 +299,12 @@
 			{
 				"name": "ArmUpper.R",
 				"joints": { "ArmLower.R": { 
-						"type":"hinge", 
-						"axis":"x", 
-						"minAngle":-1.7, 
-						"maxAngle":-1.7 } 
-						},
+						"type":"coneTwist", 
+						"swing1Span": 0,
+						"swing2Span": 0,
+						"twistSpan": 0
+						}
+					},
 				"shape": "rod",
 				"radiusFactor": 0.1
 			},
@@ -467,7 +477,7 @@
 
 	"CoMVelocitySmoothingFactor": 0.0,
 	
-	"targetCoMVelocitySagittal": 1.1,
+	"targetCoMVelocitySagittal": 0.0,
 	"targetCoMVelocityCoronal": 0.0,
 
 	"CoMVirtualForce": {
