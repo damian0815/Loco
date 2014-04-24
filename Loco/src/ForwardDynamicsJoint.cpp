@@ -190,13 +190,13 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 		float swing2Max = M_PI_2;
 		float twistMax = M_PI_2;
 		if ( jointDef.count("twistSpan") ) {
-			twistMax = jointDef["twistSpan"].get<double>();
+			twistMax = 0.5f*jointDef["twistSpan"].get<double>();
 		}
 		if ( jointDef.count("swing1Span") ) {
-			swing1Max = jointDef["swing1Span"].get<double>();
+			swing1Max = 0.5f*jointDef["swing1Span"].get<double>();
 		}
 		if ( jointDef.count("swing2Span") ) {
-			swing2Max = jointDef["swing2Span"].get<double>();
+			swing2Max = 0.5f*jointDef["swing2Span"].get<double>();
 		}
 		float swing1Min = -swing1Max;
 		float swing2Min = -swing2Max;

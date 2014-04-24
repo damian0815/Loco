@@ -227,9 +227,9 @@
 				"joints": { 
 				"Head": { 
 					"type": "coneTwist", 
-					"swing1Span": 0.2, 
-					"swing2Span": 0.2, 
-					"twistSpan": 0.1 
+					"swing1Span": 0.4, 
+					"swing2Span": 0.4, 
+					"twistSpan": 0.2
 				}  
 				},				
 				"shape": "rod",
@@ -241,27 +241,27 @@
 				"joints": {
 					"Neck": { 
 						"type": "coneTwist", 
-						"swing1Span": 0.4, 
-						"swing2Span": 0.4, 
-						"twistSpan": 0.1
+						"swing1Span": 0.8, 
+						"swing2Span": 0.8, 
+						"twistSpan": 0.2
 					}, 
 					"ArmUpper.L": { 
-						"type": "fixed",
-						"swing1Min": -0.8,
+						"type": "coneTwist",
+						"swing1Min": -1.2,
 						"swing1Max": 0.8,
-						"swing2Min": -2.0,
+						"swing2Min": -0.7,
 						"swing2Max": 0.7,
-						
-						"twistSpan": 0
+						"twistMin": -0.7,
+						"twistMax": 1.0
 					},
 					"ArmUpper.R": { 
 						"type": "coneTwist",
-						"swing1Min": -0.8,
+						"swing1Min": -1.2,
 						"swing1Max": 0.8,
 						"swing2Min": -0.7,
-						"swing2Max": 2.0,
-						
-						"twistSpan": 0
+						"swing2Max": 0.7,
+						"twistMin": -1.0,
+						"twistMax": 0.7
 					}
 				},
 				"shape": "box",
@@ -273,9 +273,9 @@
 				"joints": { 
 					"SpineTop": { 
 						"type": "coneTwist", 
-						"swing1Span":0.2, 
-						"swing2Span":0.2, 
-						"twistSpan": 0.2 
+						"swing1Span":0.4, 
+						"swing2Span":0.4, 
+						"twistSpan": 0.4 
 					} 
 				},
 				"shape": "box",
@@ -287,38 +287,34 @@
 			
 			{
 				"name": "ArmUpper.L",
-				"joints": { "ArmLower.L": { 
-					"type":"free", 
-					"axis":"x", 
-					"minAngle":-1.7, 
-					"maxAngle":-1.7 
-					} },
+				"joints": { 
+					"ArmLower.L": { 
+						"type":"coneTwist", 
+						"swing1Min": -2.0,
+						"swing1Max": 0,
+						"swing2Span": 0,
+						"twistMin": -0.3,
+						"twistMax": 0.5
+						} 
+					},
 				"shape": "rod",
+				"heightFactor": 0.8,
 				"radiusFactor": 0.1
 			},
 			{
 				"name": "ArmUpper.R",
-				"joints": { "ArmLower.R": { 
-						"type":"coneTwist", 
-						"swing1Span": 0,
+				"joints": { 
+					"ArmLower.R": { 
+						"type":"coneTwist",
+						"swing1Min": -2.0,
+						"swing1Max": 0,
 						"swing2Span": 0,
-						"twistSpan": 0
+						"twistMin": -0.3,
+						"twistMax": 0.5
 						}
 					},
 				"shape": "rod",
-				"radiusFactor": 0.1
-			},
-			{
-				"name": "ArmLower.R",
-				"joints": { 
-					"Hand.R":  {
-						"type": "coneTwist",
-						"swing1Span": 2.7,
-						"swing2Span": 0.8,
-						"twistSpan": 1.5
-					} 
-				},
-				"shape": "rod",
+				"heightFactor": 0.8,
 				"radiusFactor": 0.1
 			},
 			{
@@ -326,14 +322,33 @@
 				"joints": { 
 					"Hand.L": {
 						"type": "coneTwist",
-						"swing1Span": 2.7,
+						"swing1Min": -0.8,
+						"swing1Max": 0.4,
 						"swing2Span": 0.8,
-						"twistSpan": 1.5					
+						"twistMin": 0.0,
+						"twistMax": 0.5				
 					}
 				},
 				"shape": "rod",
+				"heightFactor": 0.8,
 				"radiusFactor": 0.1
 
+			},
+			{
+				"name": "ArmLower.R",
+				"joints": { 
+					"Hand.R":  {
+						"type": "coneTwist",
+						"swing1Min": -0.4,
+						"swing1Max": 0.8,
+						"swing2Span": 0.8,
+						"twistMin": -0.5,
+						"twistMax": 0.0				
+					} 
+				},
+				"shape": "rod",
+				"heightFactor": 0.8,
+				"radiusFactor": 0.1
 			},
 			{
 				"name": "Hand.R",

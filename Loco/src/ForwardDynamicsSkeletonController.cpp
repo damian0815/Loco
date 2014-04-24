@@ -347,29 +347,8 @@ void ForwardDynamicsSkeletonController::bindBodyToEnvironment(const std::string 
 	}
 	
 	auto body = mForwardDynamicsSkeleton->getBody(bodyName);
-	
-//	Ogre::SharedPtr<btTypedConstraint> binding( new btPoint2PointConstraint( *body->getBody()->getBulletRigidBody(), OgreBtConverter::to(body->getHeadPositionLocal()) ) );
 	Ogre::Vector3 axisWorld = body->getHeadPositionWorld();
-	
-	/*
-	Ogre::Vector3 axisInA = body->convertWorldToLocalPosition(axisWorld);
-	
-	Ogre::Vector3 axisInB = axisWorld;
-	// convert axisInB to ground body space if necessary
-	if ( mGroundBody->getSceneNode() ) {
-		axisInB = mGroundBody->getSceneNode()->convertWorldToLocalPosition(axisWorld);
-	}
-	Ogre::Quaternion orientationA = body->getOrientationWorld();
-	
-	btTransform transformA( OgreBtConverter::to(orientationA), OgreBtConverter::to(axisInA) );
-	btTransform transformB( btQuaternion::getIdentity(), OgreBtConverter::to(axisInB) );
-	// make transform
-	// use reference frame B so that we can unbind the Y axis in world space
-	
-	Ogre::SharedPtr<btTypedConstraint> binding( new btFixedConstraint( *body->getBody()->getBulletRigidBody(), *mGroundBody->getBulletRigidBody(), transformA, transformB ) );
-	*/
-	
-	
+
 	btRigidBody* bodyABody = body->getBody()->getBulletRigidBody();
 	btRigidBody* bodyBBody = mGroundBody->getBulletRigidBody();
 	
@@ -379,21 +358,8 @@ void ForwardDynamicsSkeletonController::bindBodyToEnvironment(const std::string 
 	btTransform aFrame = bodyABody->getWorldTransform().inverse() * constraintWorldTransform;
 	btTransform bFrame = bodyBBody->getWorldTransform().inverse() * constraintWorldTransform;
 	
-	Ogre::SharedPtr<btTypedConstraint> binding(  new btFixedConstraint( *bodyABody, *bodyBBody, aFrame, bFrame ) );
+	Ogre::SharedPtr<btTypedConstraint> binding( new btFixedConstraint( *bodyABody, *bodyBBody, aFrame, bFrame ) );
 
-	
-	/*
-	btGeneric6DofConstraint* constraint = (btGeneric6DofConstraint*)(binding.get());
-	// lock tx,tz
-	constraint->setLimit(0, 0, 0);
-	constraint->setLimit(2, 0, 0);
-	// free ty
-	constraint->setLimit(1, 1, 0);
-	// lock rotation
-	constraint->setLimit(3, 0, 0);
-	constraint->setLimit(4, 0, 0);
-	constraint->setLimit(5, 0, 0);*/
-	
 	mDynamicsWorld->getBulletDynamicsWorld()->addConstraint(binding.get());
 	mEnvironmentBindingConstraints[bodyName] = binding;
 }
