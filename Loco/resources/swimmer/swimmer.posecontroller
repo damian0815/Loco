@@ -86,8 +86,8 @@
 				"params": {
 					"length": 0.08099213987588882, 
 					"mass": 4.2, 
-					"kP": 32.0,
-					"kD": 1,
+					"kP": 128.0,
+					"kD": 5,
 					"maxTorque": 1000
 				}
 			}, 
@@ -117,7 +117,7 @@
 					"length": 0.48978400230407715, 
 					"mass": 8, 
 					"kP": 512.0,
-					"kD": 20,
+					"kD": 5,
 					"maxTorque": 8000.0
 				}
 			}, 
@@ -127,7 +127,7 @@
 					"length": 0.48978400230407715, 
 					"mass": 8, 
 					"kP": 512.0,
-					"kD": 20,
+					"kD": 5,
 					"maxTorque": 8000.0
 				}
 			}, 
@@ -369,21 +369,21 @@
 					"SpineMid": {
 						
 					 	"type": "coneTwist", 
-						 "swing1Span":0.2, 
-						 "swing2Span":0.2, 
-						 "twistSpan": 0.2 
+						 "swing1Span":0.4, 
+						 "swing2Span":0.4, 
+						 "twistSpan": 0.4 
 					 }, 
 					"LegUpper.L": { 
 						"type": "coneTwist", 
-							"swing1Span": 0.4, 
-							"swing2Span": 0.6, 
-							"twistSpan": 0.3						
+							"swing1Span": 0.8, 
+							"swing2Span": 1.2, 
+							"twistSpan": 0.6						
 					},
 					"LegUpper.R": {
 						"type": "coneTwist", 
-							"swing1Span": 0.4, 
-							"swing2Span": 0.6, 
-							"twistSpan": 0.3
+							"swing1Span": 0.8, 
+							"swing2Span": 1.2, 
+							"twistSpan": 0.6
 					 }
 				},
 				"shape": "box",
@@ -397,7 +397,7 @@
 				"shape": "rod",
 				"comOffsetLocal": [ 0, 0.02, 0 ],
 				"heightFactor": 0.8,
-				"radiusFactor": 0.13
+				"radiusFactor": 0.07
 			},
 			{
 				"name": "LegUpper.L",
@@ -405,15 +405,15 @@
 				"shape": "rod",
 				"comOffsetLocal": [ 0, 0.02, 0 ],
 				"heightFactor": 0.8,
-				"radiusFactor": 0.13
+				"radiusFactor": 0.07
 			},
 			{
 				"name": "LegLower.R",
 				"joints": { 
 					"Foot.R": { 
 						"type":"coneTwist", 
-						"swing1Span": 0.5,
-						"twistSpan": 0.3,
+						"swing1Span": 1.0,
+						"twistSpan": 0.6,
 						"swing2Min": -0.6, "swing2Max": 0.8 
 						} 
 					},
@@ -427,8 +427,8 @@
 				"joints": { 
 					"Foot.L": { 
 						"type":"coneTwist", 
-						"swing1Span": 0.5,
-						"twistSpan": 0.3,
+						"swing1Span": 1.0,
+						"twistSpan": 0.6,
 						"swing2Min": -0.8, "swing2Max": 0.6 
 						}
 					},
@@ -488,11 +488,11 @@
 
 	"gravityCompensationFactor": 1.0,
 	
-	"stepWidth": 0.1,
+	"stepWidth": 0.2,
 
 	"CoMVelocitySmoothingFactor": 0.0,
 	
-	"targetCoMVelocitySagittal": 0.0,
+	"targetCoMVelocitySagittal": 1.0,
 	"targetCoMVelocityCoronal": 0.0,
 
 	"CoMVirtualForce": {
@@ -503,13 +503,13 @@
 		"axialScale": 0.1
 	},
 	
-	"rootPredictiveTorqueFactor": 0.0,
+	"rootPredictiveTorqueFactor": 0.5,
 	
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
 
 	"kneeBend": 0.0,
-	"kneeOut": 0.25,
+	"kneeOut": 0.5,
 	"kneeUp": 0.5,
 	
 	"motionGenerator":
