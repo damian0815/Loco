@@ -42,6 +42,9 @@ private:
 	Ogre::SharedPtr<ForwardDynamicsJoint> getSwingHip();
 	Ogre::SharedPtr<ForwardDynamicsJoint> getStanceHip();
 	
+	Ogre::Vector3 getSwingFootPosition() { return getSwingAnkle()->getChildFdb()->getCoMWorld(); }
+	Ogre::Vector3 getStanceFootPosition() { return getStanceAnkle()->getChildFdb()->getCoMWorld(); }
+	
 	void computeGravityCompensationTorques( );
  
 	/*! @brief Compute the torques that mimick the effect of applying a force on a rigid body, at some point. It works best if the end joint is connected to something that is grounded, otherwise (I think) this is just an approximation.
@@ -78,7 +81,7 @@ private:
 		modify the coronal location of the step so that the desired step width results.
 	 */
 	float adjustCoronalStepLocation( float initialCentralStepLocation );
-	
+	bool detectPossibleLegCrossing(const Ogre::Vector3& swingFootPos, Ogre::Vector3* viaPoint);
 	/**
 	 This method is used to compute torques for the stance leg that help achieve a desired speed in the sagittal and lateral planes
 	 */
@@ -104,7 +107,9 @@ private:
 	// this is for v
 	Ogre::Vector3 getV() { return getCoMVelocityInCharacterFrame(); }
 	Ogre::Vector3 getCoMVelocityInCharacterFrame() { return mCharacterFrame.Inverse() * mCoMVelocity; }
-	Ogre::Vector3 getD() { return mCharacterFrame.Inverse() * (mCoM - getStanceAnkle()->getChildFdb()->getCoMWorld()); }
+	Ogre::Vector3 getD() { return getStanceFootToCoMDeltaInCharacterFrame(); }
+	// vector from cm of stance foot to cm of character, in character frame
+	Ogre::Vector3 getStanceFootToCoMDeltaInCharacterFrame() { return mCharacterFrame.Inverse() * (mCoM - getStanceFootPosition()); }
 	
 	
 	void setDesiredSwingFootLocation( float phi, float dt );
@@ -125,6 +130,7 @@ private:
 	Ogre::Vector3 mCoMVirtualForceScale;
 	
 	Ogre::Vector3 mCoM, mPrevCoM, mCoMVelocity;
+	float mCoMOffsetCoronal;
 	float mCoMVelocitySmoothingFactor;
 	
 	float mTargetCoMVelocitySagittal, mTargetCoMVelocityCoronal;
@@ -142,7 +148,9 @@ private:
 
 	Ogre::Vector3 mFootTargetL, mFootTargetR;
 	Ogre::Vector3 mFootIPTargetL, mFootIPTargetR;
-	Ogre::Vector3 mDebugCoMVirtualForce;
+	Ogre::Vector3 mDebugSuggestedViaPoint;
+	float mPanicLevel;
+	Ogre::Vector3 mDebugCoMVirtualForce, mDebugComTarget;
 	
 	float mStepWidth;
 	

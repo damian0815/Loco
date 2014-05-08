@@ -50,7 +50,7 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 	// splines
 	// there might be one for each axis x,y,z, or sagittal, coronal, axial (==z, x, y)
 	string splineNames[6] = { "x", "y", "z", "sagittal", "coronal", "axial" };
-	std::vector< pair<float,float> >* targetVectors[6] = { &mSplineX, &mSplineY, &mSplineZ, &mSplineZ, &mSplineX, &mSplineY };
+	Spline1D* targetVectors[6] = { &mSplineX, &mSplineY, &mSplineZ, &mSplineZ, &mSplineX, &mSplineY };
 	// check each axis
 	for ( int i=0; i<6; i++ ) {
 		float lastTime = -1;
@@ -71,7 +71,7 @@ VirtualModelMotionComponent::VirtualModelMotionComponent( value& paramsValue )
 				// read angle
 				float theta = knot[1].get<double>();
 				// store
-				targetVectors[i]->push_back(make_pair(t,theta));
+				targetVectors[i]->addKnot(t,theta);
 			}
 		}
 	}
@@ -112,14 +112,14 @@ Vector3 VirtualModelMotionComponent::evaluateAtTime( float phi )
 	
 	// evaluate each spline
 	float xRot=0, yRot=0, zRot=0;
-	if ( mSplineX.size() ) {
-		xRot = evaluateCatmullRom( mSplineX, phi, mLastPosX );
+	if ( !mSplineX.empty() ) {
+		xRot = mSplineX.evaluateCatmullRom( phi, mLastPosX );
 	}
-	if ( mSplineY.size() ) {
-		yRot = evaluateCatmullRom( mSplineY, phi, mLastPosY );
+	if ( !mSplineY.empty() ) {
+		yRot = mSplineY.evaluateCatmullRom( phi, mLastPosY );
 	}
-	if ( mSplineZ.size() ) {
-		zRot = evaluateCatmullRom( mSplineZ, phi, mLastPosZ );
+	if ( !mSplineZ.empty() ) {
+		zRot = mSplineZ.evaluateCatmullRom( phi, mLastPosZ );
 	}
 	
 	Ogre::Vector3 r = Ogre::Vector3(xRot, yRot, zRot) + mOffset;

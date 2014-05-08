@@ -22,6 +22,9 @@
 		2D08A39A170A3C9E00E5D159 /* TextFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D08A398170A3C9E00E5D159 /* TextFile.cpp */; };
 		2D08A39D170A51C800E5D159 /* MeshTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D08A39B170A51C800E5D159 /* MeshTools.cpp */; };
 		2D2528CD182150C5004647E1 /* ForwardDynamicsBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2528CB182150C5004647E1 /* ForwardDynamicsBody.cpp */; };
+		2D2AA35E1917929D00DC7097 /* Spline1D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2AA35C1917929D00DC7097 /* Spline1D.cpp */; };
+		2D2AA3651917FD6600DC7097 /* Spline3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2AA3631917FD6600DC7097 /* Spline3D.cpp */; };
+		2D2AA368191805E800DC7097 /* Segment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2AA366191805E800DC7097 /* Segment.cpp */; };
 		2D2E04F7181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E04F5181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp */; };
 		2D35D69C1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */; };
 		2D3EB7E0188FC7F00057FAB7 /* VirtualModelFSM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EB7DE188FC7F00057FAB7 /* VirtualModelFSM.cpp */; };
@@ -342,6 +345,12 @@
 		2D08A39C170A51C800E5D159 /* MeshTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshTools.h; sourceTree = "<group>"; };
 		2D2528CB182150C5004647E1 /* ForwardDynamicsBody.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsBody.cpp; sourceTree = "<group>"; };
 		2D2528CC182150C5004647E1 /* ForwardDynamicsBody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsBody.h; sourceTree = "<group>"; };
+		2D2AA35C1917929D00DC7097 /* Spline1D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spline1D.cpp; sourceTree = "<group>"; };
+		2D2AA35D1917929D00DC7097 /* Spline1D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spline1D.h; sourceTree = "<group>"; };
+		2D2AA3631917FD6600DC7097 /* Spline3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spline3D.cpp; sourceTree = "<group>"; };
+		2D2AA3641917FD6600DC7097 /* Spline3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spline3D.h; sourceTree = "<group>"; };
+		2D2AA366191805E800DC7097 /* Segment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Segment.cpp; sourceTree = "<group>"; };
+		2D2AA367191805E800DC7097 /* Segment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Segment.h; sourceTree = "<group>"; };
 		2D2E04F5181E6D2C00E36F83 /* ForwardDynamicsSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsSkeleton.cpp; sourceTree = "<group>"; };
 		2D2E04F6181E6D2C00E36F83 /* ForwardDynamicsSkeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForwardDynamicsSkeleton.h; sourceTree = "<group>"; };
 		2D35D69A1833A023005C77F3 /* ForwardDynamicsBodyDriverPD.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForwardDynamicsBodyDriverPD.cpp; sourceTree = "<group>"; };
@@ -1375,6 +1384,12 @@
 				2D9B44161812F2A100BF4CC8 /* Euler.h */,
 				2D9B43F4181149C100BF4CC8 /* AnimationSharedStuff.cpp */,
 				2D9B43E618105A2600BF4CC8 /* AnimationSharedStuff.h */,
+				2D2AA35C1917929D00DC7097 /* Spline1D.cpp */,
+				2D2AA35D1917929D00DC7097 /* Spline1D.h */,
+				2D2AA3631917FD6600DC7097 /* Spline3D.cpp */,
+				2D2AA3641917FD6600DC7097 /* Spline3D.h */,
+				2D2AA366191805E800DC7097 /* Segment.cpp */,
+				2D2AA367191805E800DC7097 /* Segment.h */,
 				2D9B43FF1811570F00BF4CC8 /* Driving */,
 				2DC92DE21815BDF900AF6C9F /* SkeletonController */,
 			);
@@ -2381,6 +2396,7 @@
 				2DDC83B218E45767008198EF /* btCollisionDispatcher.cpp in Sources */,
 				2D6BFFD616E4F9CF0075A3DD /* OgreBulletDynamicsObjectState.cpp in Sources */,
 				2DDC845818E45767008198EF /* Win32ThreadSupport.cpp in Sources */,
+				2D2AA368191805E800DC7097 /* Segment.cpp in Sources */,
 				2DDC841218E45767008198EF /* btGpu3DGridBroadphase.cpp in Sources */,
 				2DDC83A418E45767008198EF /* btBroadphaseProxy.cpp in Sources */,
 				2DDC840718E45767008198EF /* btGeometryUtil.cpp in Sources */,
@@ -2458,6 +2474,8 @@
 				2D6B099916E5079C0075A3DD /* float_math.cpp in Sources */,
 				2DDC845618E45767008198EF /* SpuSampleTask.cpp in Sources */,
 				2D6B099A16E5079C0075A3DD /* meshvolume.cpp in Sources */,
+				2D2AA3651917FD6600DC7097 /* Spline3D.cpp in Sources */,
+				2D2AA35E1917929D00DC7097 /* Spline1D.cpp in Sources */,
 				2DDC83CD18E45767008198EF /* btConcaveShape.cpp in Sources */,
 				2DDC847D18E45767008198EF /* btSoftBodyRigidBodyCollisionConfiguration.cpp in Sources */,
 				2D6B099B16E5079C0075A3DD /* planetri.cpp in Sources */,

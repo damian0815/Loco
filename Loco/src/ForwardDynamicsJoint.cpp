@@ -261,6 +261,7 @@ ForwardDynamicsJoint::ForwardDynamicsJoint(OgreBulletDynamics::DynamicsWorld* dy
 	
 }
 
+
 ForwardDynamicsJoint::~ForwardDynamicsJoint()
 {
 	mDynamicsWorld->getBulletDynamicsWorld()->removeConstraint(mConstraint);

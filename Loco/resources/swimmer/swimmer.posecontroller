@@ -7,7 +7,7 @@
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
 					"kP": 64.0,
-					"kD": 5,
+					"kD": 1,
 					"maxTorque": 100
 				}
 			}, 
@@ -17,7 +17,7 @@
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
 					"kP": 64.0,
-					"kD": 5,
+					"kD": 1,
 					"maxTorque": 100
 				}
 			}, 
@@ -27,7 +27,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 5.0,
+					"kD": 1.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -37,7 +37,7 @@
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
 					"kP": 128.0,
-					"kD": 5.0,
+					"kD": 1.0,
 					"maxTorque": 100
 				}
 			}, 
@@ -96,7 +96,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 512.0,
+					"kP": 1024.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -106,7 +106,7 @@
 				"params": {
 					"length": 0.490, 
 					"mass": 3.5, 
-					"kP": 512.0,
+					"kP": 1024.0,
 					"kD": 20,
 					"maxTorque": 8000.0
 				}
@@ -156,7 +156,7 @@
 				"params": {
 					"length": 0.2111939936876297, 
 					"mass": 9.29, 
-					"kP": 512.0,
+					"kP": 128.0,
 					"kD": 16.0,
 					"maxTorque": 8000.0
 				}
@@ -166,7 +166,7 @@
 				"params": {
 					"length": 0.18924300372600555, 
 					"mass": 12.9, 
-					"kP": 512.0,
+					"kP": 128.0,
 					"kD": 16.0,
 					"maxTorque": 8000.0
 				}
@@ -414,7 +414,8 @@
 						"type":"coneTwist", 
 						"swing1Span": 1.0,
 						"twistSpan": 0.6,
-						"swing2Min": -0.6, "swing2Max": 0.8 
+						"note": "min = leaning forwards, max = leaning backwards",
+						"swing2Min": -1.0, "swing2Max": 0.8 
 						} 
 					},
 				"shape": "rod",
@@ -429,7 +430,8 @@
 						"type":"coneTwist", 
 						"swing1Span": 1.0,
 						"twistSpan": 0.6,
-						"swing2Min": -0.8, "swing2Max": 0.6 
+						"note": "min = leaning backwards, max = leaning forwards",
+						"swing2Min": -0.8, "swing2Max": 1.0
 						}
 					},
 				"shape": "rod",
@@ -483,6 +485,7 @@
 	
 	"enableMotionGeneration": true,
 	"enableMotionGenerationSwingLegTargets": true,
+	
 	"enableHipTorques": true,
 	"enableCoMVirtualForce": true,
 
@@ -496,14 +499,14 @@
 	"targetCoMVelocityCoronal": 0.0,
 
 	"CoMVirtualForce": {
-		"kP": 4.0,
-		"kD": 20,
-		"sagittalScale": 2.0,
-		"coronalScale": 0.5,
-		"axialScale": 0.1
+		"kP": 2.0,
+		"kD": 20.0,
+		"sagittalScale": 1.0,
+		"coronalScale": 1.0,
+		"axialScale": 0.5
 	},
 	
-	"rootPredictiveTorqueFactor": 0.5,
+	"rootPredictiveTorqueFactor": 0.2,
 	
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
@@ -514,7 +517,7 @@
 	
 	"motionGenerator":
 	{
-		"cycleDuration": 0.5,
+		"cycleDuration": 0.8,
 		"motions": [
 			{
 				"name": "splineTest",
@@ -569,21 +572,21 @@
 					{
 						"bodyName": "SpineBase Orientation",
 						"referenceFrame": "character",
-						"invertZOnPhaseSwap": true,
-						"coronal": [ [ 0, 0.0 ] ],
-						"sagittal": [ [ 0, -0.3 ], [ 0.5, 0.0 ], [ 1.0, 0.3 ] ]
+						"-invertZOnPhaseSwap": true,
+						"-coronal": [ [ 0, 0.0 ] ],
+						"-sagittal": [ [ 0, -0.3 ], [ 0.5, 0.0 ], [ 1.0, 0.3 ] ]
 					},
 					{
 						"bodyName": "SpineMid Orientation",
-						"referenceFrame": "parent"
+						"referenceFrame": "character"
 					},
 					{
 						"bodyName": "SpineTop Orientation",
-						"referenceFrame": "parent"
+						"referenceFrame": "character"
 					},
 					{
 						"bodyName": "Neck Orientation",
-						"referenceFrame": "parent"
+						"referenceFrame": "character"
 					},
 					
 					{
@@ -595,20 +598,20 @@
 					
 					
 					{
-						"bodyName": "-ArmUpper.L Orientation",
-						"z": [ [ 0, 0 ] ]
+						"bodyName": "ArmUpper.L Orientation",
+						"referenceFrame":"parent"
 					},
 					{
-						"bodyName": "-ArmUpper.R Orientation",
-						"z": [ [ 0, 0 ] ]
+						"bodyName": "ArmUpper.R Orientation",
+						"referenceFrame":"parent"
 					},
 					{
-						"bodyName": "-ArmLower.L Orientation",
-						"z": [ [ 0, -0.5 ] ]
+						"bodyName": "ArmLower.L Orientation",
+						"referenceFrame":"parent"
 					},
 					{
-						"bodyName": "-ArmLower.R Orientation",
-						"z": [ [ 0, 0.5 ] ]
+						"bodyName": "ArmLower.R Orientation",
+						"referenceFrame":"parent"
 					}
 					
 				]
