@@ -6,9 +6,9 @@
 				"params": {
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
-					"kP": 64.0,
-					"kD": 1,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 2.0,
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -16,9 +16,9 @@
 				"params": {
 					"length": 0.27410000562667847, 
 					"mass": 1.2, 
-					"kP": 64.0,
-					"kD": 1,
-					"maxTorque": 100
+					"kP": 128.0,
+					"kD": 2.0,
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -26,9 +26,9 @@
 				"params": {
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
-					"kP": 128.0,
-					"kD": 1.0,
-					"maxTorque": 100
+					"kP": 512.0,
+					"kD": 3.0,
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -36,9 +36,9 @@
 				"params": {
 					"length": 0.2904680073261261, 
 					"mass": 2.2, 
-					"kP": 128.0,
-					"kD": 1.0,
-					"maxTorque": 100
+					"kP": 512.0,
+					"kD": 3.0,
+					"maxTorque": 10000
 				}
 			}, 
 			{
@@ -66,8 +66,8 @@
 				"params": {
 					"length": 0.039726756513118744, 
 					"mass": 0.38, 
-					"kP": 0.1,
-					"kD": 0.01,
+					"kP": 2.0,
+					"kD": 0.00,
 					"maxTorque": 100
 				}
 			}, 
@@ -76,8 +76,8 @@
 				"params": {
 					"length": 0.039725929498672485, 
 					"mass": 0.38, 
-					"kP": 0.1,
-					"kD": 0.01,
+					"kP": 2.0,
+					"kD": 0.00,
 					"maxTorque": 100
 				}
 			}, 
@@ -146,8 +146,8 @@
 				"params": {
 					"length": 0.22, 
 					"mass": 12.1, 
-					"kP": 512.0,
-					"kD": 32.0,
+					"kP": 2048.0,
+					"kD": 16.0,
 					"maxTorque": 16000.0
 				}
 			}, 
@@ -321,7 +321,8 @@
 				"name": "ArmLower.L",
 				"joints": { 
 					"Hand.L": {
-						"type": "coneTwist",
+						"-type": "coneTwist",
+						"type": "fixed",
 						"swing1Min": -0.8,
 						"swing1Max": 0.4,
 						"swing2Span": 0.8,
@@ -338,7 +339,8 @@
 				"name": "ArmLower.R",
 				"joints": { 
 					"Hand.R":  {
-						"type": "coneTwist",
+						"-type": "coneTwist",
+						"type": "fixed",
 						"swing1Min": -0.4,
 						"swing1Max": 0.8,
 						"swing2Span": 0.8,
@@ -493,7 +495,7 @@
 	
 	"stepWidth": 0.2,
 
-	"CoMVelocitySmoothingFactor": 0.0,
+	"CoMVelocitySmoothingFactor": 0.00,
 	
 	"targetCoMVelocitySagittal": 1.0,
 	"targetCoMVelocityCoronal": 0.0,
@@ -503,7 +505,7 @@
 		"kD": 20.0,
 		"sagittalScale": 1.0,
 		"coronalScale": 1.0,
-		"axialScale": 0.5
+		"axialScale": 0.0
 	},
 	
 	"rootPredictiveTorqueFactor": 0.2,
@@ -511,13 +513,13 @@
 	"bindLeftFootOnStartup": false,
 	"bindRightFootOnStartup": false,
 
-	"kneeBend": 0.0,
+	"kneeBend": 0.2,
 	"kneeOut": 0.5,
 	"kneeUp": 0.5,
 	
 	"motionGenerator":
 	{
-		"cycleDuration": 0.8,
+		"cycleDuration": 0.5,
 		"motions": [
 			{
 				"name": "splineTest",
@@ -572,8 +574,8 @@
 					{
 						"bodyName": "SpineBase Orientation",
 						"referenceFrame": "character",
-						"-invertZOnPhaseSwap": true,
-						"-coronal": [ [ 0, 0.0 ] ],
+						"invertZOnPhaseSwap": true,
+						"coronal": [ [ 0, 0.0 ] ],
 						"-sagittal": [ [ 0, -0.3 ], [ 0.5, 0.0 ], [ 1.0, 0.3 ] ]
 					},
 					{
@@ -599,18 +601,34 @@
 					
 					{
 						"bodyName": "ArmUpper.L Orientation",
-						"referenceFrame":"parent"
+						"referenceFrame":"parent",
+						"-sagittal": [ [ 0, -1.9 ] ],
+						"y": [ [ 0, 0.6 ] ],
+						"z": [ [ 0, -0.5 ] ]
 					},
 					{
 						"bodyName": "ArmUpper.R Orientation",
-						"referenceFrame":"parent"
+						"referenceFrame":"parent",
+						"-sagittal": [ [ 0, 1.9 ] ],
+						"y": [ [ 0, -0.6 ] ],
+						"z": [ [ 0, 0.5 ] ]
 					},
 					{
 						"bodyName": "ArmLower.L Orientation",
-						"referenceFrame":"parent"
+						"referenceFrame":"parent",
+						"x": [ [ 0, 0.5 ] ]
 					},
 					{
 						"bodyName": "ArmLower.R Orientation",
+						"referenceFrame":"parent",
+						"x": [ [ 0, 0.5 ] ]
+					},
+					{
+						"bodyName": "-Hand.L Orientation",
+						"referenceFrame":"parent"
+					},
+					{
+						"bodyName": "-Hand.R Orientation",
 						"referenceFrame":"parent"
 					}
 					
